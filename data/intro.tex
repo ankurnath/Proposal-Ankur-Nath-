@@ -1,0 +1,109 @@
+\pagestyle{plain} % No headers, just page numbers
+\pagenumbering{arabic} % Arabic numerals
+\setcounter{page}{1}
+
+\chapter{\uppercase {Introduction}}
+
+Many of the most consequential computational challenges in science and engineering can
+be naturally expressed as combinatorial optimization (CO) problems on graphs. From
+identifying influential individuals in social
+networks~\cite{kempe2003maximizing} to designing efficient transportation
+routes~\cite{sun2021generalization} and allocating resources in telecommunication
+systems, graph-based CO problems are pervasive. These problems are also notoriously
+difficult: among the 21 NP-complete problems introduced by
+Karp~\cite{karp2009reducibility}, 10 are decision versions of graph optimization
+problems, and many of the remaining ones can be naturally reformulated on graphs. Over
+the decades, researchers have developed heuristics and approximation algorithms that
+produce near-optimal solutions in polynomial
+time~\cite{nemhauser1978analysis, kempe2003maximizing, tang2015influence}, enabling
+practical progress on problems that are intractable to solve exactly.
+
+As graph data continues to grow in scale, the practical applicability of even the best
+solvers has become a pressing concern. Modern real-world graphs routinely contain
+millions or billions of nodes, from online social networks to web-scale knowledge
+graphs. At the same time, the budget constraints of many practical applications are such
+that an optimal solution involves only a small number of elements. For example, in viral
+marketing, a company may have the budget to promote only a handful of products while
+aiming to maximize overall customer reach~\cite{kempe2003maximizing}. In these settings,
+the vast majority of candidates in the ground set are irrelevant to the optimal
+solution, yet existing solvers must consider all of them. This mismatch between the
+enormous size of the ground set and the small size of the optimal solution creates a
+fundamental scalability bottleneck. A natural strategy to address this bottleneck is
+pruning: constructing a much smaller ground set
+$\mathcal{U}' \subseteq \mathcal{U}$ with $|\mathcal{U}'| \ll |\mathcal{U}|$ such that
+solving the reduced instance preserves near-optimal solution quality. However, existing
+pruning approaches are limited by poor scalability of sequential classical
+methods~\cite{zhou2017scaling}, reliance on hand-crafted, problem-specific features in
+learning-based methods~\cite{manchanda2020gcomb, ireland2022lense,
+tian2024combhelper}, and a complete absence of theoretical guarantees on pruning quality.
+Altogether, these limitations motivate a focused research effort on developing pruning
+strategies that are scalable, general, and principled. The overarching goal of the
+proposed work is to address this challenge by developing a suite of pruning methods for
+graph-based combinatorial optimization, aiming to make solvers faster, more general, and
+more practical for large-scale graph instances.
+
+Prior to our work, all existing pruning methods were heuristics with no formal
+performance guarantees. It was unknown whether it is even possible to efficiently produce
+a pruned ground set with provable bounds on both its size and the fraction of optimal
+value it retains. To answer this question, we introduce
+QuickPrune~\cite{nath2025quickprune}, a lightweight pruning algorithm for constrained
+discrete optimization that processes elements in a single pass through the ground set,
+discarding those unlikely to appear in an optimal solution. Under mild assumptions on
+the objective function and element costs, we prove that the pruned ground set retains a
+constant fraction of the optimal value across a range of budgets, while its size grows
+only logarithmically in the original ground set. QuickPrune is the first pruning
+algorithm to provide such guarantees, and the first to support a range of budgets
+simultaneously rather than a single budget instance. Through extensive experiments on
+real-world datasets for various applications, we demonstrate that QuickPrune efficiently
+prunes the ground set and outperforms state-of-the-art classical and machine learning
+heuristics for pruning.
+
+As graph instances grow to millions of nodes, even a lightweight sequential algorithm
+faces scalability challenges, particularly for problems where calculating marginal gain
+is \#P-hard. At the same time, existing learning-based pruning methods achieve fast
+inference but demand problem-specific domain knowledge for algorithm design, making them
+difficult to apply to new CO problems. To overcome both of these limitations, we propose
+Hierarchical DeepPruner (H-DeepPruner)~\cite{nath2025hdeeppruner}, an adaptive
+two-stage framework that combines supervised learning with reinforcement learning for
+search space reduction under size constraints. The first stage uses a graph neural
+network to quickly eliminate vertices unlikely to be part of the solution, without
+requiring any hand-crafted features or domain knowledge. The second stage applies a
+tree search procedure to further refine the pruned ground set by considering
+interdependencies among elements. Our experiments demonstrate that H-DeepPruner
+significantly outperforms existing learning-based pruning methods across multiple graph
+CO problems, showing that principled combinations of supervised and reinforcement
+learning can achieve effective pruning without domain-specific knowledge.
+
+While H-DeepPruner eliminates the need for hand-crafted features, the features it uses
+are problem-agnostic and may lack the expressiveness needed to capture problem-specific
+structural patterns. On the other end of the spectrum, existing methods use carefully
+engineered features that are expressive but require substantial domain expertise,
+limiting their transferability across problems and constraints. To bridge this gap, we
+propose LLM2Prune~\cite{nath2025llm2prune}, a framework that leverages Large Language
+Models to automatically discover problem-grounded node features for a downstream
+classifier. Given only a natural language task description, LLM2Prune guides the feature
+discovery process using both performance evaluation and feature-importance feedback,
+producing features that are tailored to the specific problem without any human
+engineering. LLM2Prune discovers non-trivial features automatically that would typically
+require significant domain expertise to design manually, and adapts naturally to
+different constraint types by simply modifying the task description. Our experiments
+show that LLM2Prune achieves competitive performance with classical methods while
+consistently outperforming existing learning-based pruning approaches.
+
+The research presented in this proposal collectively addresses the challenge of scaling
+combinatorial optimization to massive graph instances through principled search space
+reduction. QuickPrune establishes the theoretical foundations, proving that pruning with
+formal value-retention bounds is achievable under natural assumptions. Hierarchical
+DeepPruner demonstrates that learning-based methods can achieve superior empirical
+performance under size constraints without requiring any domain expertise. LLM2Prune
+completes the picture by automating the feature discovery process entirely, closing the
+gap between problem-agnostic design and problem-aware performance. This integrated
+perspective has implications for building combinatorial optimization solvers that are
+not only faster through effective search space reduction, but also more general across
+problems and constraints, and more practical through automated feature discovery.
+
+The remainder of this proposal is organized as follows. Chapter~2 reviews related work
+on pruning methods for combinatorial optimization. Chapters~3, 4, and 5 present
+QuickPrune, Hierarchical DeepPruner, and LLM2Prune in detail, respectively. Chapter~6
+discusses proposed future work and open research directions, and Chapter~7 presents the
+research timeline.
