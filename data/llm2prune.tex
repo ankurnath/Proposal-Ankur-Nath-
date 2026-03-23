@@ -7,12 +7,43 @@ While QuickPrune (Chapter~3) provides theoretically grounded pruning and H-DeepP
 approaches have limitations: classical methods like QuickPrune process elements
 sequentially and do not scale well to very large graphs, while learning-based methods
 including H-DeepPruner rely on handcrafted, problem-specific features or domain knowledge.
-In this chapter, we present LLM2Prune~\cite{nath2025llm2prune}, a framework that uses
-large language models (LLMs) to automatically generate node-level features for a
-lightweight GNN classifier that predicts which nodes belong in the pruned ground set. The
-feature discovery process is guided by an LLM-directed beam search over the feature space,
-eliminating the need for manual feature engineering while maintaining strong performance
-across different combinatorial optimization problems and constraint types. 
+A central question remains: \emph{is it possible to design a scalable pruning framework
+that avoids handcrafted features, delivers strong performance across general CO problems
+over graphs, and adapts easily to different constraints?} In this chapter, we propose
+LLM2Prune, a framework that uses large language models (LLMs) to automatically generate
+node-level features for a lightweight GNN classifier that predicts which nodes belong in
+the pruned ground set. The feature discovery process is guided by an LLM-directed beam
+search over the feature space, eliminating the need for manual feature engineering while
+maintaining strong performance across different combinatorial optimization problems and
+constraint types.
+
+\section{Motivation}
+
+The limitations of existing pruning approaches motivate the need for a fundamentally
+different strategy. Classical approaches such as QuickPrune~\cite{pmlr-v258-nath25a} and
+Submodular Sparsification~\cite{zhou2017scaling} are limited by sequential processing,
+which does not scale well to large graphs. Among learning-based methods,
+GCOMB-P~\cite{manchanda2020gcomb} depends on a handcrafted degree heuristic that does not
+generalize well across CO problems~\cite{ireland2022lense}.
+LeNSE~\cite{ireland2022lense} relies on domain expertise to categorize subgraphs, set the
+number of samples per class, and tune critical parameters separately for each dataset and
+problem. COMBHelper~\cite{tian2024combhelper} still relies on computationally expensive
+Fourier Feature Mapping and a problem-specific boosting mechanism for strong performance.
+Furthermore, most learning-based methods are designed specifically for size constraints and
+do not generalize to knapsack constraints.
+
+These limitations point to a common bottleneck: the reliance on human-designed features
+and problem-specific algorithmic choices. We propose to address this bottleneck by
+leveraging the broad domain knowledge encoded in large language models to automate the
+feature discovery process entirely.
+
+\section{Proposed Approach}
+
+The core idea of LLM2Prune is to use LLMs to automatically generate node-level features
+for a lightweight GCN classifier~\cite{kipf2016semi} that predicts which nodes belong in
+the pruned ground set. The feature discovery process is formalized as a decision tree
+$\mathcal{T}$, where the search is guided by an LLM-directed beam search over the feature
+space (Figure~\ref{fig:llm2prune-framework}).
 
 \begin{figure}[t]
   \centering
@@ -28,25 +59,6 @@ across different combinatorial optimization problems and constraint types.
     to form child nodes.}
   \label{fig:llm2prune-framework}
 \end{figure}
-
-\section{Problem Setting}
-
-We consider the same pruning problem as in Chapters~3 and~4. Given a ground set
-$\mathcal{U}$, a heuristic $\mathcal{H}$, and a constraint (either size or knapsack), the
-goal is to construct a much smaller ground set $\mathcal{U}' \subseteq \mathcal{U}$ with
-$|\mathcal{U}'| \ll |\mathcal{U}|$ such that solving the reduced instance yields nearly
-the same objective value: $f(\mathcal{H}(\mathcal{U}')) / f(\mathcal{H}(\mathcal{U}))
-\approx 1$. Unlike H-DeepPruner, which is restricted to size constraints, LLM2Prune
-operates under both size and knapsack constraints by simply modifying the task description
-provided to the LLM.
-
-\section{Method}
-
-The core idea of LLM2Prune is to use LLMs to automatically generate node-level features
-for a lightweight GCN classifier~\cite{kipf2016semi} that predicts which nodes belong in
-the pruned ground set. The feature discovery process is formalized as a decision tree
-$\mathcal{T}$, where the search is guided by an LLM-directed beam search over the feature
-space (Figure~\ref{fig:llm2prune-framework}).
 
 \subsection{Decision Tree Formulation}
 
@@ -171,11 +183,12 @@ Algorithm~\ref{alg:llm2prune} describes the full LLM2Prune pipeline.
 \end{algorithmic}
 \end{algorithm}
 
-\section{Experimental Evaluation}
+\section{Preliminary Results}
 
-We evaluate LLM2Prune on three graph CO problems, namely Maximum Coverage (MaxCover), Maximum
-Cut (MaxCut), and Influence Maximization (IM)---under both size and knapsack constraints,
-using eight real-world datasets from the Stanford Large Network Dataset
+We have conducted preliminary experiments to validate the proposed approach. We evaluate
+LLM2Prune on three graph CO problems, namely Maximum Coverage (MaxCover), Maximum Cut
+(MaxCut), and Influence Maximization (IM), under both size and knapsack constraints, using
+eight real-world datasets from the Stanford Large Network Dataset
 Collection~\cite{leskovec2016snap}. The same datasets and train-test splits as in
 Chapters~3 and~4 are used, following~\cite{ireland2022lense}. For size constraints,
 Standard Greedy~\cite{nemhauser1978analysis} is used for MaxCover and MaxCut, and
@@ -188,7 +201,7 @@ graph model~\cite{holme2002growing}, which closely resembles large-scale social 
 with both scale-free degree distribution and high clustering coefficient. After identifying
 the feature set, we fine-tune the downstream classifier for each instance.
 
-\subsection{Evaluation on Size Constraint}
+\subsection{Size Constraint Results}
 
 Under the size constraint, we compare LLM2Prune with classical methods
 (QuickPrune~\cite{pmlr-v258-nath25a} and Submodular
@@ -259,70 +272,48 @@ effectively narrowing the gap with classical methods.
   \label{fig:llm2prune-runtime}
 \end{figure}
 
-\subsection{Evaluation on Knapsack Constraint}
-
-For the knapsack constraint, only QuickPrune among prior methods can be adapted. LLM2Prune
-adapts to the knapsack constraint by simply modifying the task description provided to the
-LLM. We also compare with TOP-$k$, a degree-based heuristic
-following~\cite{pmlr-v258-nath25a}.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/llm2prune/algo_comparison_violin.pdf}
-  \caption{Combined metric for LLM2Prune, QuickPrune, and TOP-$k$ under the knapsack
-    constraint across MaxCover, MaxCut, and IM. LLM2Prune consistently outperforms TOP-$k$
-    and matches or exceeds QuickPrune on MaxCover and IM.}
-  \label{fig:llm2prune-knapsack}
-\end{figure}
-
-Figure~\ref{fig:llm2prune-knapsack} shows that LLM2Prune outperforms TOP-$k$ across all
-applications and outperforms QuickPrune on MaxCover and IM, while being comparable on
-MaxCut. Unlike other learning-based methods, LLM2Prune can easily adapt to the knapsack
-constraint by simply modifying the task description, without any changes to the underlying
-framework.
-
 \subsection{Discovered Features}
 
 A key strength of LLM2Prune is that it generates features that are not generic graph
-statistics but are grounded in the problem objective and constraints. For MaxCut, it
-discovers \emph{random cut expectation}, the expected marginal contribution of a node to
-the cut under a random partition, a non-trivial descriptor directly derived from the cut
-objective. For IM, it identifies \emph{average incoming activation probability} and
-\emph{outgoing activation probability sum}, which require reasoning about the independent
-cascade model and capture a node's susceptibility and direct influence spread,
-respectively. Under the knapsack constraint, LLM2Prune automatically encodes the
-cost-benefit trade-off imposed by the constraint: for MaxCover it selects \emph{coverage
-per cost}, and for IM it selects \emph{degree-to-weight ratio} and \emph{in-out degree
-difference}, capturing both cost-efficiency and directional propagation asymmetry. These
-features would require significant domain expertise to design manually, yet LLM2Prune
-discovers them automatically from the task description alone.
+statistics but are grounded in the problem objective. For MaxCut, it discovers \emph{random
+cut expectation}, the expected marginal contribution of a node to the cut under a random
+partition, a non-trivial descriptor directly derived from the cut objective. For IM, it
+identifies \emph{average incoming activation probability} and \emph{outgoing activation
+probability sum}, which require reasoning about the independent cascade model and capture a
+node's susceptibility and direct influence spread, respectively. These features would
+require significant domain expertise to design manually, yet LLM2Prune discovers them
+automatically from the task description alone.
 
 \subsection{Ablation Study}
 
-To analyze the contribution of the major components of LLM2Prune, we evaluate four
+To justify the choice of beam search, we conducted an ablation study comparing four
 variants using the same number of API calls: (1)~a single-shot prompt with no iterative
 refinement, (2)~a simple feedback loop with performance metrics only, (3)~a simple feedback
 loop with both performance metrics and feature-importance scores, and (4)~the full beam
 search. Figure~\ref{fig:llm2prune-ablation} reports the combined metric across three CO
-problems under knapsack constraints. The results show that beam search consistently
-achieves higher and more stable performance, with median values close to $1.0$ and minimal
-variance across runs. Simpler variants suffer from error propagation when early iterations
-contain reasoning errors, whereas beam search mitigates this issue by maintaining multiple
-candidate paths.
+problems. The results show that beam search consistently achieves higher and more stable
+performance, with median values close to $1.0$ and minimal variance across runs. Simpler
+variants suffer from error propagation when early iterations contain reasoning errors,
+whereas beam search mitigates this issue by maintaining multiple candidate paths.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth]{figures/llm2prune/ablation.pdf}
-  \caption{Performance comparison of different variants of LLM2Prune under knapsack
-    constraints. Beam search achieves higher and more stable performance compared to
-    single-shot and simple feedback loop variants.}
+  \caption{Performance comparison of different variants of LLM2Prune. Beam search achieves
+    higher and more stable performance compared to single-shot and simple feedback loop
+    variants.}
   \label{fig:llm2prune-ablation}
 \end{figure}
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.7\textwidth]{figures/llm2prune/models.pdf}
-  \caption{Comparison of LLM2Prune using two different LLMs. Both models achieve
-    comparable performance across all applications and constraints.}
-  \label{fig:llm2prune-models}
-\end{figure}
+\section{Remaining Work}
+
+We have completed the proposed framework design, the ablation study justifying the beam
+search strategy, and a comprehensive evaluation under size constraints across three CO
+problems and eight real-world datasets. The results demonstrate that LLM2Prune performs
+competitively with classical methods while being orders of magnitude faster at inference,
+and consistently outperforms all existing learning-based approaches. The primary remaining
+work is to conduct a comprehensive evaluation under knapsack constraints across all
+datasets and applications. Unlike other learning-based methods, LLM2Prune can naturally
+adapt to the knapsack constraint by simply modifying the task description provided to the
+LLM, without requiring any changes to the underlying framework or retraining the feature
+discovery pipeline.
