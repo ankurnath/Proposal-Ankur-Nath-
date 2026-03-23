@@ -432,14 +432,9 @@
 \section{H-DeepPruner (SoCS 2025)}
 
 \begin{frame}{H-DeepPruner: The Problem}
-  \textbf{Limitations of QuickPrune:}
-  \begin{itemize}
-    \item Processes elements \textbf{sequentially} --- bottleneck when computing marginal
-      gains is \#P-hard (e.g., Influence Maximization)
-    \item Requires access to the \textbf{objective function} during pruning
-  \end{itemize}
+  \textbf{Can we design a pruning method that learns without expert algorithm design?}
 
-  \vspace{0.2cm}
+  \vspace{0.3cm}
 
   \textbf{Limitations of existing learning-based methods:}
   \begin{itemize}
@@ -543,13 +538,18 @@
 \end{frame}
 
 \begin{frame}{H-DeepPruner: Results}
+  As a \textbf{learning-based} pruning method, we evaluate H-DeepPruner against existing
+  learned approaches (GCOMB-P, LeNSE, COMBHelper) that share the same supervised/RL paradigm.
+
+  \vspace{0.2cm}
+
   \begin{columns}
     \begin{column}{0.48\textwidth}
       \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{figures/hdeeppruner/violin_plots.pdf}
-        \caption{Distribution of combined metric $C$ across all datasets. H-DeepPruner
-          achieves consistently high and stable values.}
+        \caption{Combined metric $C$ across all datasets. H-DeepPruner
+          achieves the highest and most stable performance among learned methods.}
       \end{figure}
     \end{column}
     \begin{column}{0.48\textwidth}
