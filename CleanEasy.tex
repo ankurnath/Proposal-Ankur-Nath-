@@ -125,47 +125,24 @@
 \end{frame}
 
 \begin{frame}{The Scalability Challenge}
-  \begin{columns}
-    \begin{column}{0.58\textwidth}
-      \begin{itemize}
-        \item Modern real-world graphs contain \textbf{millions or billions} of nodes
-        \item The optimal solution often involves only a \textbf{handful of elements}
-          (e.g., budget to promote 100 products out of millions)
-        \item Yet solvers must consider \textbf{every candidate}
-        \item Even the best polynomial-time heuristics degrade in both
-          \textbf{runtime and quality}
-      \end{itemize}
+  \begin{itemize}
+    \item Modern real-world graphs (social networks, web graphs, biological networks)
+      contain \textbf{millions or billions} of nodes
+    \item The optimal solution often involves only a \textbf{tiny fraction} of the
+      ground set (e.g., selecting a small seed set from an entire social network)
+    \item Yet existing solvers must \textbf{evaluate every candidate}, leading to
+      prohibitive runtimes
+    \item Even the best polynomial-time heuristics become
+      \textbf{prohibitively slow} as graphs grow
+  \end{itemize}
 
-      \vspace{0.3cm}
+  \vspace{0.4cm}
 
-      \begin{alertblock}{The Mismatch}
-        Enormous ground set $|\mathcal{U}|$ vs.\ tiny optimal solution $|X^\star|$
-        $\Rightarrow$ fundamental scalability bottleneck.
-      \end{alertblock}
-    \end{column}
-    \begin{column}{0.38\textwidth}
-      \centering
-      \begin{table}
-        \footnotesize
-        \begin{tabular}{lr}
-          \toprule
-          \textbf{Graph} & \textbf{Nodes} \\
-          \midrule
-          Facebook & 4K \\
-          Wiki & 6K \\
-          Deezer & 54K \\
-          Slashdot & 68K \\
-          Twitter & 81K \\
-          DBLP & 315K \\
-          YouTube & 1.1M \\
-          Skitter & 1.7M \\
-          \bottomrule
-        \end{tabular}
-      \end{table}
-      \vspace{0.1cm}
-      {\small Budget: $k = 100$ nodes}
-    \end{column}
-  \end{columns}
+  \begin{alertblock}{The Mismatch}
+    Enormous ground set $|\mathcal{U}|$ vs.\ tiny optimal solution $|X^\star|$
+    $\Rightarrow$ fundamental scalability bottleneck. Most elements are irrelevant,
+    yet we pay the cost of considering all of them.
+  \end{alertblock}
 \end{frame}
 
 \begin{frame}{Search Space Pruning}
