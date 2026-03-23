@@ -39,22 +39,36 @@ with existing heuristics?}
 
 H-DeepPruner is schematically illustrated in Figure~\ref{fig:hdp-framework}. It consists
 of two main stages: an initial pruning step using a GNN, followed by Neural Monte Carlo
-Tree Search (NMCTS) for further reduction. The GNN prunes the ground set in a single
-step, selecting elements independently of each other. NMCTS then refines this pruned
-ground set by constructing a much smaller subset from scratch while considering
-dependencies among elements.
+Tree Search (NMCTS) for further reduction. The key insight behind this hierarchical
+design is that each stage addresses a different aspect of the pruning problem. The GNN
+performs a fast, coarse-grained pruning by classifying each node independently --- it
+can quickly eliminate a large number of clearly irrelevant nodes (e.g., low-degree
+peripheral nodes in influence maximization) but cannot reason about redundancy among
+the retained nodes. NMCTS then performs a slower, fine-grained refinement that accounts
+for interdependencies between elements, constructing a compact ground set where each
+retained element contributes meaningfully to the solution.
 
 \subsection{Stage 1: Pre-Pruning with GNN}
 
-We introduce a GNN to eliminate nodes that are unlikely to be part of the solution,
-allowing NMCTS to focus computational resources on promising nodes. We use a 
-Graph Convolutional Network (GCN)~\cite{kipf2016semi}:
+The first stage introduces a GNN to eliminate nodes that are unlikely to be part of the
+solution, allowing NMCTS to focus computational resources on promising nodes. This step
+parallels the handcrafted degree heuristic in GCOMB~\cite{manchanda2020gcomb}, but
+instead of relying on a manually designed heuristic, we hypothesize that vertices in the
+optimal solution exhibit similar local structures that can be identified from local
+neighborhood features alone.
+
+We use a Graph Convolutional Network (GCN)~\cite{kipf2016semi}. Given an undirected graph
+$G(V, E)$ with adjacency matrix $A$, the GCN updates node representations as:
 \[
 h_{v_i}^{(k)} = f_2^{(k)}\!\left(\left\{h_{v_i}^{(k-1)},\;
 f_1^{(k)}\!\left(\left\{h_u^{(k-1)} : u \in N(v_i)\right\}\right)\right\}\right),
 \]
-where $f_1^{(k)}$ aggregates neighboring node features and $f_2^{(k)}$ combines with the
-node's own features.
+where $N(v_i) = \{v_j \in V \mid A_{i,j} \neq 0\}$ is the set of neighbors of node
+$v_i$, function $f_1^{(k)}$ aggregates feature information over the set of neighboring
+nodes, and function $f_2^{(k)}$ combines the node's own hidden features from iteration
+$(k-1)$ with the aggregated neighborhood features. We empirically find that GCN,
+which retains full neighborhood information, outperforms GraphSAGE, which samples a
+fixed-size subset of neighbors.
 
 \textbf{Random Node Initialization.} Instead of using hand-crafted features, we adopt
 random node initialization~\cite{abboud2020surprising}, where node features are set as
@@ -65,8 +79,8 @@ This eliminates the need for problem-specific features such as eigenvector centr
 COMBHelper~\cite{tian2024combhelper}).
 
 \textbf{Training.} Training data is generated from Erd\H{o}s-R\'{e}nyi (ER) random
-graphs~\cite{erdos1960evolution} with 2000 vertices and edge probability $p = 0.1$. Each
-graph is solved with a heuristic at budget $k = 100$ to obtain the optimal ground set.
+graphs~\cite{erdos1960evolution}. Each graph is solved with a heuristic to obtain the
+optimal ground set.
 The GNN is trained with weighted cross-entropy loss to prevent non-solution vertices from
 dominating training, with balanced sampling from solution and non-solution sets each
 epoch.
@@ -83,21 +97,56 @@ node, potentially retaining redundant elements. To address this, we introduce a 
 MCTS (NMCTS) stage that constructs a solution from scratch, considering dependencies
 among elements.
 
-We formulate the pruning process as a Markov Decision Process (MDP). The state $s$
-represents the current pruned ground set and potential candidates for addition. An action
-involves adding an element to the pruned ground set. The reward is the objective value of
-the heuristic solution on the pruned ground set. The process terminates when a fixed
-number of elements have been added.
+We formulate the pruning process as a Markov Decision Process (MDP), where the goal is
+to sequentially build up a pruned ground set by adding one element at a time. Formally:
+\begin{itemize}
+  \item \textbf{State} $s$: the current pruned ground set together with potential
+    candidates for addition (i.e., the remaining elements from the GNN-pruned set).
+  \item \textbf{Action}: selecting an element from the candidates and adding it to the
+    pruned ground set.
+  \item \textbf{Transition}: the state is updated with the newly expanded pruned ground
+    set and the selected element is removed from the candidate pool.
+  \item \textbf{Reward}: the objective value obtained by running the downstream heuristic
+    on the current pruned ground set. This directly measures how well the pruned set
+    supports finding high-quality solutions.
+  \item \textbf{Terminal condition}: a fixed number of elements have been added to the
+    pruned ground set.
+\end{itemize}
+This sequential formulation allows NMCTS to account for element interdependencies: at each
+step, the algorithm evaluates how a candidate element complements the elements already
+selected, rather than assessing each element in isolation as the GNN does.
 
-NMCTS uses the Predictor + Upper Confidence Bound (PUCT) formula for node selection:
+Neural Monte Carlo Tree Search (NMCTS) integrates neural networks into MCTS to
+efficiently explore and evaluate large decision spaces. MCTS operates by building a
+search tree and simulating outcomes to estimate the value of actions. NMCTS guides this
+process using a policy network and a value network, both sharing the same GCN backbone
+architecture as the pre-pruning GNN.
+
+NMCTS gradually constructs a solution starting from an empty set, adding one element at
+a time. At each step, it evaluates the current pruned ground set, considering the elements
+already selected and selecting elements that contribute to the current pruned ground set.
+The child node is selected based on the Predictor + Upper Confidence Bound (PUCT)
+formula:
 \[
 PUCT = Q(s,a) + c_{puct} \cdot P(s,a) \cdot
 \frac{\sqrt{\sum_b N(s,b)}}{1 + N(s,a)},
 \]
-where $Q(s,a)$ is the average reward, $P(s,a)$ is the prior probability from the policy
-network, $N(s,a)$ is the visit count, and $c_{puct}$ controls exploration-exploitation
-tradeoff. The policy and value networks share the same GCN backbone architecture as the
-pre-pruning GNN.
+where $Q(s,a)$ is the average reward for taking action $a$ in state $s$, $P(s,a)$ is the
+prior probability of selecting action $a$ as predicted by the policy network, $N(s,a)$ is
+the visit count for the state-action pair, $\sum_b N(s,b)$ is the total visit count of
+all actions at state $s$, and $c_{puct}$ is a hyperparameter that controls the balance
+between exploration and exploitation.
+
+MCTS operates in four phases (see Figure~\ref{fig:hdp-mcts}). In the
+\textbf{selection} phase, the algorithm starts at the root node and successively selects
+a child node until reaching one that is either terminal or unexpanded. In the
+\textbf{expansion} phase, upon reaching a leaf node, the algorithm adds a new child node
+by expanding the action with the highest prior probability as predicted by the policy
+network. In the \textbf{simulation} phase, the newly expanded node is evaluated. If the
+node is terminal, the true reward is returned. Otherwise, the algorithm uses a value
+network to predict the expected reward from the state. Finally, in the
+\textbf{backpropagation} phase, the simulation outcome is propagated up the tree to
+update the statistics of all visited nodes, refining the estimates for future decisions.
 
 \begin{figure}[t]
   \centering
@@ -109,29 +158,28 @@ pre-pruning GNN.
   \label{fig:hdp-mcts}
 \end{figure}
 
-MCTS operates in four phases: (1) \textbf{selection}, traversing the tree from root
-selecting the child with highest PUCT until reaching a leaf; (2) \textbf{expansion},
-adding a new child node with the highest prior probability from the policy network;
-(3) \textbf{simulation}, using the value network to predict the expected reward; and
-(4) \textbf{backpropagation}, propagating the simulation outcome up the tree to update
-statistics.
+\textbf{Progressive Widening.} During testing, the NMCTS is too slow especially for large
+action spaces. As a result, the number of simulations becomes intractable. We apply
+progressive widening~\cite{couetoux2011continuous}, which maintains a finite list of
+child chance nodes to be searched and incrementally adds a new child chance node $N_c$ to
+the list of child nodes of parent node $N_p$ based on the visitation counts. Specifically,
+a new child node is added every time the following is satisfied:
+$|\text{visits}(N_p)^\alpha| \geq |\text{CHILDREN}(N_p)|$,
+where $\alpha \in (0,1)$ is a parameter that controls the growth rate. This allows
+gradually increasing the number of choices or actions explored during the search process,
+starting from a narrow focus and expanding it as more information is gained.
 
-\textbf{Progressive Widening.} For large action spaces, standard MCTS becomes
-intractable. We apply progressive widening~\cite{couetoux2011continuous}, which maintains
-a finite list of child nodes and incrementally adds new children based on visitation
-counts: $|\text{visits}(N_p)^\alpha| \geq |\text{CHILDREN}(N_p)|$, where $\alpha = 0.1$
-controls the growth rate. This starts with a narrow focus and expands as more information
-is gained.
-
-\textbf{Progressive Deepening.} We introduce an adaptive search strategy that iteratively
-expands the search tree based on improvements in objective value. The search starts at the
-root with an empty subset and explores solutions up to a fixed depth of 50. After each
-depth-limited search, the algorithm checks if the objective value improved by at least 1\%
-over the previous search. If improved, the search restarts from the root with the current
-solution, effectively deepening. If not, the search terminates. This prevents the search
-tree from growing uncontrollably and focuses expansion only when progress is being made.
-Figure~\ref{fig:hdp-mcts} illustrates the MCTS procedure with progressive widening and
-deepening.
+\textbf{Progressive Deepening.} We also introduce \emph{progressive deepening}, a search
+strategy designed to refine the search space by iteratively expanding the search tree
+based on improvements in the objective value. The search starts at the root node with an
+empty subset and explores solutions up to a fixed depth. Initially, the objective value is
+zero. Following each depth-limited search, the algorithm checks if there is a significant
+improvement in the objective value compared to the previous search. If an improvement is
+found, the search restarts from the root node using the current solution, effectively
+deepening the search by focusing on promising areas. If, however, no significant
+improvement is observed, signifying a potential plateau, the search terminates. This
+method prevents the search tree from growing uncontrollably, as it focuses on expanding
+only when progress is being made.
 
 \section{Experimental Evaluation}
 
@@ -215,17 +263,31 @@ Skitter   & 0.883 & 1.000 & \textbf{0.883} & 0.883 & 0.990 & 0.874 & -- & -- & -
 From Table~\ref{tab:hdp_size_constraint}, H-DeepPruner achieves the highest combined
 metric in 88\% of all tested instances across all three problems and all eight datasets.
 H-DeepPruner typically achieves a near-optimal pruning approximation ratio while pruning
-over 95\% of the original ground set. H-DeepPruner significantly outperforms methods like
-COMBHelper and GCOMB, which overlook the relationships between vertices. By considering
-interdependencies among elements, H-DeepPruner ensures that the selected vertices form a
-well-balanced ground set, leading to better overall performance.
+over 95\% of the original ground set. The advantage over existing methods can be
+attributed to several factors:
 
-Notably, our approach does not require any computationally expensive feature computation
-or domain knowledge. LeNSE requires calculating the eigenvector centrality of each node,
-which is costly for large graphs. COMBHelper relies on a problem-specific boosting module.
-H-DeepPruner achieves a 54\% improvement in the combined metric over the leading
+\begin{itemize}
+  \item \textbf{vs.\ GCOMB:} GCOMB's initial pruning relies on a handcrafted degree
+    heuristic that does not generalize across problems. For instance, it prunes too little
+    for MaxCover (retaining 93\% of the ground set on some graphs) but too aggressively
+    for MaxCut, indicating that the heuristic is not problem-agnostic.
+  \item \textbf{vs.\ COMBHelper:} COMBHelper performs well on problems where the pruned
+    set can be large (e.g., Minimum Vertex Cover) but poorly when the pruned set must be
+    small relative to the original ground set (e.g., MaxCover, IM). It also fails to
+    produce results within the time limit on the largest graph (Skitter).
+  \item \textbf{vs.\ LeNSE:} LeNSE exhibits more balanced performance but requires
+    expensive per-dataset tuning of hyperparameters such as subgraph size and embedding
+    dimensionality, as well as computing eigenvector centrality for each node, which is
+    costly for large graphs.
+\end{itemize}
+
+In contrast, H-DeepPruner requires no computationally expensive feature computation or
+domain knowledge. It achieves a 54\% improvement in the combined metric over the leading
 competitor, LeNSE, quantified as
 $(C_{\text{H-DeepPruner}} - C_{\text{LeNSE}}) / C_{\text{LeNSE}}$.
+An important property of H-DeepPruner is that all training is performed on small,
+synthetic ER random graphs, yet the model successfully generalizes to large,
+out-of-distribution real-world graphs at inference time without performance degradation.
 Figure~\ref{fig:hdp-violin} shows box plots of the combined metric across all algorithms
 and problems.
 
@@ -239,10 +301,15 @@ and problems.
 
 \subsection{Speed-up Analysis}
 
-H-DeepPruner accelerates heuristics by up to 40$\times$ by pruning a large fraction of
-the ground set. The largest speed-ups are observed on larger graphs where pruning has the
-most impact. Figure~\ref{fig:hdp-speedup} shows the relative speed-up across all datasets
-for MaxCover.
+Beyond solution quality, effective pruning also accelerates the downstream heuristic by
+reducing the size of the input it must process. We measure speed-up as
+$S = \text{time}_{\mathcal{U}} / (\text{time}_{\mathcal{U}'} +
+\text{time}_{\text{prune}})$, which accounts for both the heuristic runtime on the pruned
+set and the pruning time itself. H-DeepPruner accelerates heuristics by up to
+40$\times$ by pruning a large fraction of the ground set. The largest speed-ups are
+observed on larger graphs where the reduction in ground set size has the most impact on
+heuristic runtime. Figure~\ref{fig:hdp-speedup} shows the relative speed-up across all
+datasets for MaxCover.
 
 \begin{figure}[t]
   \centering
@@ -287,15 +354,19 @@ Skitter   & 0.980 & 1.042 & 0.962 & 0.995 & 0.929 & 0.949 \\
 
 \subsection{Ablation Study}
 
-The key components of H-DeepPruner are: (i) a single-pass GNN pruning step to quickly
-discard elements from the ground set, and (ii) the construction of a reduced ground set
-using NMCTS with progressive widening and deepening. Table~\ref{tab:hdp_ablation} shows
-that both components are essential for strong performance. While removing the GNN has a
-limited impact on the pruning approximation ratio, it significantly improves NMCTS
-scalability. The utility of the GNN is more pronounced on larger instances, where only a
-smaller fraction of the search space can be explored within a fixed computation budget.
-NMCTS, on the other hand, further prunes the ground set from the GNN without sacrificing
-the pruning approximation ratio.
+To understand the contribution of each component, we conduct an ablation study comparing
+the GNN-only variant (Stage 1 alone) against the full H-DeepPruner pipeline (Stage 1 +
+Stage 2). Table~\ref{tab:hdp_ablation} shows that both components are essential for strong
+performance, but they contribute in complementary ways. The GNN alone achieves high
+pruning approximation ratios ($P_r$ close to 1.0) but moderate pruned fractions ($P_g$
+around 0.77--0.86), meaning it preserves solution quality well but does not prune
+aggressively enough. Adding NMCTS increases $P_g$ substantially (often to 0.95--1.0)
+while only slightly reducing $P_r$, resulting in much higher combined metrics. For
+example, on Deezer-MaxCover, the GNN alone achieves $C = 0.763$ while H-DeepPruner
+achieves $C = 0.993$. The utility of the GNN pre-pruning step is more pronounced on
+larger instances, where running NMCTS on the full ground set would be computationally
+infeasible --- the GNN reduces the search space to a manageable size for NMCTS to
+operate effectively.
 
 \begin{table}[t]
 \centering
