@@ -1,0 +1,501 @@
+\pagestyle{plain} % No headers, just page numbers
+
+\chapter{\uppercase {QuickPrune: Theoretically Grounded Pruning of Large Ground Sets}}
+
+Prior to our work, all existing pruning methods were heuristics with no formal performance
+guarantees. It was unknown whether it is even possible to efficiently produce a pruned
+ground set with provable bounds on both its size and the fraction of optimal value it
+retains. In this chapter, we introduce QuickPrune~\cite{pmlr-v258-nath25a}, a lightweight
+pruning algorithm for constrained discrete optimization that processes elements in a
+single pass through the ground set, discarding those unlikely to appear in an optimal
+solution. Under mild assumptions on the objective function and element costs, we prove
+that the pruned ground set retains a constant fraction of the optimal value across a
+range of budgets, while its size grows only logarithmically in the original ground set.
+QuickPrune is the first pruning algorithm to provide such guarantees, and the first to
+support a range of budgets simultaneously rather than a single budget instance.
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/quickprune/MaxCover_performance.pdf}
+    \caption{Typical empirical results of QuickPrune versus competing methods on an
+      instance of the Maximum Cover problem: QuickPrune retains 99.99\% of the optimal
+      value while pruning 99.95\% of the ground set.}
+    \label{fig:qp-maxcover}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/quickprune/alpha_plot.pdf}
+    \caption{Plot of the pruning ratio $\alpha(\epsilon, \delta, \gamma)$ of Theorem~2 as
+      a function of the parameter $\delta$ and the $\gamma$-submodularity of the objective
+      function $f$, with $\epsilon$ fixed to $0.01$.}
+    \label{fig:qp-alpha}
+  \end{subfigure}
+  \caption{Overview of QuickPrune performance and theoretical guarantees.}
+  \label{fig:qp-intro}
+\end{figure}
+
+\section{Problem Setting}
+
+We consider maximization of an objective function $f$ defined on subsets of a ground set
+$\mathcal{U}$, subject to a knapsack constraint: a modular cost function $c$ on the
+elements is restricted to be at most the budget $\kappa$. We denote by
+\[
+f_{\kappa}(\mathcal{U}) = \max_{S \subseteq \mathcal{U} : c(S) \leq \kappa} f(S)
+\]
+the optimal value over $\mathcal{U}$ under budget $\kappa$. For many applications of this
+problem, the ground set $\mathcal{U}$ is massive, with size $n$ in the billion-scale or
+larger. On the other hand, the budget constraints are frequently such that an optimal set
+has only a few elements. For example, in viral marketing
+campaigns~\cite{kempe2003maximizing}, a company may have a budget to promote only a
+limited number of products while still aiming to maximize overall sales or customer reach.
+Since elements not in the pruned set $\mathcal{U}'$ are discarded, we desire a range of
+budgets $[\kappa_{\min}, \kappa_{\max}]$ to be supported, so that the pruned ground set
+has value beyond a single use.
+
+\section{Key Assumptions}
+
+Our theoretical guarantees rely on two assumptions on the objective function and the
+problem instance.
+
+\textbf{$\gamma$-Weak Submodularity.} The objective function $f$ is
+$\gamma$-weakly submodular, where $\gamma \in (0, 1]$ is the maximum value such that for
+all $S \subseteq T \subseteq \mathcal{U}$ and all $x \notin T$,
+\[
+\gamma \cdot \Delta(x \mid T) \leq \Delta(x \mid S),
+\]
+where $\Delta(x \mid S) = f(S \cup \{x\}) - f(S)$ denotes the marginal gain of element
+$x$ to set $S$. When $\gamma = 1$, $f$ is fully submodular. This is also known as the
+diminishing-returns ratio. Submodularity is a notion of diminishing returns that is
+satisfied or partially satisfied by many varied objective functions, and occupies a role
+for discrete optimization analogous to the role of convexity in continuous optimization.
+
+\textbf{No Huge Items (NHI) Assumption.} Given an instance $(f, c, \kappa)$ with
+parameter $\eta > 0$, there exists an optimal solution $O$ such that for all $o \in O$,
+$c(o) \leq \kappa(1 - \eta)$. Intuitively, this says that no single element of an
+optimal solution consumes a very large fraction of the total budget. For the common case
+of size constraints, this assumption is satisfied when $\kappa \geq 2$ and
+$\eta \leq 1/2$.
+
+\section{Algorithm}
+
+QuickPrune operates at two levels. The single-budget algorithm (QuickPrune-Single)
+handles one knapsack constraint, and the main algorithm (QuickPrune) runs multiple copies
+in parallel to cover a range of budgets. We emphasize that lightweight pruning methods
+are needed since an expensive pruning process defeats the purpose of pruning.
+
+\subsection{QuickPrune-Single}
+
+Given a single budget value $\kappa$ with parameters $\delta > 0$ (size-control) and
+$\epsilon > 0$ (deletion), the algorithm takes one pass through $\mathcal{U}$ and
+processes elements one-by-one. Once an element is rejected, it is never re-considered and
+may be safely discarded. The full pseudocode is given in Algorithm~\ref{alg:single}.
+
+\begin{algorithm}[t]
+\caption{QuickPrune-Single: Pruning for a single constraint.}
+\label{alg:single}
+\begin{algorithmic}[1]
+\REQUIRE Instance $(f, \mathcal{U}, c, \kappa)$, size-control parameter $\delta > 0$,
+  deletion parameter $\epsilon > 0$
+\ENSURE Pruned ground set $\mathcal{U}'$
+\STATE $A \gets \emptyset$, $a^* \gets \emptyset$, $A_s \gets \emptyset$
+\FOR{$e \in \mathcal{U}$}
+  \IF{$c(e) > \kappa$}
+    \STATE \textbf{continue}
+  \ENDIF
+  \IF{$\Delta(e \mid A) \geq \frac{\delta \, c(e) \, f(A)}{\kappa}$}
+    \STATE $A \gets A \cup \{e\}$
+  \ENDIF
+  \IF{$f(e) > f(a^*)$}
+    \STATE $a^* \gets e$
+  \ENDIF
+  \IF{$f(A) > \frac{n}{\epsilon} \cdot f(A_s)$}
+    \STATE $A \gets A \setminus A_s$ \hfill \textit{// Deletion step}
+    \STATE $A_s \gets A$
+  \ENDIF
+\ENDFOR
+\RETURN $\mathcal{U}' \gets A \cup \{a^*\}$
+\end{algorithmic}
+\end{algorithm}
+
+An element $e$ is added to the running set $A$ if its marginal gain satisfies
+$\Delta(e \mid A) \geq \frac{\delta \, c(e) \, f(A)}{\kappa}$; intuitively, the element
+must increase the value of $A$ by an amount proportional to its cost-to-budget ratio to be
+worth retaining. The deletion step (Line 12) is the key mechanism for controlling the size
+of $\mathcal{U}'$: when the accumulated value grows by a factor of $n / \epsilon$ since
+the last checkpoint $A_s$, old elements are discarded. Submodularity bounds the amount of
+value lost from each deletion, and the condition on element addition bounds the maximal
+number of elements required for the increased value.
+
+\subsection{QuickPrune (Main Algorithm)}
+
+To handle a range of budgets $[\kappa_{\min}, \kappa_{\max}]$, QuickPrune generates a set
+of budget values and runs multiple copies of QuickPrune-Single in parallel, one for each
+budget. The full pseudocode is given in Algorithm~\ref{alg:multi}.
+
+\begin{algorithm}[t]
+\caption{QuickPrune: The main pruning algorithm.}
+\label{alg:multi}
+\begin{algorithmic}[1]
+\REQUIRE Instance $(f, \mathcal{U}, c, [\kappa_{\min}, \kappa_{\max}])$, parameters
+  $\delta > 0$, $\epsilon > 0$, $0 < \eta \leq 1/2$
+\ENSURE Pruned ground set $\mathcal{U}'$
+\STATE $\mathcal{B} = \{\tau_i = \kappa_{\max}(1 - \eta)^i :
+  i \in \mathbb{Z}, \; (1 - \eta)\kappa_{\min} \leq \tau_i \leq \kappa_{\max}\}$
+\STATE Initialize a copy $\mathcal{QP}_\tau$ of QuickPrune-Single for each
+  $\tau \in \mathcal{B}$, with parameters $\epsilon, \delta$
+\FOR{$e \in \mathcal{U}$}
+  \STATE Pass $e$ to $\mathcal{QP}_\tau$ for all $\tau \in \mathcal{B}$
+\ENDFOR
+\RETURN the union of all sets returned by all instances $\mathcal{QP}_\tau$
+\end{algorithmic}
+\end{algorithm}
+
+Each element of $\mathcal{U}$ is passed to all copies, and the final output is the union
+of all pruned sets. This requires
+$\mathcal{O}(\log(\kappa_{\max} / \kappa_{\min}))$ copies and the same number of queries
+to $f$ per element processed.
+
+\section{Theoretical Results}
+
+We present the main theoretical result of this work. The proof proceeds by: (i) bounding
+the size of $\mathcal{U}'$ via the geometric increase in $f(A)$ (Proposition 1);
+(ii) bounding the value lost from deletion throughout execution (Proposition 2);
+(iii) showing that a feasible set $A' \subseteq \mathcal{U}'$ exists with a constant
+fraction of the optimal value (Lemma 1 and Proposition 3); and (iv) relating the value of
+$\mathcal{U}'$ to the true optimum (Proposition 4).
+
+\textbf{Theorem 1 (Single Budget).} Let QuickPrune-Single be run on instance
+$(\mathcal{U}, c, f, \kappa)$ with parameters $\epsilon, \delta > 0$, such that $f$ is
+$\gamma$-submodular. Then the algorithm produces $\mathcal{U}'$ such that
+\[
+|\mathcal{U}'| < 2\left(1 + \frac{\kappa}{\delta \, c_{\min}}\right)
+\log(n / \epsilon) + 3,
+\]
+and there exists $A' \subseteq \mathcal{U}'$ with $c(A') \leq \kappa$ and
+\[
+f(A') \geq \frac{\delta \gamma^4 (1 - \epsilon \gamma^{-1})}
+{2(\delta \gamma^2 + 1)(1 + \gamma^{-1} \delta)} \cdot f_{\kappa}(\mathcal{U}).
+\]
+
+\textbf{Theorem 2 (Multi-Budget, Main Result).} Let $\kappa_{\min} < \kappa_{\max}$, let
+$0 < \eta \leq 1/2$, and let $f, c$ be $\gamma$-submodular and modular functions,
+respectively. Suppose that for all $\kappa' \in [\kappa_{\min}, \kappa_{\max}]$, the
+instance $(f, c, \kappa')$ satisfies the NHI assumption with $\eta$. Let $\mathcal{U}'$
+be the output of QuickPrune. Then, for all
+$\kappa' \in [\kappa_{\min}, \kappa_{\max}]$:
+\begin{itemize}
+  \item \textbf{Value retention:}
+    $f_{\kappa'}(\mathcal{U}') \geq
+    \frac{\delta \gamma^5 (1 - \epsilon \gamma^{-1})}
+    {6(\delta \gamma^2 + 1)(1 + \gamma^{-1} \delta)} \cdot f_{\kappa'}(\mathcal{U}).$
+  \item \textbf{Size bound:}
+    $|\mathcal{U}'| = \mathcal{O}\!\left(
+    \log\!\left(\frac{\kappa_{\max}}{\kappa_{\min}}\right)
+    \left(1 + \frac{\kappa_{\max}}{\delta \, c_{\min}}\right)
+    \log(n / \epsilon)\right),$
+    where $c_{\min} = \min_{u \in \mathcal{U}} c(u)$ and $n = |\mathcal{U}|$.
+\end{itemize}
+When $\gamma = 1$ (fully submodular) and $\delta = 1$, the value retention simplifies to
+$f_{\kappa'}(\mathcal{U}') \geq (1/24 - \epsilon) \cdot f_{\kappa'}(\mathcal{U})$.
+
+The key properties of QuickPrune are: (i) single-pass processing where each element is
+considered once and never reconsidered; (ii) query complexity of
+$\mathcal{O}(\log(\kappa_{\max} / \kappa_{\min}))$ per element; and (iii) pruned set size
+that is logarithmic in the original ground set size $n$.
+
+\section{Experimental Evaluation}
+
+We compare the empirical performance of QuickPrune to existing methods for the pruning
+problem across four different objective functions, for both size and knapsack constraints.
+
+\subsection{Experimental Setup}
+
+\textbf{Applications.} We evaluate on four applications: (1) Maximum Coverage (MaxCover):
+find $S \subseteq V$ maximizing the number of covered vertices subject to a budget;
+(2) Maximum Cut (MaxCut): find $S \subseteq V$ maximizing the number of edges crossing
+the cut subject to a budget; (3) Influence Maximization (IM): under the independent
+cascade model with $p = 0.01$, find $S \subseteq V$ maximizing expected
+spread~\cite{tang2015influence}; and (4) Information Retrieval: image and video retrieval
+using a graph cut function with similarity kernel.
+
+\textbf{Datasets.} We evaluate on eight real-world graphs from the Stanford Large Network
+Dataset Collection (SNAP)~\cite{leskovec2016snap}, following the experimental setup
+of~\cite{ireland2022lense}. The graphs range from small networks
+(Facebook, $\sim$4K vertices) to large-scale graphs (Skitter, $\sim$1.7M vertices).
+For the retrieval system, we use the
+Beans~\cite{beansdata}, CIFAR100~\cite{Krizhevsky09learningmultiple},
+FOOD101~\cite{bossard14}, and UCF101~\cite{soomro2012ucf101dataset101human} datasets.
+
+\textbf{Baselines.} We compare against: Submodular Sparsification
+(SS)~\cite{zhou2017scaling}, GCOMB~\cite{manchanda2020gcomb},
+LeNSE~\cite{ireland2022lense}, COMBHelper~\cite{tian2024combhelper}, and GNNPruner, a
+proposed baseline that is a simplified version of COMBHelper using a GCN with random node
+features instead of hand-crafted features. For knapsack constraints, since the prior ML
+methods do not easily generalize, we compare to GNNPruner and a Top-$k$ approach that
+selects elements with the highest degree-to-cost ratios.
+
+\textbf{Evaluation Metrics.} We evaluate using three metrics where higher values indicate
+better performance: (1) the pruning approximation ratio
+$P_r = f(\mathcal{H}(\mathcal{U}')) / f(\mathcal{H}(\mathcal{U}))$, measuring the
+fraction of solution quality retained; (2) the pruned fraction
+$P_g = |\mathcal{U} \setminus \mathcal{U}'| / |\mathcal{U}|$, measuring the fraction of
+the ground set removed; and (3) the combined metric $C = P_r \cdot P_g$, which balances
+both objectives. Since an algorithm could trivially achieve the highest score in one metric
+by disregarding the other (pruning nothing or pruning everything), the combined metric
+provides a balanced evaluation.
+
+\textbf{Hyperparameters.} We set $\delta = 0.1$, $\epsilon = 0.1$, $\eta = 0.5$ for the
+graph CO problems; $\delta = 0.5$ for knapsack-constrained MaxCover; and $\delta = 0.05$,
+$\epsilon = 0.1$, $\eta = 0.5$ for image and video retrieval.
+
+\subsection{Results on Size Constraints}
+
+For the size constraint experiments with budget $k = 100$, we observe that all algorithms
+achieve similar pruning approximation ratios. However, QuickPrune is able to prune the
+original ground set by orders of magnitude more than most algorithms. Table~\ref{tab:size_constraint}
+summarizes the results across all applications and datasets. Specifically:
+
+\begin{table}[t]
+\centering
+\caption{Size constraint results ($k = 100$): pruning approximation ratio $P_r$, pruned
+  fraction $P_g$, and combined metric $C = P_r \cdot P_g$. Best $C$ in bold; ``--''
+  indicates timeout. *Values as reported in~\cite{ireland2022lense}.}
+\label{tab:size_constraint}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}l ccc ccc ccc ccc ccc ccc@{}}
+\toprule
+& \multicolumn{3}{c}{QuickPrune} & \multicolumn{3}{c}{SS} & \multicolumn{3}{c}{GCOMB*}
+& \multicolumn{3}{c}{COMBHelper} & \multicolumn{3}{c}{LeNSE*} & \multicolumn{3}{c}{GNNPruner} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}\cmidrule(lr){14-16}\cmidrule(lr){17-19}
+Graph & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$
+& $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ \\
+\midrule
+\multicolumn{19}{c}{\textbf{Maximum Cover}} \\
+\midrule
+Facebook  & 1.00 & 0.995 & \textbf{0.995} & 0.988 & 0.903 & 0.892 & 0.927 & 0.070 & 0.065 & 1.000 & 0.384 & 0.384 & 0.966 & 0.070 & 0.068 & 1.000 & 0.770 & 0.770 \\
+Wiki      & 1.00 & 0.942 & \textbf{0.942} & 0.956 & 0.935 & 0.893 & 0.990 & 0.030 & 0.030 & 1.000 & 0.453 & 0.453 & 1.094 & 0.340 & 0.372 & 1.000 & 0.920 & 0.920 \\
+Deezer    & 0.961 & 0.980 & 0.941 & 0.987 & 0.986 & \textbf{0.973} & 0.994 & 0.130 & 0.129 & 1.000 & 0.728 & 0.728 & 0.979 & 0.750 & 0.734 & 1.000 & 0.915 & 0.915 \\
+Slashdot  & 1.00 & 0.993 & \textbf{0.993} & 0.982 & 0.989 & 0.972 & 1.000 & 0.020 & 0.020 & 1.000 & 0.984 & 0.984 & 0.979 & 0.690 & 0.676 & 1.000 & 0.981 & 0.981 \\
+Twitter   & 0.993 & 0.991 & \textbf{0.984} & 0.931 & 0.989 & 0.921 & 0.997 & 0.170 & 0.170 & 1.000 & 0.565 & 0.565 & 0.989 & 0.330 & 0.326 & 0.999 & 0.979 & 0.978 \\
+DBLP      & 0.995 & 0.996 & \textbf{0.991} & 0.995 & 0.996 & \textbf{0.991} & 0.999 & 0.030 & 0.030 & 1.000 & 0.182 & 0.182 & 0.990 & 0.900 & 0.891 & 1.000 & 0.871 & 0.871 \\
+YouTube   & 1.00 & 1.000 & \textbf{1.000} & 1.000 & 0.999 & 0.999 & 0.998 & 0.070 & 0.070 & 1.000 & 0.957 & 0.957 & 0.982 & 0.790 & 0.776 & 0.995 & 0.997 & 0.991 \\
+Skitter   & 0.999 & 1.000 & 0.998 & 0.986 & 0.999 & 0.985 & 0.999 & 0.100 & 0.100 & -- & -- & -- & 0.976 & 0.700 & 0.683 & 0.999 & 0.989 & \textbf{0.988} \\
+\midrule
+\multicolumn{19}{c}{\textbf{Maximum Cut}} \\
+\midrule
+Facebook  & 0.989 & 0.794 & 0.785 & 0.993 & 0.903 & \textbf{0.896} & 0.813 & 0.950 & 0.772 & 1.000 & 0.154 & 0.154 & 1.000 & 0.070 & 0.070 & 1.000 & 0.677 & 0.677 \\
+Wiki      & 0.999 & 0.904 & 0.902 & 0.998 & 0.935 & \textbf{0.933} & 0.920 & 0.960 & 0.883 & 1.000 & 0.701 & 0.701 & 0.981 & 0.390 & 0.383 & 1.000 & 0.900 & 0.900 \\
+Slashdot  & 1.00 & 0.990 & \textbf{0.990} & 1.000 & 0.989 & 0.989 & 0.632 & 0.990 & 0.626 & 0.794 & 0.993 & 0.788 & 0.990 & 0.620 & 0.614 & 1.000 & 0.980 & 0.980 \\
+Twitter   & 1.00 & 0.990 & \textbf{0.990} & 1.000 & 0.989 & 0.989 & 0.628 & 0.990 & 0.622 & 1.000 & 0.554 & 0.554 & 0.987 & 0.480 & 0.474 & 1.000 & 0.974 & 0.974 \\
+YouTube   & 1.00 & 0.999 & \textbf{0.999} & 1.000 & 0.999 & 0.999 & 0.536 & 0.990 & 0.531 & 0.999 & 0.971 & 0.970 & 0.987 & 0.790 & 0.780 & 0.994 & 0.997 & 0.990 \\
+Skitter   & 1.00 & 1.000 & \textbf{1.000} & 1.000 & 0.999 & 0.999 & 0.427 & 0.990 & 0.423 & -- & -- & -- & 0.974 & 0.710 & 0.692 & 1.000 & 0.988 & 0.988 \\
+\midrule
+\multicolumn{19}{c}{\textbf{Influence Maximization}} \\
+\midrule
+Facebook  & 0.992 & 0.745 & 0.739 & 0.921 & 0.903 & \textbf{0.831} & 0.951 & 0.730 & 0.694 & 1.004 & 0.325 & 0.326 & 0.979 & 0.090 & 0.088 & 0.994 & 0.492 & 0.489 \\
+Wiki      & 1.027 & 0.883 & 0.907 & 0.986 & 0.935 & \textbf{0.922} & 0.969 & 0.900 & 0.872 & 0.997 & 0.607 & 0.605 & 0.960 & 0.510 & 0.490 & 1.001 & 0.896 & 0.897 \\
+Slashdot  & 0.998 & 0.988 & 0.987 & 0.996 & 0.989 & 0.985 & 0.966 & 0.980 & 0.947 & 1.008 & 0.988 & \textbf{0.995} & 0.966 & 0.770 & 0.744 & 0.999 & 0.980 & 0.979 \\
+Twitter   & 1.005 & 0.997 & \textbf{1.001} & 0.958 & 0.989 & 0.947 & 0.920 & 0.980 & 0.902 & 0.997 & 0.495 & 0.493 & 0.966 & 0.400 & 0.386 & 0.984 & 0.976 & 0.960 \\
+YouTube   & 0.968 & 0.999 & 0.967 & 0.985 & 0.999 & 0.983 & 0.933 & 0.990 & 0.924 & 0.999 & 0.971 & 0.970 & 0.971 & 0.750 & 0.728 & 1.002 & 0.997 & \textbf{0.998} \\
+Skitter   & 0.981 & 1.000 & 0.981 & 1.003 & 0.999 & \textbf{1.002} & 0.883 & 0.990 & 0.874 & -- & -- & -- & 0.983 & 0.780 & 0.767 & 1.002 & 0.989 & 0.991 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Across all three applications, QuickPrune achieves the highest combined metric on the
+majority of instances. For MaxCover and MaxCut, QuickPrune retains near-perfect objective
+value while pruning over 99\% of the ground set on large graphs, whereas baselines such as
+GCOMB prune far less and COMBHelper fails to complete within the time limit on Skitter.
+For Influence Maximization, the IMM heuristic~\cite{tang2015influence} occasionally
+achieves better solutions on the pruned ground set than on the full ground set (i.e.,
+$P_r > 1.0$), suggesting that pruning can sometimes enhance solver performance. SS
+outperforms QuickPrune on some IM instances but requires over $30\times$ more oracle
+calls, as shown in Figure~\ref{fig:qp-oracle}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figures/quickprune/MaxCover_QueriesToPrune.pdf}
+  \caption{Oracle calls required by QuickPrune versus Submodular Sparsification (SS) on
+    MaxCover across all datasets. QuickPrune requires orders of magnitude fewer oracle
+    calls than SS.}
+  \label{fig:qp-oracle}
+\end{figure}
+
+\textbf{Image Retrieval.} We also evaluate QuickPrune on an image retrieval system that
+uses a graph cut function with cosine similarity kernel over fine-tuned embeddings. Under
+size constraints, QuickPrune outperforms random selection on all image datasets (Beans,
+CIFAR100, FOOD101). SS performs slightly better on FOOD101 but returns a ground set that
+is 14$\times$ larger, and on CIFAR100, SS fails to complete pruning within the three-hour
+cutoff time. Figure~\ref{fig:qp-image-retrieval} shows the multi-budget analysis across
+all image retrieval datasets.
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/quickprune/BEANS.pdf}
+    \caption{Beans}
+    \label{fig:qp-beans}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/quickprune/CIFAR100.pdf}
+    \caption{CIFAR100}
+    \label{fig:qp-cifar}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/quickprune/FOOD101.pdf}
+    \caption{FOOD101}
+    \label{fig:qp-food}
+  \end{subfigure}
+  \caption{Multi-budget analysis of the image retrieval system under size constraints for
+    budgets ranging from 5 to 20.}
+  \label{fig:qp-image-retrieval}
+\end{figure}
+
+\subsection{Results on Knapsack Constraints}
+
+For general knapsack constraints, where the cost of each node is set proportional to its
+degree following~\cite{yaroslavtsev2020bring}, QuickPrune achieves the highest combined metric on 45\% of
+all instances tested. For MaxCover and MaxCut, QuickPrune often outperforms the Top-$k$
+baseline by 20\% in retaining objective value, except on Deezer-MaxCover and
+Skitter-MaxCut. The Top-$k$ approach does not account for relationships between vertices,
+whereas QuickPrune considers the problem more holistically, ensuring that the selected
+vertices collectively form a well-balanced subgraph. While Top-$k$ outperforms QuickPrune
+for IM in most cases, its poor performance across MaxCut and MaxCover shows that it is
+not a robust approach across applications and datasets. GNNPruner performs well on some
+datasets but unexpectedly poorly on others.
+Table~\ref{tab:knapsack_constraint} summarizes the full knapsack constraint results.
+
+\begin{table}[t]
+\centering
+\caption{Knapsack constraint results: pruning approximation ratio $P_r$, pruned fraction
+  $P_g$, and combined metric $C = P_r \cdot P_g$. Best $C$ in bold.}
+\label{tab:knapsack_constraint}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}l ccc ccc ccc@{}}
+\toprule
+& \multicolumn{3}{c}{QuickPrune} & \multicolumn{3}{c}{Top-$k$} & \multicolumn{3}{c}{GNNPruner} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+Graph & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ \\
+\midrule
+\multicolumn{10}{c}{\textbf{Maximum Cover}} \\
+\midrule
+Facebook  & 0.973 & 0.987 & \textbf{0.960} & 0.551 & 0.987 & 0.543 & 0.330 & 0.994 & 0.328 \\
+Wiki      & 0.940 & 0.985 & \textbf{0.926} & 0.755 & 0.985 & 0.744 & 1.000 & 0.870 & 0.870 \\
+Deezer    & 0.875 & 0.998 & 0.874 & 0.915 & 0.998 & 0.913 & 1.000 & 0.973 & \textbf{0.973} \\
+Slashdot  & 0.895 & 0.999 & \textbf{0.894} & 0.570 & 0.999 & 0.569 & 1.000 & 0.833 & 0.833 \\
+Twitter   & 0.870 & 0.999 & \textbf{0.869} & 0.595 & 0.999 & 0.594 & 1.000 & 0.478 & 0.478 \\
+DBLP      & 0.845 & 1.000 & 0.845 & 0.715 & 1.000 & 0.715 & 1.000 & 0.997 & \textbf{0.997} \\
+YouTube   & 0.915 & 1.000 & \textbf{0.915} & 0.520 & 1.000 & 0.520 & 1.000 & 0.363 & 0.363 \\
+Skitter   & 0.905 & 1.000 & 0.905 & 0.815 & 1.000 & 0.815 & 1.000 & 0.989 & \textbf{0.989} \\
+\midrule
+\multicolumn{10}{c}{\textbf{Maximum Cut}} \\
+\midrule
+Facebook  & 0.990 & 0.967 & 0.957 & 1.000 & 0.967 & \textbf{0.967} & 0.970 & 0.498 & 0.483 \\
+Wiki      & 0.960 & 0.993 & \textbf{0.953} & 0.510 & 0.993 & 0.506 & 1.000 & 0.184 & 0.184 \\
+Deezer    & 0.960 & 0.999 & 0.959 & 0.800 & 0.999 & 0.799 & 1.000 & 0.975 & \textbf{0.975} \\
+Slashdot  & 0.970 & 0.999 & \textbf{0.969} & 0.670 & 0.999 & 0.669 & 1.000 & 0.440 & 0.440 \\
+Twitter   & 0.950 & 1.000 & \textbf{0.950} & 0.290 & 1.000 & 0.290 & 1.000 & 0.022 & 0.022 \\
+DBLP      & 0.950 & 1.000 & 0.950 & 0.430 & 1.000 & 0.430 & 1.000 & 0.999 & \textbf{0.999} \\
+YouTube   & 0.970 & 1.000 & \textbf{0.970} & 0.730 & 1.000 & 0.730 & 1.000 & 0.941 & 0.941 \\
+Skitter   & 0.970 & 1.000 & 0.970 & 1.000 & 1.000 & \textbf{1.000} & 1.000 & 0.999 & 0.999 \\
+\midrule
+\multicolumn{10}{c}{\textbf{Influence Maximization}} \\
+\midrule
+Facebook  & 0.993 & 0.915 & \textbf{0.909} & 0.993 & 0.915 & \textbf{0.909} & 0.117 & 0.985 & 0.116 \\
+Wiki      & 0.966 & 0.877 & 0.848 & 1.000 & 0.877 & \textbf{0.877} & 0.828 & 0.849 & 0.703 \\
+Deezer    & 1.000 & 0.982 & \textbf{0.982} & 1.000 & 0.982 & \textbf{0.982} & 0.468 & 0.972 & 0.455 \\
+Slashdot  & 0.913 & 0.987 & 0.901 & 1.012 & 0.987 & \textbf{0.999} & 0.739 & 0.840 & 0.621 \\
+Twitter   & 0.912 & 0.999 & 0.911 & 0.969 & 0.999 & \textbf{0.968} & 0.140 & 1.000 & 0.140 \\
+DBLP      & 1.000 & 0.996 & 0.996 & 1.000 & 0.996 & 0.996 & 1.000 & 1.000 & \textbf{1.000} \\
+YouTube   & 0.917 & 0.999 & 0.917 & 0.950 & 0.999 & \textbf{0.950} & 0.981 & 0.330 & 0.324 \\
+Skitter   & 0.829 & 1.000 & 0.829 & 0.939 & 1.000 & \textbf{0.939} & 1.000 & 0.140 & 0.140 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Video Retrieval.} For the video retrieval system on UCF101, where the cost of
+each video is proportional to its length, QuickPrune outperforms random selection by 80\%
+while also outperforming the Top-$k$ approach. Figure~\ref{fig:qp-video-retrieval} shows
+the multi-budget analysis.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/quickprune/UCF101.pdf}
+  \caption{Multi-budget analysis of the video retrieval system on UCF101 under knapsack
+    constraints, where the cost of each video is proportional to its length. Budgets range
+    from 5 to 20.}
+  \label{fig:qp-video-retrieval}
+\end{figure}
+
+\subsection{Multi-Budget versus Single-Budget Comparison}
+
+We compare QuickPrune (multi-budget) with QuickPrune-Single (which prunes for the
+maximum budget only) for a range of budgets from $10$ to $100$. For size constraints, no
+significant improvement is observed for QuickPrune over QuickPrune-Single, likely due to
+the efficacy of the standard greedy algorithm for size constraints, where a greedy
+solution of smaller size is automatically contained in greedy solutions of larger sizes.
+However, for general knapsack constraints, QuickPrune typically improves by 3-10\% over
+QuickPrune-Single for Influence Maximization, while increasing the size of the reduced
+ground set by less than 1\%. Similar improvements are observed on some datasets for
+MaxCover, while for MaxCut the two variants perform similarly.
+Figure~\ref{fig:qp-multiBudget} shows the multi-budget comparison for Influence
+Maximization under knapsack constraints across four datasets.
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/quickprune/IM_Wiki.pdf}
+    \caption{Wiki}
+    \label{fig:qp-im-wiki}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/quickprune/IM_Slashdot.pdf}
+    \caption{Slashdot}
+    \label{fig:qp-im-slashdot}
+  \end{subfigure}
+
+  \vspace{0.5em}
+
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/quickprune/IM_YouTube.pdf}
+    \caption{YouTube}
+    \label{fig:qp-im-youtube}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[b]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{figures/quickprune/IM_Twitter.pdf}
+    \caption{Twitter}
+    \label{fig:qp-im-twitter}
+  \end{subfigure}
+  \caption{Multi-budget vs.\ single-budget comparison for Influence Maximization under
+    knapsack constraints. QuickPrune (multi-budget) consistently improves over
+    QuickPrune-Single across a range of budgets from 10 to 100.}
+  \label{fig:qp-multiBudget}
+\end{figure}
+
+\subsection{Computational Efficiency}
+
+QuickPrune uses only CPU resources (no GPU needed) and requires less memory than the CPU
+usage of LeNSE alone. In contrast to learning-based approaches, QuickPrune requires no
+domain knowledge, no training data, and no feature engineering. Runtimes on MaxCover range
+from 0.064 seconds on Facebook to 10.317 seconds on Skitter, compared to 3.178 to 2238
+seconds for Submodular Sparsification. While LeNSE shows the lowest combined GPU and CPU
+memory usage among the ML approaches, QuickPrune only utilizes CPU resources. Learning-based
+approaches such as LeNSE require eigenvector centrality as a node feature, which is costly
+to compute for large graphs, and COMBHelper employs computationally expensive Fourier
+Feature Mapping and problem-specific boosting.
