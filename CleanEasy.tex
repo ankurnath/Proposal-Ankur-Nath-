@@ -227,10 +227,10 @@
 
   \vspace{0.2cm}
 
-  \begin{alertblock}{Common Result}
-    All three methods prune graphs with up to 1.7 million nodes, removing over 90\% of the
-    ground set while preserving near-optimal solution quality.
-  \end{alertblock}
+  % \begin{alertblock}{Common Result}
+  %   All three methods prune graphs with up to 1.7 million nodes, removing over 90\% of the
+  %   ground set while preserving near-optimal solution quality.
+  % \end{alertblock}
 \end{frame}
 
 %========================================================================================
@@ -280,32 +280,49 @@
 \end{frame}
 
 \begin{frame}{QuickPrune-Single: How It Works}
-  For a single budget $\kappa$, stream through $\mathcal{U}$ one element at a time:
+  For a single budget $\kappa$, maintain a set $A$ of currently retained elements (initially empty) and stream through $\mathcal{U}$ one element at a time:
 
   \vspace{0.2cm}
 
   \begin{columns}
     \begin{column}{0.55\textwidth}
       \begin{enumerate}
-        \item \textbf{Skip} if $\text{cost}(e) > \kappa$
-        \item \textbf{Addition rule:} Keep $e$ if its marginal gain is ``cost-effective'':
+        \item \textbf{Feasibility check:} Skip element $e$ if $\text{cost}(e) > \kappa$
+          since it can never fit in any feasible solution
+
+        \item \textbf{Addition rule:} Keep $e$ only if its marginal gain
+          \emph{relative to its cost} exceeds a threshold:
           \[
             \Delta(e \mid A) \geq \frac{\delta \cdot c(e) \cdot f(A)}{\kappa}
           \]
-        \item \textbf{Deletion step:} When $f(A)$ grows by factor $n/\epsilon$ since last
-          checkpoint, discard old elements
-        \item Track best singleton $a^*$
-        \item Return $\mathcal{U}' = A \cup \{a^*\}$
+          This ensures we only retain elements that contribute enough
+          value per unit cost compared to what we already have
+
+        \item \textbf{Deletion step:} Periodically (when $f(A)$ grows by factor
+          $n/\epsilon$), re-evaluate all retained elements and discard those whose
+          marginal gain no longer meets the threshold, as better elements have since
+          arrived, making earlier picks redundant
+
+        \item \textbf{Singleton tracking:} Always track the single best element $a^*$
+          to guard against pathological cases
+
+        \item \textbf{Output:} Return $\mathcal{U}' = A \cup \{a^*\}$
       \end{enumerate}
     \end{column}
     \begin{column}{0.42\textwidth}
       \begin{exampleblock}{Intuition}
-        \textbf{Addition:} Only keep elements whose contribution justifies their cost.
+        \textbf{Addition:} Think of a hiring bar: only admit candidates whose
+        ``value per dollar'' clears the current standard.
 
         \vspace{0.2cm}
 
-        \textbf{Deletion:} As better elements arrive, earlier ``good enough'' elements
-        become relatively weak. Periodic cleanup keeps $|\mathcal{U}'|$ small.
+        \textbf{Deletion:} As stronger candidates arrive, the bar rises. Earlier hires
+        that no longer meet the bar are let go, keeping the team small and strong.
+
+        \vspace{0.2cm}
+
+        \textbf{Result:} A single pass through the data produces a compact pruned set
+        with provable quality guarantees.
       \end{exampleblock}
     \end{column}
   \end{columns}
@@ -331,7 +348,7 @@
   \begin{block}{Complexity}
     \begin{itemize}
       \item $\mathcal{O}(\log(\kappa_{\max}/\kappa_{\min}))$ copies running in parallel
-      \item Same number of oracle queries \textbf{per element} --- still a single pass
+      \item Same number of oracle queries \textbf{per element}.still a single pass
         through $\mathcal{U}$
     \end{itemize}
   \end{block}
@@ -349,7 +366,7 @@
     \end{itemize}
   \end{block}
 
-  \begin{block}{Theorem 2 (Multi-Budget --- Main Result)}
+  \begin{block}{Theorem 2 (Multi-Budget.Main Result)}
     For all $\kappa' \in [\kappa_{\min}, \kappa_{\max}]$ simultaneously:
     \begin{itemize}
       \item \textbf{Value:} $f_{\kappa'}(\mathcal{U}') \geq \Omega(\gamma^5) \cdot
@@ -473,7 +490,7 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}{H-DeepPruner: Stage 1 --- GNN Pre-Pruning}
+\begin{frame}{H-DeepPruner: Stage 1.GNN Pre-Pruning}
   \textbf{Goal:} Quickly eliminate the bulk of irrelevant nodes.
 
   \vspace{0.3cm}
@@ -483,9 +500,9 @@
       \begin{itemize}
         \item Train a Graph Convolutional Network (GCN) for \textbf{binary
           classification}: predict whether each node belongs in the optimal solution
-        \item \textbf{Input features:} random node initialization --- random features
+        \item \textbf{Input features:} random node initialization.random features
           break symmetry and allow the GNN to distinguish structurally equivalent nodes
-        \item \textbf{No handcrafted features needed} --- the GNN learns to extract
+        \item \textbf{No handcrafted features needed}.the GNN learns to extract
           relevant structural information directly from the graph
         \item \textbf{Training labels:} obtained by running a heuristic solver on small
           training graphs
@@ -502,7 +519,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{H-DeepPruner: Stage 2 --- Neural MCTS Fine-Pruning}
+\begin{frame}{H-DeepPruner: Stage 2.Neural MCTS Fine-Pruning}
   \textbf{Problem:} The GNN treats nodes independently, missing element interactions.
 
   \vspace{0.2cm}
@@ -804,7 +821,7 @@
     \begin{itemize}
       \item Comprehensive evaluation under \textbf{knapsack constraints} across all
         datasets and applications
-      \item LLM2Prune adapts by simply modifying the task description --- no algorithmic
+      \item LLM2Prune adapts by simply modifying the task description.no algorithmic
         changes required
     \end{itemize}
   \end{alertblock}
