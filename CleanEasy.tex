@@ -22,6 +22,7 @@
 \usepackage{algorithmic}
 \usepackage{subcaption}
 \usepackage{multirow}
+\usepackage{fontawesome5}
 
 \DeclareGraphicsExtensions{.pdf,.png}
 
@@ -72,40 +73,52 @@
     \begin{column}{0.42\textwidth}
       \centering
       \begin{tikzpicture}[scale=0.62,
-        pruned/.style={circle, draw, thick, fill=blue!15, minimum size=5mm, inner sep=0pt, font=\tiny},
-        selected/.style={circle, draw, thick, fill=red!50, minimum size=7mm, inner sep=0pt, font=\tiny},
-        hub/.style={circle, draw, thick, fill=red!70, minimum size=8mm, inner sep=0pt, font=\tiny},
-        edge/.style={thick, gray!60},
-        bridge/.style={thick, red!40!black, dashed}]
-        % Community 1 (left)
-        \node[hub] (h1) at (0,3) {$v_1$};
-        \node[selected] (a2) at (-1.2,4.2) {$v_2$};
-        \node[pruned] (a3) at (-1.5,2) {$v_3$};
-        \node[pruned] (a4) at (0.3,4.5) {$v_4$};
-        \node[pruned] (a5) at (-0.5,1) {$v_5$};
-        % Community 2 (right)
-        \node[hub] (h2) at (4,3) {$v_6$};
-        \node[selected] (b2) at (5.2,4.2) {$v_7$};
-        \node[pruned] (b3) at (5.5,2) {$v_8$};
-        \node[pruned] (b4) at (3.7,4.5) {$v_9$};
-        \node[pruned] (b5) at (4.5,1) {$v_{10}$};
-        % Community 3 (bottom)
-        \node[selected] (c1) at (2,0.5) {$v_{11}$};
-        \node[pruned] (c2) at (0.8,-0.5) {$v_{12}$};
-        \node[pruned] (c3) at (3.2,-0.5) {$v_{13}$};
-        \node[pruned] (c4) at (2,-1.2) {$v_{14}$};
-        % Intra-community edges
-        \draw[edge] (h1)--(a2) (h1)--(a3) (h1)--(a4) (h1)--(a5) (a2)--(a4) (a3)--(a5);
-        \draw[edge] (h2)--(b2) (h2)--(b3) (h2)--(b4) (h2)--(b5) (b2)--(b4) (b3)--(b5);
-        \draw[edge] (c1)--(c2) (c1)--(c3) (c1)--(c4) (c2)--(c4) (c3)--(c4);
-        % Inter-community bridges
-        \draw[bridge] (h1)--(h2);
-        \draw[bridge] (h1)--(c1);
-        \draw[bridge] (h2)--(c1);
-        \draw[bridge] (a3)--(c2);
+        person/.style={inner sep=0pt, font=\large},
+        edge/.style={thick, gray!40},
+        spread/.style={-{Stealth[length=2.5mm]}, thick, red!60!black}]
+        % Seed nodes (red people)
+        \node[person] (s1) at (0,3) {\textcolor{red!70}{\faUser}};
+        \node[person] (s2) at (4,3) {\textcolor{red!70}{\faUser}};
+        % Hop-1 activated by s1 (orange people)
+        \node[person] (a1) at (-1.2,4.2) {\textcolor{orange!80}{\faUser}};
+        \node[person] (a2) at (-1.5,2) {\textcolor{orange!80}{\faUser}};
+        \node[person] (a3) at (0.3,4.5) {\textcolor{orange!80}{\faUser}};
+        % Hop-1 activated by s2 (orange people)
+        \node[person] (b1) at (5.2,4.2) {\textcolor{orange!80}{\faUser}};
+        \node[person] (b2) at (5.5,2) {\textcolor{orange!80}{\faUser}};
+        \node[person] (b3) at (3.7,4.5) {\textcolor{orange!80}{\faUser}};
+        % Hop-2 activated (yellow people)
+        \node[person] (c1) at (-2.2,3.2) {\textcolor{yellow!70!orange}{\faUser}};
+        \node[person] (c2) at (0.8,5.3) {\textcolor{yellow!70!orange}{\faUser}};
+        \node[person] (c3) at (6.2,3.2) {\textcolor{yellow!70!orange}{\faUser}};
+        \node[person] (c4) at (2,1) {\textcolor{yellow!70!orange}{\faUser}};
+        % Inactive (gray people)
+        \node[person] (d1) at (-2.5,1) {\textcolor{gray!50}{\faUser}};
+        \node[person] (d2) at (6.5,1) {\textcolor{gray!50}{\faUser}};
+        \node[person] (d3) at (2,-0.5) {\textcolor{gray!50}{\faUser}};
+        % Influence spread arrows
+        \draw[spread] (s1)--(a1);
+        \draw[spread] (s1)--(a2);
+        \draw[spread] (s1)--(a3);
+        \draw[spread] (s2)--(b1);
+        \draw[spread] (s2)--(b2);
+        \draw[spread] (s2)--(b3);
+        \draw[spread] (a1)--(c1);
+        \draw[spread] (a3)--(c2);
+        \draw[spread] (b2)--(c3);
+        \draw[spread] (s1)--(c4);
+        \draw[spread] (s2)--(c4);
+        % Inactive edges (not activated)
+        \draw[edge] (a2)--(d1) (b1)--(d2) (c4)--(d3) (d1)--(d3) (d2)--(d3);
+        % Labels on seeds
+        \node[below=1pt, font=\tiny\bfseries, red!70!black] at (s1.south) {seed};
+        \node[below=1pt, font=\tiny\bfseries, red!70!black] at (s2.south) {seed};
         % Legend
-        \node[below] at (2,-1.9) {\small \textcolor{red!70!black}{Kept} vs.\
-          \textcolor{blue!60!black}{Pruned} \quad \textcolor{red!40!black}{- - bridges}};
+        \node[below] at (2,-1.4) {\scriptsize
+          \textcolor{red!70}{\faUser}\,Seed $\to$
+          \textcolor{orange!80}{\faUser}\,Hop 1 $\to$
+          \textcolor{yellow!70!orange}{\faUser}\,Hop 2 \quad
+          \textcolor{gray!50}{\faUser}\,Inactive};
       \end{tikzpicture}
     \end{column}
   \end{columns}
