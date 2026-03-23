@@ -263,27 +263,26 @@ Skitter   & 0.883 & 1.000 & \textbf{0.883} & 0.883 & 0.990 & 0.874 & -- & -- & -
 From Table~\ref{tab:hdp_size_constraint}, H-DeepPruner achieves the highest combined
 metric in 88\% of all tested instances across all three problems and all eight datasets.
 H-DeepPruner typically achieves a near-optimal pruning approximation ratio while pruning
-over 95\% of the original ground set. The advantage over existing methods can be
-attributed to several factors:
+over 95\% of the original ground set. H-DeepPruner significantly outperforms methods like
+COMBHelper and GCOMB, which overlook the relationships between vertices. By considering
+interdependencies among elements, H-DeepPruner ensures that the selected vertices form a
+well-balanced ground set, leading to better overall performance. The initial pruning
+process of GCOMB, based on a handcrafted heuristic, is computationally cheap and fast;
+however, except for Influence Maximization, it either prunes too little (e.g., MaxCover)
+or too much (e.g., MaxCut), indicating that GCOMB is not problem-agnostic. Similarly,
+COMBHelper performs well in problems where the pruned ground set can be large, but it
+performs poorly in problems like MaxCover and IM when the pruned ground set can be quite
+small without compromising performance. On the other hand, LeNSE exhibits a more balanced
+performance but requires tuning for each dataset and problem, whereas our approach
+generalizes across datasets and problems while achieving significantly greater pruning
+than LeNSE.
 
-\begin{itemize}
-  \item \textbf{vs.\ GCOMB:} GCOMB's initial pruning relies on a handcrafted degree
-    heuristic that does not generalize across problems. For instance, it prunes too little
-    for MaxCover (retaining 93\% of the ground set on some graphs) but too aggressively
-    for MaxCut, indicating that the heuristic is not problem-agnostic.
-  \item \textbf{vs.\ COMBHelper:} COMBHelper performs well on problems where the pruned
-    set can be large (e.g., Minimum Vertex Cover) but poorly when the pruned set must be
-    small relative to the original ground set (e.g., MaxCover, IM). It also fails to
-    produce results within the time limit on the largest graph (Skitter).
-  \item \textbf{vs.\ LeNSE:} LeNSE exhibits more balanced performance but requires
-    expensive per-dataset tuning of hyperparameters such as subgraph size and embedding
-    dimensionality, as well as computing eigenvector centrality for each node, which is
-    costly for large graphs.
-\end{itemize}
-
-In contrast, H-DeepPruner requires no computationally expensive feature computation or
-domain knowledge. It achieves a 54\% improvement in the combined metric over the leading
-competitor, LeNSE, quantified as
+Notably, compared to other learning-based models, our approach does not require any
+computationally expensive feature computation or domain knowledge. LeNSE requires
+calculating the eigenvector centrality of each node, which is a costly calculation for
+large graphs. COMBHelper relies on a problem-specific boosting module to enhance
+performance. Our approach achieves a 54\% improvement in the combined metric over the
+leading competitor, LeNSE, quantified as
 $(C_{\text{H-DeepPruner}} - C_{\text{LeNSE}}) / C_{\text{LeNSE}}$.
 An important property of H-DeepPruner is that all training is performed on small,
 synthetic ER random graphs, yet the model successfully generalizes to large,
