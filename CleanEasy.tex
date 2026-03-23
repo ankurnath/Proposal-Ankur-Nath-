@@ -1,0 +1,417 @@
+%----------------------------------------------------------------------------------------
+%    PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+\documentclass[aspectratio=169,xcolor=dvipsnames]{beamer}
+\makeatletter
+\def\input@path{{theme/}}
+\makeatother
+\usetheme{CleanEasy}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{fix-cm}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes, arrows, calc, decorations.pathreplacing, arrows.meta, backgrounds, patterns, overlay-beamer-styles}
+\usepackage{etoolbox}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{subcaption}
+\usepackage{multirow}
+
+\DeclareGraphicsExtensions{.pdf,.png}
+
+%----------------------------------------------------------------------------------------
+%    LAYOUT CONFIGURATION
+%----------------------------------------------------------------------------------------
+\input{configs/configs}
+%----------------------------------------------------------------------------------------
+%    TITLE PAGE
+%----------------------------------------------------------------------------------------
+\input{configs/title_page}
+%----------------------------------------------------------------------------------------
+
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}[plain]{Outline}
+  \tableofcontents
+\end{frame}
+
+%========================================================================================
+% INTRODUCTION
+%========================================================================================
+\section{Introduction}
+
+\begin{frame}{Motivation}
+  \begin{itemize}
+    \item Many combinatorial optimization (CO) problems are naturally defined on graphs
+      (social networks, transportation, telecommunications)
+    \item These problems are NP-hard: even best heuristics degrade in runtime and solution
+      quality as problem size grows
+    \item Modern instances exhibit \textbf{billion-scale ground sets} with many
+      uninformative or redundant elements
+  \end{itemize}
+
+  \vspace{0.4cm}
+
+  \begin{block}{Key Idea: Search Space Pruning}
+    Construct a much smaller ground set $\mathcal{U}' \subseteq \mathcal{U}$ with
+    $|\mathcal{U}'| \ll |\mathcal{U}|$ such that:
+    \[
+      \frac{f(\mathcal{H}(\mathcal{U}'))}{f(\mathcal{H}(\mathcal{U}))} \approx 1
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Contributions Overview}
+  This proposal presents three complementary approaches to pruning:
+
+  \vspace{0.3cm}
+
+  \begin{enumerate}
+    \item \textbf{QuickPrune} (AISTATS 2025) --- Theoretically grounded, single-pass
+      pruning with provable guarantees
+    \item \textbf{H-DeepPruner} (SoCS 2025) --- GNN pre-pruning + Neural MCTS
+      fine-pruning, no handcrafted features
+    \item \textbf{LLM2Prune} (Proposed) --- LLM-directed beam search for automated
+      feature discovery
+  \end{enumerate}
+
+  \vspace{0.3cm}
+
+  \begin{alertblock}{Common Result}
+    All methods prune over 90\% of the ground set while preserving near-optimal solution
+    quality.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Evaluation Metrics}
+  Following prior work, we evaluate pruning algorithms using three metrics:
+
+  \vspace{0.3cm}
+
+  \begin{itemize}
+    \item \textbf{Pruning approximation ratio} $P_r = f(\mathcal{H}(\mathcal{U}')) /
+      f(\mathcal{H}(\mathcal{U}))$
+    \item \textbf{Pruned fraction} $P_g$ = proportion of ground set removed
+    \item \textbf{Combined metric} $C = P_r \cdot P_g$
+  \end{itemize}
+
+  \vspace{0.3cm}
+
+  \begin{block}{Applications}
+    Three graph CO problems: Maximum Coverage (MaxCover), Maximum Cut (MaxCut), and
+    Influence Maximization (IM), evaluated on 8 real-world SNAP datasets.
+  \end{block}
+\end{frame}
+
+%========================================================================================
+% QUICKPRUNE
+%========================================================================================
+\section{QuickPrune (AISTATS 2025)}
+
+\begin{frame}{QuickPrune: Key Idea}
+  \begin{itemize}
+    \item \textbf{Single-pass} algorithm: processes each element exactly once
+    \item Provides \textbf{theoretical guarantees} on both $P_r$ and $P_g$
+    \item Works under $\gamma$-weakly submodular objectives with size and knapsack
+      constraints
+  \end{itemize}
+
+  \vspace{0.3cm}
+
+  \begin{block}{Key Assumptions}
+    \begin{itemize}
+      \item $\gamma$-weak submodularity: $f(e \mid S) \geq \gamma \cdot f(e \mid T)$
+        for $S \subseteq T$
+      \item Bounded marginal contributions relative to optimal value
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{QuickPrune: Algorithm}
+  \begin{columns}
+    \begin{column}{0.55\textwidth}
+      \begin{enumerate}
+        \item Stream through elements of $\mathcal{U}$
+        \item For each element $e$, compute marginal gain $f(e \mid A)$
+        \item If gain exceeds threshold $\tau$, add $e$ to candidate set $A$
+        \item Periodically delete weaker elements when accumulated gain exceeds
+          deletion threshold
+        \item Return pruned ground set $\mathcal{U}' = A \cup \{a^*\}$
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{block}{Theoretical Results}
+        \textbf{Theorem 1:} $f(\text{OPT}(\mathcal{U}')) \geq (1-\epsilon) \cdot
+          f(\text{OPT}(\mathcal{U}))$
+
+        \vspace{0.2cm}
+
+        \textbf{Theorem 2:} $|\mathcal{U}'|$ is bounded by a function of $\gamma$,
+        $\epsilon$, and the budget $B$.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{QuickPrune: Size Constraint Results}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.55\textwidth]{figures/quickprune/MaxCover_performance.pdf}
+    \caption{Combined metric $C$ across methods and datasets for Maximum Coverage.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{QuickPrune: Multi-Budget Generalization}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Wiki.pdf}%
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Slashdot.pdf}%
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_YouTube.pdf}%
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Twitter.pdf}
+    \caption{Influence Maximization: pruned ground sets trained for $k=100$ remain
+      effective across lower budgets.}
+  \end{figure}
+\end{frame}
+
+%========================================================================================
+% H-DEEPPRUNER
+%========================================================================================
+\section{H-DeepPruner (SoCS 2025)}
+
+\begin{frame}{H-DeepPruner: Motivation}
+  \begin{itemize}
+    \item QuickPrune processes elements \textbf{sequentially} --- scalability bottleneck
+      for \#P-hard marginal gains
+    \item Existing learning-based methods require \textbf{problem-specific domain
+      knowledge}
+    \item H-DeepPruner: adaptive two-stage framework combining supervised learning with
+      reinforcement learning
+  \end{itemize}
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/hdeeppruner/framework.pdf}
+    \caption{H-DeepPruner: GNN pre-pruning followed by Neural MCTS fine-pruning.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{H-DeepPruner: Two Stages}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Stage 1: GNN Pre-Pruning}
+        \begin{itemize}
+          \item GCN trained on random node features
+          \item Binary classification: keep or discard
+          \item Fast inference, no handcrafted features
+          \item Quickly eliminates clearly irrelevant nodes
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Stage 2: Neural MCTS Fine-Pruning}
+        \begin{itemize}
+          \item MDP formulation over remaining nodes
+          \item MCTS with progressive widening and deepening
+          \item Captures interdependencies among elements
+          \item Refines the pruned ground set
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{H-DeepPruner: Results}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{figures/hdeeppruner/violin_plots.pdf}
+        \caption{Distribution of combined metric across datasets.}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{figures/hdeeppruner/speed_up.pdf}
+        \caption{Speed-up of downstream heuristic after pruning.}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%========================================================================================
+% LLM2PRUNE
+%========================================================================================
+\section{LLM2Prune (Proposed Work)}
+
+\begin{frame}{LLM2Prune: Motivation}
+  \textbf{Remaining limitations of prior approaches:}
+
+  \vspace{0.2cm}
+
+  \begin{itemize}
+    \item Classical methods (QuickPrune, SS): sequential processing, do not scale to very
+      large graphs
+    \item Learning-based methods (H-DeepPruner, GCOMB-P, LeNSE, COMBHelper): rely on
+      handcrafted features or domain knowledge
+    \item Most learning-based methods designed for size constraints only
+  \end{itemize}
+
+  \vspace{0.3cm}
+
+  \begin{block}{Key Question}
+    Can we design a scalable pruning framework that \textbf{avoids handcrafted features},
+    delivers strong performance across \textbf{general CO problems}, and adapts easily to
+    \textbf{different constraints}?
+  \end{block}
+\end{frame}
+
+\begin{frame}{LLM2Prune: Framework}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/llm2prune/LLM_cropped.pdf}
+    \caption{LLM-directed beam search over the feature space with expansion and pruning
+      phases.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{LLM2Prune: Method Overview}
+  \begin{enumerate}
+    \item \textbf{Decision tree formulation:} Each node stores a feature set, trained
+      classifier, performance metric, and cumulative history
+    \item \textbf{Expansion phase:} LLM proposes $\gamma$ child feature sets per beam
+      node, generates executable code, trains GCN with semi-supervised learning
+    \item \textbf{Pruning phase:} Select top-$\beta$ nodes by combined metric $C$
+    \item \textbf{Feature importance feedback:} GNNExplainer scores guide next iteration
+    \item \textbf{Output:} Best classifier fine-tuned on target graph
+  \end{enumerate}
+
+  \vspace{0.2cm}
+
+  \begin{block}{Key Design Choices}
+    \begin{itemize}
+      \item Cumulative history prevents re-proposing discarded features
+      \item Semi-supervised learning mitigates label noise
+      \item Beam search on synthetic proxy graphs for efficiency
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{LLM2Prune: Preliminary Results (Size Constraint)}
+  \begin{itemize}
+    \item Competitive with classical methods on combined metric
+    \item \textbf{Orders of magnitude faster} on large graphs (YouTube, Skitter)
+    \item Consistently outperforms all learning-based baselines
+  \end{itemize}
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/llm2prune/runtimes_radar.pdf}
+    \caption{Runtime comparison (log scale) across eight datasets.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{LLM2Prune: Discovered Features}
+  LLM2Prune discovers features grounded in the problem objective:
+
+  \vspace{0.3cm}
+
+  \begin{itemize}
+    \item \textbf{MaxCut:} random cut expectation (expected contribution under random
+      partition)
+    \item \textbf{IM:} average incoming activation probability, outgoing activation
+      probability sum
+  \end{itemize}
+
+  \vspace{0.3cm}
+
+  These features would require significant domain expertise to design manually, yet
+  LLM2Prune discovers them \textbf{automatically from the task description alone}.
+\end{frame}
+
+\begin{frame}{LLM2Prune: Ablation Study}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/llm2prune/ablation.pdf}
+    \caption{Beam search achieves higher and more stable performance compared to
+      single-shot and simple feedback loop variants.}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{LLM2Prune: Remaining Work}
+  \begin{block}{Completed}
+    \begin{itemize}
+      \item Framework design and implementation
+      \item Ablation study justifying beam search
+      \item Comprehensive evaluation under size constraints
+    \end{itemize}
+  \end{block}
+
+  \vspace{0.3cm}
+
+  \begin{alertblock}{Remaining}
+    \begin{itemize}
+      \item Comprehensive evaluation under knapsack constraints
+      \item LLM2Prune adapts by simply modifying the task description
+    \end{itemize}
+  \end{alertblock}
+\end{frame}
+
+%========================================================================================
+% TIMELINE
+%========================================================================================
+\section{Timeline}
+
+\begin{frame}{Research Timeline}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{ll}
+      \toprule
+      \textbf{Milestone} & \textbf{Timeframe} \\
+      \midrule
+      QuickPrune (AISTATS 2025) & Completed \\
+      H-DeepPruner (SoCS 2025) & Completed \\
+      LLM2Prune: Size constraint experiments \& ablation & Completed \\
+      Preliminary Exam \& Proposal Defense & April 2026 \\
+      LLM2Prune: Knapsack experiments \& manuscript & April -- June 2026 \\
+      Thesis Writing & July -- September 2026 \\
+      Thesis Defense & October 2026 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+%========================================================================================
+% THANK YOU
+%========================================================================================
+
+\begin{frame}[plain]
+  \centering
+  \Huge \textbf{Thank You!}
+
+  \vspace{1cm}
+  \normalsize
+  Ankur Nath\\
+  \vspace{0.3cm}
+  Department of Computer Science\\
+  Texas A\&M University
+
+  \vspace{0.5cm}
+  \small
+  \href{mailto:ankurnath@tamu.edu}{ankurnath@tamu.edu}
+\end{frame}
+
+\end{document}
