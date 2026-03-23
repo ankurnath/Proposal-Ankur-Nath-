@@ -247,9 +247,6 @@ both objectives. Since an algorithm could trivially achieve the highest score in
 by disregarding the other (pruning nothing or pruning everything), the combined metric
 provides a balanced evaluation.
 
-\textbf{Hyperparameters.} We set $\delta = 0.1$, $\epsilon = 0.1$, $\eta = 0.5$ for the
-graph CO problems; $\delta = 0.5$ for knapsack-constrained MaxCover; and $\delta = 0.05$,
-$\epsilon = 0.1$, $\eta = 0.5$ for image and video retrieval.
 
 \subsection{Results on Size Constraints}
 
@@ -453,30 +450,28 @@ Maximization under knapsack constraints across four datasets.
 
 \begin{figure}[t]
   \centering
-  \begin{subfigure}[b]{0.48\textwidth}
+  \begin{subfigure}[b]{0.24\textwidth}
     \centering
     \includegraphics[width=\textwidth]{figures/quickprune/IM_Wiki.pdf}
     \caption{Wiki}
     \label{fig:qp-im-wiki}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[b]{0.48\textwidth}
+  \begin{subfigure}[b]{0.24\textwidth}
     \centering
     \includegraphics[width=\textwidth]{figures/quickprune/IM_Slashdot.pdf}
     \caption{Slashdot}
     \label{fig:qp-im-slashdot}
   \end{subfigure}
-
-  \vspace{0.5em}
-
-  \begin{subfigure}[b]{0.48\textwidth}
+  \hfill
+  \begin{subfigure}[b]{0.24\textwidth}
     \centering
     \includegraphics[width=\textwidth]{figures/quickprune/IM_YouTube.pdf}
     \caption{YouTube}
     \label{fig:qp-im-youtube}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[b]{0.48\textwidth}
+  \begin{subfigure}[b]{0.24\textwidth}
     \centering
     \includegraphics[width=\textwidth]{figures/quickprune/IM_Twitter.pdf}
     \caption{Twitter}
@@ -487,15 +482,3 @@ Maximization under knapsack constraints across four datasets.
     QuickPrune-Single across a range of budgets from 10 to 100.}
   \label{fig:qp-multiBudget}
 \end{figure}
-
-\subsection{Computational Efficiency}
-
-QuickPrune uses only CPU resources (no GPU needed) and requires less memory than the CPU
-usage of LeNSE alone. In contrast to learning-based approaches, QuickPrune requires no
-domain knowledge, no training data, and no feature engineering. Runtimes on MaxCover range
-from 0.064 seconds on Facebook to 10.317 seconds on Skitter, compared to 3.178 to 2238
-seconds for Submodular Sparsification. While LeNSE shows the lowest combined GPU and CPU
-memory usage among the ML approaches, QuickPrune only utilizes CPU resources. Learning-based
-approaches such as LeNSE require eigenvector centrality as a node feature, which is costly
-to compute for large graphs, and COMBHelper employs computationally expensive Fourier
-Feature Mapping and problem-specific boosting.
