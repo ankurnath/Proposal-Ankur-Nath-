@@ -50,7 +50,7 @@
 %========================================================================================
 % INTRODUCTION
 %========================================================================================
-\section{Introduction \& Motivation}
+\section{Motivation}
 
 \begin{frame}{Graph Combinatorial Optimization is Everywhere}
   \begin{columns}
@@ -58,10 +58,10 @@
       \begin{itemize}
         \item \textbf{Social networks:} Identify the most influential users to maximize
           information spread (Influence Maximization)~\cite{kempe2003maximizing}
-        \item \textbf{Network design:} Select nodes to maximize coverage of a
-          communication network (Maximum Coverage)~\cite{khuller1999budgeted}
-        \item \textbf{Graph partitioning:} Find a subset of nodes that maximizes the
-          number of edges crossing the partition (Maximum Cut)
+        \item \textbf{Resource allocation:} Select facilities to maximize coverage under a
+          budget constraint (Budgeted Facility Location)~\cite{khuller1999budgeted}
+        \item \textbf{Circuit design:} Partition components to minimize connections
+          across chips (Maximum Cut)
       \end{itemize}
 
       \vspace{0.3cm}
@@ -71,19 +71,41 @@
     \end{column}
     \begin{column}{0.42\textwidth}
       \centering
-      \begin{tikzpicture}[scale=0.75,
-        node/.style={circle, draw, thick, fill=blue!20, minimum size=6mm, inner sep=0pt},
-        selected/.style={circle, draw, thick, fill=red!50, minimum size=6mm, inner sep=0pt}]
-        \node[selected] (a) at (0,3) {$v_1$};
-        \node[node] (b) at (2,4) {$v_2$};
-        \node[selected] (c) at (4,3) {$v_3$};
-        \node[node] (d) at (1,1.5) {$v_4$};
-        \node[node] (e) at (3,1.5) {$v_5$};
-        \node[node] (f) at (2,0) {$v_6$};
-        \draw[thick] (a)--(b) (b)--(c) (a)--(d) (b)--(d) (b)--(e)
-          (c)--(e) (d)--(e) (d)--(f) (e)--(f);
-        \node[below] at (2,-0.6) {\small \textcolor{red!70!black}{Selected} vs.\
-          \textcolor{blue!60!black}{Pruned}};
+      \begin{tikzpicture}[scale=0.62,
+        pruned/.style={circle, draw, thick, fill=blue!15, minimum size=5mm, inner sep=0pt, font=\tiny},
+        selected/.style={circle, draw, thick, fill=red!50, minimum size=7mm, inner sep=0pt, font=\tiny},
+        hub/.style={circle, draw, thick, fill=red!70, minimum size=8mm, inner sep=0pt, font=\tiny},
+        edge/.style={thick, gray!60},
+        bridge/.style={thick, red!40!black, dashed}]
+        % Community 1 (left)
+        \node[hub] (h1) at (0,3) {$v_1$};
+        \node[selected] (a2) at (-1.2,4.2) {$v_2$};
+        \node[pruned] (a3) at (-1.5,2) {$v_3$};
+        \node[pruned] (a4) at (0.3,4.5) {$v_4$};
+        \node[pruned] (a5) at (-0.5,1) {$v_5$};
+        % Community 2 (right)
+        \node[hub] (h2) at (4,3) {$v_6$};
+        \node[selected] (b2) at (5.2,4.2) {$v_7$};
+        \node[pruned] (b3) at (5.5,2) {$v_8$};
+        \node[pruned] (b4) at (3.7,4.5) {$v_9$};
+        \node[pruned] (b5) at (4.5,1) {$v_{10}$};
+        % Community 3 (bottom)
+        \node[selected] (c1) at (2,0.5) {$v_{11}$};
+        \node[pruned] (c2) at (0.8,-0.5) {$v_{12}$};
+        \node[pruned] (c3) at (3.2,-0.5) {$v_{13}$};
+        \node[pruned] (c4) at (2,-1.2) {$v_{14}$};
+        % Intra-community edges
+        \draw[edge] (h1)--(a2) (h1)--(a3) (h1)--(a4) (h1)--(a5) (a2)--(a4) (a3)--(a5);
+        \draw[edge] (h2)--(b2) (h2)--(b3) (h2)--(b4) (h2)--(b5) (b2)--(b4) (b3)--(b5);
+        \draw[edge] (c1)--(c2) (c1)--(c3) (c1)--(c4) (c2)--(c4) (c3)--(c4);
+        % Inter-community bridges
+        \draw[bridge] (h1)--(h2);
+        \draw[bridge] (h1)--(c1);
+        \draw[bridge] (h2)--(c1);
+        \draw[bridge] (a3)--(c2);
+        % Legend
+        \node[below] at (2,-1.9) {\small \textcolor{red!70!black}{Kept} vs.\
+          \textcolor{blue!60!black}{Pruned} \quad \textcolor{red!40!black}{- - bridges}};
       \end{tikzpicture}
     \end{column}
   \end{columns}
