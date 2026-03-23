@@ -1,0 +1,12 @@
+\section{Introduction}
+
+
+We briefly summarize our contributions as follows:
+
+\begin{itemize}
+    \item We propose a novel pruning method called QuickStream, which reduces the search space for computationally expensive submodular maximization problems with cardinality and knapsack constraints. To the best of our knowledge, we are the first to provide a theoretical guarantee of an optimality bound for knapsack-constrained submodular monotone functions.
+
+    \item Our algorithm achieves significant reductions (typically over 90\%) in the size of the ground set, while maintaining—or even slightly exceeding—the solution quality of the original (and more costly) heuristic algorithms applied to the full ground set. Specifically for the cardinality constraint, extensive experiments demonstrate that our algorithm outperforms several state-of-the-art classical and machine learning algorithms on four combinatorial problems, all while substantially reducing computational costs.
+
+    \item Finally, we introduce a generalized version of QuickStream that applies to a range of constraints. Our analysis shows that with only a minimal increase in ground set size, our algorithm can efficiently find solutions for generalized budget constraints.  
+\end{itemize}

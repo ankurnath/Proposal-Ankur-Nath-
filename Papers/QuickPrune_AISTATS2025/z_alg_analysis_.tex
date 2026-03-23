@@ -1,0 +1,199 @@
+
+\documentclass{article}
+\usepackage{algorithm}
+\usepackage[noend]{algorithmic}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{parskip}
+\usepackage{amsmath} 
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\theoremstyle{definition}
+\newtheorem{fact}{Fact}
+
+\newcommand{\uni}{\mathcal{U}}
+\newcommand{\epsi}{\varepsilon}
+\newcommand{\marge}[2]{ \Delta \left( #1 | #2 \right) }
+\newcommand{\opt}{\textsc{OPT}}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\begin{document}
+\section{Algorithm}
+\begin{algorithm}[htb]
+	\caption{Pruning for a single constraint.}
+	\begin{algorithmic}[1] \label{alg:single}
+		\STATE \textbf{Input:} ground set $(\uni , c)$, oracle $f$, budget constraint $\kappa$, $\delta > 0$, $\epsi > 0$
+		\STATE \textbf{Output:} Pruned ground set, $\uni'$
+		\STATE \textbf{Initialize:} $A \gets \emptyset$, $a^* \gets \emptyset$, $A_s \gets \emptyset$
+                \FOR {$e \in \uni$}
+                \IF{ $c(e) > \kappa$  }
+                \STATE \textbf{continue}
+                \ENDIF{}
+                \IF{$ \marge{e}{A} \ge \frac{\delta c(e) f(A) }{ \kappa }$ \label{line:add}}
+                \STATE $A \gets A + e$
+                \ENDIF{}
+                \IF{ $f(e) > f(a^*)$  }
+                \STATE $a^* \gets e$
+                \ENDIF
+                \IF{ $f(A) > \frac{ n }{ \epsi } f(A_s) $\label{line:delete} }
+                \STATE $A \gets A \setminus A_s$ \label{line:delete-set}
+                \STATE $A_s \gets A$
+                \ENDIF
+                \ENDFOR
+                \STATE \textbf{return} $\uni' \gets A + a^*$ 
+	\end{algorithmic}
+\end{algorithm}
+\subsection{Analysis}
+\begin{fact} \label{fact:1}
+  Let $(y_i)_{i=1}^m$ be a sequence of positive real numbers, such that, for some $\beta > 0$, it holds that $y_i \ge (1 + \beta)y_{i-1}$, for all $i \in [m]$. Let $\gamma > 0$. Then, if $m \ge \frac{\beta + 1}{\beta}\log \gamma^{-1} $, it holds that $y_m \ge y_1 / \gamma$.
+\end{fact}
+\begin{proof} ...
+\end{proof}
+\begin{proposition} \label{prop:uprime-size}
+  The size of $\uni'$, as returned by Alg. \ref{alg:single}, satisfies
+  $$|\uni'| < 2 \left( 1 + \frac{\kappa }{\delta c_{min} } \right) \log ( n / \epsi ) + 3,$$
+  where $c_{min} = \min_{a \in \uni } c(a).$
+  %Throughout the execution of Alg. \ref{alg:single}, it holds that $|A| \le ?$
+\end{proposition}
+\begin{proof}
+  Let $m^* = \left( 1 + \frac{\kappa }{\delta c_{min} } \right) \log ( n / \epsi ) + 1.$
+  
+  First, we show that at any time during the execution of Alg. \ref{alg:single}, $|A| \le m^* + |A_s|$.
+  Fix a value $B$ of $A_s$, and let $A_i, 1 \le i \le m$ assume all distinct values of $A$ while $A_s$
+  has value $B$, in the order in which they were assigned. Thus, $A_1 = A_s$, $A_2 = A_s + e_1, \ldots, A_m = A_s + e_1 + \ldots + e_{m-1}$.
+  Then, let $(y_i = f(A_i))_{i=1}^m$. By Line \ref{line:add}, $y_i \ge \left( 1 + \frac{\delta c_{min}}{\kappa } \right) y_{i-1}$, for each $i \in [m]$. Let $\beta = \frac{\delta c_{min}}{\kappa }$; then by Fact \ref{fact:1}, if $i \ge m^* - 1$, then $y_i \ge \frac{n}{\epsi} y_1$, and a deletion is triggered on Line \ref{line:delete}, which changes the value of $A_s$. Hence, we have $m \le m^*$, which shows $|A| \le |A_s| = m^*$.
+
+  Observe that after a deletion, $|A_s| = m \le m^*$. Since $A_s$ has initial value $\emptyset$, it holds that $|A_s| \le m^*$ throughout the execution of the algorithm. Therefore, $|A| \le 2m^*$, and thus $|\uni'| \le 2m^* +1$. 
+\end{proof}
+\begin{proposition} \label{prop:ahat-adot}
+  Let $A_i$ be the value of $A$ after the execution of iteration $i$ of the \textbf{for} loop,
+  for $i = 1$ to $n$, and $A_0 = \emptyset$. 
+  Let $\hat A = \bigcup A_j, \dot A = A_n$. Then $f( \dot A ) \ge (1 - \epsi )f( \hat A)$. 
+\end{proposition}
+\begin{proof}
+  Let $( \dot B_i )_{i=1}^m$ be the sequence of sets deleted by the algorithm on
+  Line \ref{line:delete-set}, in the order in which they were deleted.
+  Let $j(i)$ be the iteration of the \textbf{for} loop on which $B_i$
+  was deleted, and let $A_{j(i)}$ be the value of the set $A$ at the
+  beginning of iteration $j(i)$. Let $B_0 = \hat A$, and let
+  $B_i = B_{i-1} \setminus \hat B_i$, for $i = 1$ to $m$.
+  Observe that $B_m = \dot A$.
+
+  We have that
+  \begin{align*}
+    f( B_{i-1} ) - f(B_i) &\overset{(a)}{\le} f( \dot B_i ) \\
+                          &\overset{(b)}{<} \frac{\epsi}{n} f( A_{j(i)} ) \\
+                          &\overset{(c)}{\le} \frac{\epsi}{n} f( \hat A ),
+  \end{align*}
+  where Inequality (a) follows from submodularity,
+  Inequality (b) is from the condition to delete set $\dot B_i$ on Line \ref{line:delete},
+  and Inequality (c) follows from monotonicity.
+  From here,
+  \begin{align*}
+    f( \hat A ) - f( \dot A ) &= \sum_{i=1}^m f( B_{i-1} ) - f( B_i ) \\
+    &\le m \cdot \frac{\epsi}{n} f( \hat A ) \le \epsi f( \hat A ). 
+  \end{align*}
+\end{proof}
+\begin{lemma} \label{lemma:value-inside-A}
+  Let $\delta, \kappa > 0$. Suppose $A_i = \{ a_1, \ldots a_i \}$ is a sequence of sets satisfying
+  (1) $c(a_i) \le \kappa$, and (2) $\marge{ a_i }{ A_{i - 1} } \ge \frac{\delta c( a_i ) f( A_{i -1 } ) }{ \kappa }$,
+  for each $i$ from $1$ to $m$. Let $f( a^* ) \ge \max_{i \in [m]} f(a_i)$, and $c(a^*) \le \kappa$.
+  Then there exists $A^* \subseteq A_m + a^*$, such that $c( A^* ) \le \kappa$, and $f( A^* ) \ge \frac{ \delta }{2(\delta + 1)} f(A_m)$.
+\end{lemma}
+\begin{proof}
+  If $c(A_m) \le \kappa$, let $A^* = A_m$ and there is nothing to show.
+  Otherwise, let $A' =  \{a_{i'}, \ldots, a_m \}$, where $i' = \max_{i \in [m]} \{ i: c( \{ a_i, \ldots, a_m \} ) > \kappa \}$.
+  We have
+  \begin{align*}
+    f(A') &\overset{(a)}{\ge} f(A_m) - f( A_m \setminus A') \\
+          &\overset{(b)}{=} \sum_{i=i'}^m \marge{ a_i }{ A_{i-1} } \\
+          &\overset{(c)}{\ge} \sum_{i=i'}^m \frac{ \delta c(a_i) f( A_{i-1} )}{\kappa} \\
+          &\overset{(d)}{>} \delta f(A_{i'-1} ) = \delta f( A \setminus A' ),
+  \end{align*}
+  where Inequality (a) follows from submodularity and nonnegativity, Equality (b)
+  is a telescoping sum, Inequality (c) is from the assumed condition (2), and Inequality
+  (d) is from monotonicity and the fact that $c( A' ) > \kappa$.
+  Thus
+  $$ f(A_m) \le f(A') + f( A_m \setminus A') < (1 + 1/\delta) f(A') = \frac{\delta +1}{\delta } f(A').$$
+  Let $A'' = A' \setminus a_{i'}$; by choice of $A'$, it holds that $c(A'') \le \kappa$.
+  Finally, from submodularity, $$f( a^* ) + f(A'') \ge f(a_{i'}) + f(A'') \ge f(A') \ge \frac{\delta}{\delta + 1} f(A_m).$$
+  Thus, set $A^* = \argmax \{ f( a^* ), f(A'') \}$. 
+\end{proof}
+\begin{proposition} \label{prop:aprime}
+  There exists $A' \subseteq \uni' = \dot A + a^*$, such that  $f(A') \ge \frac{\delta}{2(\delta + 1)} f(\dot A )$
+  and $c(A') \le \kappa$. 
+\end{proposition}
+\begin{proof}
+  Let $\dot A = \{\dot a_1, \ldots, \dot a_m \}$ be in the order in which the elements were added into set $A$.
+  That is, if $j(i)$ the iteration of the \textbf{for} loop in which $\dot a_i$ is considered, $i < i'$ implies
+  $j(i) < j(i')$. Let $A_j$ be the value of the set $A$ at the beginning of iteration $j$ of the \textbf{for}
+  loop.
+  Then
+  \begin{align*}
+    \marge{ \dot a_i }{ \dot A_{i-1} } &\overset{(a)}{\ge} \marge{ \dot a_i }{ A_{j(i)} } \\
+                                       &\overset{(b)}{\ge} \frac{ \delta c( \dot a_i ) f( A_{j(i)} )}{\kappa} \\
+                                       &\overset{(c)}{\ge} \frac{ \delta c( \dot a_i ) f( \dot A_{i - 1} )}{\kappa},
+  \end{align*}
+  where (a) follows from submodularity since $\dot A_{i-1} \subseteq A_{j(i)}$,
+  (b) follows from the condition on Line \ref{line:add},
+  (c) follows from monotonicity. 
+  Also $c(\dot a_i ) \le \kappa$, for all $i$. Therefore, $\dot A_i$ and $a^*$ satisfy the conditions of
+  Lemma \ref{lemma:value-inside-A}, which implies the result. 
+\end{proof}
+\begin{proposition} \label{prop:opt-ahat}
+  Suppose Alg. \ref{alg:single} is run on instance $(\uni,c,f,\kappa )$ with
+  parameters $\delta, \epsi > 0$. 
+  Let $\hat A = \bigcup_{j \in [n]} A_j$ be all elements added to $A$.
+  Then $f( \hat A ) \ge \opt / (1 + \delta )$, where $\opt = \max_{S \subseteq \uni: c(S) \le \kappa } f(S).$
+\end{proposition}
+\begin{proof}
+  Let $O \subseteq \uni$, such that $c(O) \le \kappa$ and $f(O) = \opt$.
+  For each $e \in \uni$, let $j(e)$ be the iteration of the \textbf{for}
+  loop in which $e$ was considered, and let $A_j$ be the value of the set
+  $A$ at the beginning of the $j$th iteration. 
+  Then
+  \begin{align*}
+    \opt - f( \hat A ) &\overset{(a)}{\le } f( O \cup \hat A ) - f( \hat A) \\
+                       &\overset{(b)}{\le } \sum_{o \in O \setminus \hat A} \marge{o}{ \hat A } \\
+                       &\overset{(c)}{\le} \sum_{o \in O \setminus \hat A} \marge{o}{ A_{j(o)} } \\
+                       &\overset{(d)}{<} \sum_{o \in O \setminus \hat A} \frac{\delta c(o) f(A_{j(o)})}{\kappa } \\
+                       &\overset{(e)}{\le} \sum_{o \in O \setminus \hat A} \frac{\delta c(o) f( \hat A )}{\kappa } \\
+                       &\overset{(f)}{\le} \delta f( \hat A ),
+  \end{align*}
+  where (a) follows from monotonicity,
+  (b) follows from submodularity,
+  (c) follows from submodularity since $A_{j(o)} \subseteq \hat A$,
+  (d) holds since the condition on Line \ref{line:add} must have failed since $o \not \in \hat A$,
+  (e) follows from monotonicity, and $(f)$ holds since $\sum_{o \in O} c(o) \le \kappa$.
+\end{proof}
+\begin{theorem}
+  Let Alg. \ref{alg:single} be run on instance $(\uni, c, f, \kappa)$, with parameters $\epsi, \delta > 0.$
+  Then, Alg. \ref{alg:single} produces pruned universe $\uni'$, such that
+  $| \uni ' | < 2 \left( 1 + \frac{\kappa }{\delta c_{min} } \right) \log ( n / \epsi ) + 3,$
+  and there exists $A' \subseteq \uni'$, such that $c(A') \le \kappa$ and
+  $f(A') \ge \frac{\delta (1 - \epsi)}{2(\delta + 1)^2} \opt$.
+  Maximizing the ratio over $\delta$ yields $f(A') \ge \frac{(1 - \epsi)}{8} \opt$ at $\delta = 1$. 
+\end{theorem}
+\begin{proof}
+  The size bound on $\uni'$ is by Proposition \ref{prop:uprime-size}.
+  Let $A_j$ be the value of the set
+  $A$ at the beginning of the $j$th iteration. 
+  Let $\dot A = A_{n+1}$ be the final value of $A$,
+  $\hat A = \bigcup_{i \in [n + 1]} A_i$.
+  Let $A'$ be as guaranteed by Proposition \ref{prop:aprime}.
+  Then
+  \begin{align*}
+    f(A') &\overset{(a)}{\ge} \frac{\delta}{2(\delta + 1)} f( \dot A ) \\
+          &\overset{(b)}{\ge} \frac{\delta (1 - \epsi)}{2(\delta + 1)} f( \hat A ) \\
+          &\overset{(c)}{\ge} \frac{\delta (1 - \epsi)}{2(\delta + 1)^2} \opt,
+  \end{align*}
+  where (a) is by Prop. \ref{prop:aprime},
+  (b) is by Prop. \ref{prop:ahat-adot},
+  and (c) is by Prop. \ref{prop:opt-ahat}.
+\end{proof}
+\end{document}

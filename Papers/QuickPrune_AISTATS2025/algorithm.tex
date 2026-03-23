@@ -1,0 +1,361 @@
+\section{QUICKPRUNE: A PRUNING ALGORITHM WITH GUARANTEES} \label{sec:alg} 
+In this section, we describe the pruning algorithms introduced in this paper.
+In Section \ref{sec:prune-single},
+we describe the pruning algorithm for a single knapsack constraint.
+The main pruning algorithm (\qs, Alg. \ref{alg:multi}) runs multiple
+copies of the single constraint algorithm in parallel, as detailed
+in Section \ref{sec:prune-multi}.
+
+To prove theoretical guarantees for \qs, we make
+the following assumption on the costs. Intuitively, the assumption
+says that no element of an optimal solution consumes a very large
+fraction of the total budget. 
+\begin{assumption}[No Huge Items (\nhi)]
+  Given an instance $(f,c,\kappa)$ of \sm,
+  the instance satisfies the assumption with $\eta > 0$
+  if there exists an optimal solution $O$ to the
+  instance, such that, for all $o \in O$, $c(o) \le \kappa (1-\eta)$.
+\end{assumption}
+For example, in the case of size constraint, this assumption is
+satisfied if $\kappa \ge 2$ and $\eta \le 1/2$. 
+
+Our theoretical guarantees for the main pruning algorithm are
+summarized in Theorem \ref{thm:multi}, which is proved in Section \ref{sec:prune-multi}.
+Observe that we show a constant factor $C$ of the optimal value is retained
+for all budgets in the range $[\kappa_{\min}, \kappa_{\max}]$; the desired
+range of budgets to support by the user. The constant
+depends mainly on $\gamma$, the submodularity parameter of $f$,
+and the input parameter $\delta$; $C$ is optimized
+with $\delta = 1$ at the value $1/24 - \epsi$.
+Also, we show a size bound on the size of $\uni'$, the pruned ground set,
+which depends logarithmically on the size $n$ of $\uni$, as well as the values
+of the maximum and minimum budgets and the minimum cost of an element. 
+\begin{theorem} \label{thm:multi}
+  Let $\kappa_{\min} < \kappa_{\max}$, let $0 < \eta \le 1/2$, and let $f, c$ be
+  $\gamma$-submodular and modular functions, respectively.
+  Suppose that for all $\kappa' \in [\kappa_{\min}, \kappa_{\max}]$,
+  the instance $(f,c,\kappa')$ satisfies the \nhi assumption with $\eta$.
+  Let $\uni'$ be the output of \qs (Alg. \ref{alg:multi})
+  with parameters
+  $(f,c,\kappa_{\min},\kappa_{\max}, \delta, \epsi, \eta)$.
+  Then, for all $\kappa' \in [\kappa_{\min}, \kappa_{\max}]$,
+  it holds that
+  $f_{\kappa'}( \uni' ) \ge
+  \frac{\delta \gamma^5(1 - \epsi \gamma^{-1})}{6(\delta \gamma^2 + 1)( 1 + \gamma^{-1} \delta ) }  f_{\kappa'}( \uni ).$
+  And, $| \uni' | = \oh{ \log( \frac{ \kappa_{\max} }{ \kappa_{\min} } ) \left( 1 + \frac{\kappa_{\max} }{\delta c_{min} } \right) \log ( n / \epsi ) }.$
+\end{theorem}
+\subsection{Pruning for a Single Knapsack Constraint} \label{sec:prune-single}
+First, we target the case of a single constraint.
+Given a single budget value $\kappa$, we formulate an algorithm to prune for the
+instance $(f, \uni, \kappa,c)$. That is, we produce an algorithm that, for some
+$\alpha > 0$, produces $\uni'$ such that $f_{\kappa}( \uni' ) \ge \alpha  f_{\kappa }( \uni )$
+and $|\uni'| \le \oh{F( \kappa, c) \polylog(n)}. $
+
+The algorithm \qss is given in Alg. \ref{alg:single}. In addition to the problem
+instance, it takes parameter $\delta > 0$, which impacts the size of the resulting
+pruned set $\uni'$ by adjusting the condition to add elements to $\uni'$;
+and parameter $\epsi > 0$, which controls how aggressively the algorithm deletes elements.
+In overview, the algorithm works by taking one pass through the ground set $\uni$ and
+processing elements one-by-one. An element is added to $\uni'$ if it meets the condition
+on Line \ref{line:add}: $\marge{e}{A} \ge \frac{ \delta c(e) f(A) }{ \kappa }$; intuitively,
+this means the element should increase the value of $A$ (the pruned set)
+an amount proportional to $c(e) / \kappa$ to be worth retaining.
+
+To ensure the size of $\uni'$ doesn't grow too large, a deletion condition is checked
+on Line \ref{line:delete}, which intuitively asks if the value of $A$ has increased by
+a large factor from the previous checkpoint; if so, the original elements of $A$ are
+discarded. Submodularity is used to bound the amount of value lost from the deletion,
+and the condition on element addition bounds the maximal number of elements required for
+the increased value.
+
+The theoretical properties are summarized in the following theorem, proven in Section \ref{sec:single-proofs}.
+\begin{theorem} \label{thm:single}
+  Let Alg. \ref{alg:single} be run on instance $(\uni, c, f, \kappa)$, with parameters $\epsi, \delta > 0,$
+  such that $f$ is $\gamma$-submodular. 
+  Then, Alg. \ref{alg:single} produces pruned universe $\uni'$, such that
+  $| \uni ' | < 2 \left( 1 + \frac{\kappa }{\delta c_{min} } \right) \log ( n / \epsi ) + 3,$
+  and there exists $A' \subseteq \uni'$, such that $c(A') \le \kappa$ and
+  $f(A') \ge \frac{\delta \gamma^4(1 - \epsi \gamma^{-1})}{2(\delta \gamma^2 + 1)( 1 + \gamma^{-1} \delta ) } \opt$.
+  %$f(A') \ge \frac{\delta (1 - \epsi)}{2(\delta + 1)^2} \opt$.
+  %Maximizing the ratio over $\delta$ yields $f(A') \ge \frac{(1 - \epsi)}{8} \opt$ at $\delta = 1$. 
+\end{theorem}
+\begin{algorithm}[t]
+	\caption{\qss:  Pruning for a single constraint.}
+	\begin{algorithmic}[1] \label{alg:single}
+		\STATE \textbf{Input:} Instance $(f, \uni, c, \kappa)$, size-control parameter $\delta > 0$, deletion parameter $\epsi > 0$
+		\STATE \textbf{Output:} Pruned ground set, $\uni'$
+		\STATE \textbf{Initialize:} $A \gets \emptyset$, $a^* \gets \emptyset$, $A_s \gets \emptyset$
+                \FOR {$e \in \uni$}
+                \IF{ $c(e) > \kappa$  }
+                \STATE \textbf{continue}
+                \ENDIF{}
+                \IF{$ \marge{e}{A} \ge \frac{\delta c(e) f(A) }{ \kappa }$ \label{line:add}}
+                \STATE $A \gets A + e$
+                \ENDIF{}
+                \IF{ $f(e) > f(a^*)$  }
+                \STATE $a^* \gets e$
+                \ENDIF
+                \IF{ $f(A) > \frac{ n }{ \epsi } f(A_s) $\label{line:delete} }
+                \STATE $A \gets A \setminus A_s$ \label{line:delete-set}
+                \STATE $A_s \gets A$
+                \ENDIF
+                \ENDFOR
+                \STATE \textbf{return} $\uni' \gets A + a^*$ 
+	\end{algorithmic}
+\end{algorithm}
+\subsubsection{Proof of Theorem \ref{thm:single}} \label{sec:single-proofs}
+Due to space constraints, omitted proofs are provided in
+Appendix \ref{apx:proof}. We require the following fact about geometrically increasing sequences of real
+numbers. For our purposes, the sequence $(y_i)$ will assume the values of $f(A)$ as elements are
+added. 
+\begin{fact} \label{fact:1}
+  Let $(y_i)_{i=1}^m$ be a sequence of positive real numbers, such that, for some $\beta > 0$, it holds that $y_i \ge (1 + \beta)y_{i-1}$, for all $i \in [m]$. Let $\gamma > 0$. Then, if $m \ge \frac{\beta + 1}{\beta}\log \gamma^{-1} $, it holds that $y_m \ge y_1 / \gamma$.
+\end{fact}
+%\begin{proof} ...
+%\end{proof}
+Using Fact \ref{fact:1}, we bound the number of elements in $\uni'$. Intuitively, the geometric increase
+in the value of $f(A)$ yields a bound on the maximum number of elements until the deletion condition
+on Line \ref{line:delete} is triggered. 
+\begin{proposition} \label{prop:uprime-size}
+  The size of $\uni'$, as returned by Alg. \ref{alg:single}, satisfies
+  $|\uni'| < 2 \left( 1 + \frac{\kappa }{\delta c_{min} } \right) \log ( n / \epsi ) + 3,$
+  where $c_{min} = \min_{a \in \uni } c(a).$
+\end{proposition}
+Next, we bound how much value may have been lost from deletion throughout the execution
+of the algorithm. In the following proposition, $\hat A$ is all elements ever added to
+$A$, and $\dot A$ is the actual set obtained by the algorithm after all deletions. We
+show at most an $\epsi\gamma^{-1}$-fraction of value is lost. 
+\begin{proposition} \label{prop:ahat-adot}
+  Suppose $f$ is $\gamma$-submodular.
+  Let $A_i$ be the value of $A$ after the execution of iteration $i$ of the \textbf{for} loop,
+  for $i = 1$ to $n$, and $A_0 = \emptyset$. 
+  Let $\hat A = \bigcup A_j, \dot A = A_n$. Then $f( \dot A ) \ge (1 - \gamma^{-1} \epsi )f( \hat A)$. 
+\end{proposition}
+So far, we have established a size bound on $\uni'$ and bounded the value of
+$\uni'$ lost from deletion. Next, we turn to showing that there exists a feasible set
+inside $\uni'$ that has a constant fraction of the optimal value.
+We start by showing in Lemma \ref{lemma:value-inside-A}
+and Proposition \ref{prop:aprime} that
+a set $A^*$ exists within $\uni'$ that has a constant fraction
+of $f(\uni')$. 
+\begin{lemma} \label{lemma:value-inside-A}
+  Let $f$ be $\gamma$-submodular.
+  Let $\delta, \kappa > 0$. Suppose $A_i = \{ a_1, \ldots a_i \}$ is a sequence of sets satisfying
+  (1) $c(a_i) \le \kappa$, and (2) $\marge{ a_i }{ A_{i - 1} } \ge \gamma \frac{\delta c( a_i ) f( A_{i -1 } ) }{ \kappa }$,
+  for each $i$ from $1$ to $m$. Let $f( a^* ) \ge \max_{i \in [m]} f(a_i)$, and $c(a^*) \le \kappa$.
+  Then there exists $A^* \subseteq A_m + a^*$, such that $c( A^* ) \le \kappa$, and
+  $f( A^* ) \ge \frac{ \delta \gamma^4}{2(\delta\gamma^2 + 1)} f(A_m)$.
+\end{lemma}
+\begin{proposition} \label{prop:aprime}
+  Let $\uni' = \dot A + a^*$ have its value at termination of \qss.
+  There exists $A' \subseteq \uni' = \dot A + a^*$, such that  $f(A') \ge \frac{\delta \gamma^4}{2(\delta \gamma^2 + 1)} f(\dot A )$
+  and $c(A') \le \kappa$. 
+\end{proposition}
+Next, we relate the value of $f(\uni')$ to
+$\opt = f_\kappa ( \uni )$ in Proposition \ref{prop:opt-ahat}.
+\begin{proposition} \label{prop:opt-ahat}
+  Suppose Alg. \ref{alg:single} is run on instance $(\uni,c,f,\kappa )$ with
+  parameters $\delta, \epsi > 0$. 
+  Let $\hat A = \bigcup_{j \in [n]} A_j$ be all elements added to $A$.
+  Then $f( \hat A ) \ge \opt / (1 + \gamma^{-1}\delta )$, where $\opt = \max_{S \subseteq \uni: c(S) \le \kappa } f(S).$
+\end{proposition}
+\begin{proof}[Proof of Theorem \ref{thm:single}]
+  Finally, we are ready to put all the pieces together.
+  Assume the hypotheses of the theorem statement. 
+  The size bound on $\uni'$ follows by Proposition \ref{prop:uprime-size}.
+  Let $A_j$ be the value of the set
+  $A$ at the beginning of the $j$th iteration of \qss.
+  Let $\dot A = A_{n+1}$ be the final value of $A$,
+  $\hat A = \bigcup_{i \in [n + 1]} A_i$.
+  Let $A'$ be as guaranteed by Proposition \ref{prop:aprime}.
+  Then$ f(A') \overset{(a)}{\ge} \frac{\delta \gamma^4 }{2(\delta \gamma^2 + 1)} f( \dot A ) 
+  \overset{(b)}{\ge} \frac{\delta \gamma^4(1 - \epsi \gamma^{-1})}{2(\delta \gamma^2 + 1)} f( \hat A )$,
+  %        &\overset{(c)}{\ge} \frac{\delta \gamma^4(1 - \epsi \gamma^{-1})}{2(\delta \gamma^2 + 1)( 1 + \gamma^{-1} \delta ) } \opt,
+  where (a) is by Prop. \ref{prop:aprime},
+  (b) is by Prop. \ref{prop:ahat-adot},
+  and the result follows from Prop. \ref{prop:opt-ahat}.
+\end{proof}
+
+\subsection{The Pruning Algorithm: \qs} \label{sec:prune-multi} 
+\begin{algorithm}[t]
+	\caption{\qs: The Pruning Algorithm.}
+	\begin{algorithmic}[1] \label{alg:multi}
+          \STATE \textbf{Input:} Instances $(f, \uni, c, [\kappa_{\min}, \kappa_{\max}])$,  parameters $\delta > 0$, $\epsi > 0$,
+          $0 < \eta \le 1/2$.
+		\STATE \textbf{Output:} Pruned ground set, $\uni'$
+		\STATE $\mathcal B = \{ \tau_i = \kappa_{\max}(1 - \eta )^i : i \in \mathbb Z, (1 - \eta) \kappa_{\min} \le \tau_i \le \kappa_{\max}\}$\label{line:multi-budgets}
+                \STATE Initialize a copy of $\mathcal QP_{\tau}$ of \qss for each $\tau \in \mathcal B$, with parameters $\epsi, \delta$.
+                \FOR {$e \in \uni$}
+                \STATE Pass $e$ to $\mathcal QP_{\tau}$ for all $\tau \in \mathcal B$.
+                \ENDFOR
+                \STATE \textbf{return} the union of all sets returned by all instances $\mathcal QP_{\tau}$
+	\end{algorithmic}
+\end{algorithm}
+In this section, we describe the main pruning algorithm \qs (Alg. \ref{alg:multi})
+and prove Theorem \ref{thm:multi}. 
+
+The algorithm \qs works as follows. As input, it takes instances with a range of
+budgets $[\kappa_{\min}, \kappa_{\max}]$, the parameters $\epsi, \delta$ for
+\qss, and a parameter $\eta > 0,$ such that all of the instances satisfy
+Assumption \nhi with $\eta$. The algorithm then runs $\log ( \kappa_{\max} / \kappa_{\min} )$
+copies of \qss in parallel -- one each for budget $\tau_i = \kappa_{max}(1 - \eta )^i$ in the
+range $[( 1 - \eta ) \kappa_{\min}, \kappa_{\max} ]$. It returns the union of all pruned sets
+returned from each copy of \qss.
+
+To establish Theorem \ref{thm:multi}, we first show the following proposition,
+with implications to how Assumption \nhi can relate an optimal solution of a given
+budget to one of the instances handled by one of the copies of \qss. 
+\begin{proposition} \label{prop:part}
+  Suppose instance $(f,c,\kappa)$ satisfies the \nhi assumption
+  with $0 < \eta \le 1/2$. 
+  Then, there exists an optimal solution $O$ to the instance, such
+  that $O$ can be partitioned into at most three sets $\{ O_i : i \in [3] \}$, such
+  that $c(O_i) \le \kappa (1 - \eta )$, for each $i \in [3]$. 
+\end{proposition}
+\begin{proof}[Proof of Theorem \ref{thm:multi}]
+  Assume the hypotheses of the theorem, and let
+  $\kappa' \in [\kappa_{\min}, \kappa_{\max}]$. By the choice of
+  the set $\mathcal B$ on Line \ref{line:multi-budgets}, there
+  exists a $\tau \in \mathcal B$, such that $\kappa'(1 - \eta) \le \tau \le \kappa'$.
+  Let $O \subseteq \uni$ be an optimal solution to $f_{\kappa'}( \uni )$
+  satisfying Assumption \nhi. By Proposition \ref{prop:part}, $O$ can be partitioned
+  into at most three sets $\{ O_i \}$, such that $c( O_i ) \le \kappa ( 1 - \eta ) \le \tau$.
+
+  Moreover, by Theorem \ref{thm:single}, there exists $X \subseteq \uni'$, such that
+  1) $c(X) \le \tau$, and 
+  2) $f(X) \ge
+  \alpha f( O_i )$,
+  with $\alpha =  \frac{\delta \gamma^4(1 - \epsi \gamma^{-1})}{2(\delta \gamma^2 + 1)( 1 + \gamma^{-1} \delta ) }$.
+  Therefore, $3f(X) \ge \alpha \sum_{i = 1}^3 f( O_i ) \ge \alpha \gamma f(O)$, where the last inequality follows from submodularity.
+  Thus, $f(X) \ge \alpha \gamma f(O) / 3$.
+  Finally, the size bound on $\uni'$
+  follows from Prop. \ref{prop:uprime-size} and the size of $\mathcal B$. 
+\end{proof}
+% \begin{algorithm}[htb]
+% 	\caption{Sparsification for Size Constraint}
+% 	\begin{algorithmic}[1]\label{alg:size_constraint}
+% 		\STATE \textbf{Input:} ground set $V$, oracle $f$,  $\delta$, size constraint $k$
+% 		\STATE \textbf{Output:} pruned ground set $V'$
+% 		\STATE \textbf{Initialize:} $V'\leftarrow\emptyset$
+%             \FOR {$v\in V$}
+%                 % \STATE Remove from $V$ the top $(1-1/\sqrt{c})|V|$ of elements with the smallest $w_{Uv}$;
+%                 \IF{$f(V'+v)-f(V') \geq \frac{\delta f(V')}{k}$}
+%                 \STATE $V'\leftarrow V'\cup v$
+%                 \ENDIF{}
+%             \ENDFOR
+  
+%   % $n\leftarrow|V|$
+% % 		\WHILE{$|V|>r\log n$}
+% % 		\STATE Sample $r\log n$ items uniformly at random from $V$ and place them in $U$;
+% % 		\STATE $V\leftarrow V\backslash U$;
+% % 		\STATE $V'\leftarrow V' \cup U$;
+% % %		\FOR {$v\in V$, $u\in R$}
+% % %		\IF{$f(v|u+S)\leq\epsilon$}\STATE{$V:=V\backslash v$}\ENDIF
+% % %		\ENDFOR
+% % 		\FOR {$v\in V$}
+% %                 % \STATE Remove from $V$ the top $(1-1/\sqrt{c})|V|$ of elements with the smallest $w_{Uv}$;
+% %                 \IF{$f(V'+v)-f(V') \geq \frac{\delta f(V')}{k}$}
+% %                 \STATE $V'\leftarrow V'\cup v'$
+% %                 \ENDIF{}
+% %             \ENDFOR
+% % 		\STATE Remove from $V$ the top $(1-1/\sqrt{c})|V|$ of elements with the smallest $w_{Uv}$;
+% % 		\ENDWHILE
+% % 		\STATE $V'\leftarrow V\cup V'$
+% 	\end{algorithmic}
+% \end{algorithm}
+
+% \begin{algorithm}[htb]
+% 	\caption{Sparsification for knapsack Constraint}
+% 	\begin{algorithmic}[1]\label{alg:knapsack_constraint}
+% 		\STATE \textbf{Input:} ground set $V$, oracle $f$, $\delta$,  $k$ , $w$
+% 		\STATE \textbf{Output:} $V'$
+% 		\STATE \textbf{Initialize:} $V'\leftarrow\emptyset$
+%             \FOR {$v\in V$}
+%                 % \STATE Remove from $V$ the top $(1-1/\sqrt{c})|V|$ of elements with the smallest $w_{Uv}$;
+%                 \IF{$ \frac{f(V'+v)-f(V') }{w(v)} \geq \frac{\delta f(V')}{k}$}
+%                 \STATE $V'\leftarrow V'\cup v$
+%                 \ENDIF{}
+%             \ENDFOR
+  
+
+% 	\end{algorithmic}
+% \end{algorithm}
+
+% \begin{algorithm}[htb]
+% 	\caption{Sparsification for Multiple Budget for size constraint}
+% 	\begin{algorithmic}[1]\label{alg:knapsack_constraint}
+% 		\STATE \textbf{Input:} ground set $U$, oracle $f$, $\epsilon$, size constraint $k$ , $\delta$
+% 		\STATE \textbf{Output:} $U'$
+%             \STATE \textbf{Initialize:} $U' \leftarrow \emptyset $ 
+% 		\STATE $ m \leftarrow \left\lceil \frac{log(k)}{log(1+\epsilon)} \right\rceil$ 
+
+%             \FOR {$i \leftarrow 0$ to $m$} 
+%                 \STATE $\tau_{i} \leftarrow (1+ \epsilon)^i$ , $U_{\tau_{i}} \leftarrow \emptyset$
+%             \ENDFOR
+
+%             \FOR {$v \in U$} 
+%                 % \STATE $\tau \leftarrow (1+ \epsilon)^i$ , $U_\tau \leftarrow \emptyset$
+%                 \FOR{$i \leftarrow 0$ to $m$}
+%                     \IF{$f(U_{\tau_{i}}+v)-f(U_{\tau_{i}}) \geq \frac{\delta f(U_{\tau_{i}})}{\tau_{i}}$}
+%                     \STATE $U_{\tau_{i}}  \leftarrow U_{\tau_{i}} \cup v$
+%                 \ENDIF{}
+%                 \ENDFOR
+                
+%             \ENDFOR
+%             \STATE $U' \leftarrow \cup_{i \in [m]} U_{\tau_{i}} $
+%             % \FOR {$v \in U$} 
+                
+%             %     \FOR{$i \leftarrow 0$ to $m$ }
+%             %         % \STATE $\tau \leftarrow (1+ \epsilon)^i$ , $U_\tau \leftarrow \emptyset$
+%             %         \IF{$f(U_\tau+v)-f(U_\tau) \geq \frac{\delta f(U_\tau)}{\tau}$}
+%             %         \STATE $U_\tau\leftarrow U_\tau\cup v$
+%             %     \ENDIF{}
+%             %     \ENDFOR
+%             %     \STATE $U'\leftarrow U'\cup U_\tau $
+%             % \ENDFOR
+  
+
+% 	\end{algorithmic}
+% \end{algorithm}
+
+% \begin{algorithm}[htb]
+% 	\caption{Sparsification for Multiple Budget for knapsack constraint}
+% 	\begin{algorithmic}[1]\label{alg:knapsack_constraint}
+% 		\STATE \textbf{Input:} ground set $U$, oracle $f$, $\epsilon$, $\delta$, $B_{min}$, $B_{max}$, $w$
+% 		\STATE \textbf{Output:} $U'$
+%             \STATE \textbf{Initialize:} $U' \leftarrow \emptyset $ 
+% 		\STATE $k \leftarrow \frac{B_{max}}{B_{min}}$ ,$ m \leftarrow \left\lceil \frac{log(k)}{log(1+\epsilon)} \right\rceil$ 
+%             \FOR {$i \leftarrow 0$ to $m$} 
+%                 \STATE $\tau_{i} \leftarrow B_{min}(1+ \epsilon)^i$ , $U_{\tau_{i}} \leftarrow \emptyset$
+%             \ENDFOR
+
+%             \FOR {$v \in U$} 
+%                 % \STATE $\tau \leftarrow (1+ \epsilon)^i$ , $U_\tau \leftarrow \emptyset$
+%                 \FOR{$i \leftarrow 0$ to $m$}
+%                     \IF{$  \frac{f(U_{\tau_{i}}+v)-f(U_{\tau_{i}})}{w(v)}    \geq \frac{\delta f(U_{\tau_{i}})}{\tau_{i}}$}
+%                     \STATE $U_{\tau_{i}}  \leftarrow U_{\tau_{i}} \cup v$
+%                 \ENDIF{}
+%                 \ENDFOR
+                
+%             \ENDFOR
+%             \STATE $U' \leftarrow \cup_{i \in [m]} U_{\tau_{i}} $
+%             % \FOR {$v \in U$} 
+                
+%             %     \FOR{$i \leftarrow 0$ to $m$ }
+%             %         % \STATE $\tau \leftarrow (1+ \epsilon)^i$ , $U_\tau \leftarrow \emptyset$
+%             %         \IF{$f(U_\tau+v)-f(U_\tau) \geq \frac{\delta f(U_\tau)}{\tau}$}
+%             %         \STATE $U_\tau\leftarrow U_\tau\cup v$
+%             %     \ENDIF{}
+%             %     \ENDFOR
+%             %     \STATE $U'\leftarrow U'\cup U_\tau $
+%             % \ENDFOR
+  
+
+% 	\end{algorithmic}
+% \end{algorithm}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main.tex"
+%%% End:

@@ -1,0 +1,83 @@
+
+\documentclass[10pt]{article} % For LaTeX2e
+\usepackage{tmlr}
+% If accepted, instead use the following line for the camera-ready submission:
+%\usepackage[accepted]{tmlr}
+% To de-anonymize and remove mentions to TMLR (for example for posting to preprint servers), instead use the following:
+%\usepackage[preprint]{tmlr}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{bm}
+
+\usepackage{minted}    % for code blocks with syntax highlighting
+\usepackage{caption}   % for customizing captions
+\usepackage{float}     % for [!ht] placement specifier
+\definecolor{lightred}{HTML}{009E73}    % darker than 255,150,150
+\definecolor{lightblue}{HTML}{0072B2}   % darker than 150,180,255
+\definecolor{lightgreen}{HTML}{D55E00}  % darker than 180,255,180
+\newcommand{\uni}{\mathcal{U}}
+
+\usepackage{xspace}
+\newcommand{\sub}{\textsc{Submodular Sparsification}\xspace}
+\newcommand{\qp}{\textsc{QuickPrune}\xspace}
+\newcommand{\llm}{\textsc{LLM2Prune}\xspace}
+\newcommand{\gcomb}{\textsc{GCOMB-P}\xspace}
+\newcommand{\lense}{\textsc{LeNSE}\xspace}
+\newcommand{\comb}{\textsc{COMBHelper}\xspace}
+
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+
+\title{LLM2Prune: Using LLMs as Domain Experts for Search Space Reduction}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the tmlr package is used without the [accepted] or [preprint] options.
+% Non-anonymous submissions will be rejected without review.
+
+\author{\name Ankur Nath \email anath@tamu.edu \\
+      \addr Department of Computer Science \& Engineering\\
+      Texas A\&M University
+      \AND
+      \name Alan Kuhnle  \email kuhnle@tamu.edu \\
+      \addr Department of Computer Science \& Engineering \\
+      Texas A\&M University
+      }
+
+% The \author macro works with any number of authors. Use \AND 
+% to separate the names and addresses of multiple authors.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\def\month{MM}  % Insert correct month for camera-ready version
+\def\year{YYYY} % Insert correct year for camera-ready version
+\def\openreview{\url{https://openreview.net/forum?id=XXXX}} % Insert correct link to OpenReview for camera-ready version
+
+
+\begin{document}
+
+
+\maketitle
+\input{Sections/abstract}
+\input{Sections/intro}
+\input{Sections/related_work}
+\input{Sections/method}
+\input{Sections/experiments}
+\input{Sections/conclusion}
+
+\bibliography{main}
+\bibliographystyle{tmlr}
+
+\input{Sections/appendix}
+
+\end{document}
