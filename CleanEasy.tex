@@ -57,16 +57,16 @@
     \begin{column}{0.55\textwidth}
       \begin{itemize}
         \item \textbf{Social networks:} Identify the most influential users to maximize
-          information spread (Influence Maximization)
+          information spread (Influence Maximization)~\cite{kempe2003maximizing}
         \item \textbf{Network design:} Select nodes to maximize coverage of a
-          communication network (Maximum Coverage)
+          communication network (Maximum Coverage)~\cite{khuller1999budgeted}
         \item \textbf{Graph partitioning:} Find a subset of nodes that maximizes the
           number of edges crossing the partition (Maximum Cut)
       \end{itemize}
 
       \vspace{0.3cm}
 
-      Among the 21 NP-complete problems introduced by Karp (1972), \textbf{10 are graph
+      Among the 21 NP-complete problems introduced by Karp~\cite{karp2009reducibility}, \textbf{10 are graph
       optimization problems}.
     \end{column}
     \begin{column}{0.42\textwidth}
@@ -166,7 +166,7 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{Classical Methods}
         \begin{itemize}
-          \item Submodular Sparsification: sequential, $O(n^2)$ pairwise computations
+          \item Submodular Sparsification~\cite{zhou2017scaling}: sequential, $O(n^2)$ pairwise computations
           \item \textbf{No theoretical guarantees} on pruning quality before our work
           \item Do not scale to million-node graphs
         \end{itemize}
@@ -175,9 +175,9 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{Learning-Based Methods}
         \begin{itemize}
-          \item GCOMB-P: handcrafted degree heuristic
-          \item LeNSE: requires domain expertise for subgraph categorization
-          \item COMBHelper: expensive Fourier Feature Mapping
+          \item GCOMB-P~\cite{manchanda2020gcomb}: handcrafted degree heuristic
+          \item LeNSE~\cite{ireland2022lense}: requires domain expertise for subgraph categorization
+          \item COMBHelper~\cite{tian2024combhelper}: expensive Fourier Feature Mapping
           \item \textbf{All designed for size constraints only}
         \end{itemize}
       \end{block}
@@ -193,14 +193,14 @@
 
 \begin{frame}{Thesis Contributions}
   \begin{enumerate}
-    \item \textbf{QuickPrune} \textit{(AISTATS 2025, published)}\\
+    \item \textbf{QuickPrune}~\cite{pmlr-v258-nath25a} \textit{(AISTATS 2025, published)}\\
       First pruning algorithm with \textbf{provable theoretical guarantees} on both
       solution quality and pruned set size. Single-pass, works under size and knapsack
       constraints.
 
       \vspace{0.2cm}
 
-    \item \textbf{Hierarchical DeepPruner} \textit{(SoCS 2025, published)}\\
+    \item \textbf{Hierarchical DeepPruner}~\cite{nath2025hdeeppruner} \textit{(SoCS 2025, published)}\\
       Adaptive two-stage framework: \textbf{GNN pre-pruning} + \textbf{Neural MCTS
       fine-pruning}. Eliminates handcrafted features entirely; captures element
       interdependencies.
@@ -438,7 +438,7 @@
 
   \textbf{Limitations of existing learning-based methods:}
   \begin{itemize}
-    \item GCOMB-P, LeNSE, COMBHelper all require \textbf{problem-specific domain
+    \item GCOMB-P~\cite{manchanda2020gcomb}, LeNSE~\cite{ireland2022lense}, COMBHelper~\cite{tian2024combhelper} all require \textbf{problem-specific domain
       knowledge} or handcrafted features
     \item Difficult to apply to a new CO problem without significant redesign
   \end{itemize}
@@ -858,6 +858,11 @@
 %========================================================================================
 % THANK YOU
 %========================================================================================
+
+\begin{frame}[plain,allowframebreaks]{References}
+  \bibliography{data/myReference}
+  \bibliographystyle{plain}
+\end{frame}
 
 \begin{frame}[plain]
   \centering
