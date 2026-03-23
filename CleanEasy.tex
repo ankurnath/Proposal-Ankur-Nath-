@@ -132,8 +132,8 @@
       ground set (e.g., selecting a small seed set from an entire social network)
     \item Yet existing solvers must \textbf{evaluate every candidate}, leading to
       prohibitive runtimes
-    \item Even the best polynomial-time heuristics become
-      \textbf{prohibitively slow} as graphs grow
+    \item Even the best polynomial-time heuristics \textbf{struggle to scale}
+      as graphs grow
   \end{itemize}
 
   \vspace{0.4cm}
@@ -176,21 +176,21 @@
 \begin{frame}{Limitations of Existing Approaches}
   \begin{columns}
     \begin{column}{0.48\textwidth}
-      \begin{block}{Classical Methods}
+      \begin{block}{\faBook\; Classical Methods}
         \begin{itemize}
-          \item Submodular Sparsification~\cite{zhou2017scaling}: sequential, $O(n^2)$ pairwise computations
-          \item \textbf{No theoretical guarantees} on pruning quality before our work
-          \item Do not scale to million-node graphs
+          \item[\faClock] Submodular Sparsification~\cite{zhou2017scaling}: sequential, $O(n^2)$ pairwise computations
+          \item[\faTimesCircle] \textbf{No theoretical guarantees} on pruning quality before our work
+          \item[\faExclamationTriangle] Do not scale to million-node graphs
         \end{itemize}
       \end{block}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{block}{Learning-Based Methods}
+      \begin{block}{\faBrain\; Learning-Based Methods}
         \begin{itemize}
-          \item GCOMB-P~\cite{manchanda2020gcomb}: handcrafted degree heuristic
-          \item LeNSE~\cite{ireland2022lense}: requires domain expertise for subgraph categorization
-          \item COMBHelper~\cite{tian2024combhelper}: expensive Fourier Feature Mapping
-          \item \textbf{All designed for size constraints only}
+          \item[\faCogs] GCOMB-P~\cite{manchanda2020gcomb}: handcrafted degree heuristic + reinforcement learning
+          \item[\faWrench] LeNSE~\cite{ireland2022lense}: requires domain expertise for subgraph categorization
+          \item[\faMicrochip] COMBHelper~\cite{tian2024combhelper}: expensive Fourier Feature Mapping + knowledge distillation
+          \item[\faLock] \textbf{All designed for size constraints only}; cannot easily adapt to other constraints
         \end{itemize}
       \end{block}
     \end{column}
@@ -199,8 +199,8 @@
   \vspace{0.4cm}
 
   \centering
-  \textbf{Common bottleneck:} reliance on human-designed features and problem-specific
-  algorithmic choices.
+  \faExclamationCircle\; \textbf{Common bottleneck:} reliance on human-designed features
+  and problem-specific algorithmic choices.
 \end{frame}
 
 \begin{frame}{Thesis Contributions}
