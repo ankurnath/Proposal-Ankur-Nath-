@@ -153,7 +153,7 @@ Algorithm~\ref{alg:llm2prune} describes the full LLM2Prune pipeline.
 \STATE $B_0 \leftarrow \{n_{0,1}\}$
 \FOR{$d = 0, 1, \dots, D_{\max} - 1$}
     \STATE $\mathcal{C}_{d+1} \leftarrow \emptyset$
-    \FOR{each $n_{d,i} \in B_d$} \hfill \textit{// Expansion}
+    \FOR{each $n_{d,i} \in B_d$}
         \STATE $\text{summary} \leftarrow \text{LLM}(Z_{\text{summary}}, \mathcal{H}_{d,i})$
         \FOR{$j = 1, \dots, \gamma$}
             \STATE $\mathcal{F}_{d+1,j} \sim \text{LLM}(Z_{\text{feature}}, \text{Task}, \text{summary})$
@@ -163,7 +163,7 @@ Algorithm~\ref{alg:llm2prune} describes the full LLM2Prune pipeline.
             \STATE $\mathcal{C}_{d+1} \leftarrow \mathcal{C}_{d+1} \cup \{n_{d+1,j}\}$
         \ENDFOR
     \ENDFOR
-    \STATE $B_{d+1} \leftarrow \text{top-}\beta$ nodes in $\mathcal{C}_{d+1}$ by $M$ \hfill \textit{// Beam pruning}
+    \STATE $B_{d+1} \leftarrow \text{top-}\beta$ nodes in $\mathcal{C}_{d+1}$ by $M$ \hfill \textit{// Beam Pruning}
 \ENDFOR
 \STATE $n^{\text{best}} \leftarrow \arg\max_{n_{d,i} \in \mathcal{T}} M_{d,i}$
 \STATE Fine-tune $g_{\theta^{\text{best}}}$ on the target training graph
