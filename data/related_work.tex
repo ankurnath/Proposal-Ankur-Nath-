@@ -1,0 +1,67 @@
+\pagestyle{plain} % No headers, just page numbers
+
+\chapter{\uppercase {Related Work}}
+
+The proposed work draws on three areas of prior research: classical pruning methods for
+combinatorial optimization, learning-based approaches for search space reduction, and
+automated feature engineering using large language models. This chapter surveys existing
+work in each area and highlights the limitations that motivate the contributions of this
+proposal.
+
+\section{Classical Approaches to Pruning}
+To improve the scalability of solvers for combinatorial optimization (CO) problems,
+several classical methods have been proposed to reduce the search space before
+optimization. \cite{zhou2017scaling} propose a pruning algorithm based on submodularity
+to reduce the cost of submodular maximization under size constraints. Their method
+constructs a pruned submodularity graph to identify and discard elements with low marginal
+contributions. However, this approach processes elements sequentially, which limits its
+scalability to large instances. A common limitation of classical approaches is that they are formulated for a single
+instance of size-constrained maximization and provide no mechanism to leverage patterns
+across problem instances.
+
+\section{Learning-Based Approaches to Pruning}
+Learning-based methods aim to overcome the scalability limitations of classical approaches
+by training models to predict which elements can be safely removed from the ground set.
+In the supervised setting, small problem instances are first solved with exact or
+heuristic solvers, and the resulting solutions are used to train a binary classifier that
+predicts whether a vertex or edge can be safely removed without compromising solution
+quality. For Maximum Clique Enumeration, \cite{lauri2019fine} apply logistic regression
+with hand-crafted graph-theoretic features to prune vertices, while
+\cite{grassia2019learning, lauri2023learning} extend this line of work with a multi-stage
+pruning strategy in which successive classifiers, trained on graph-theoretic and
+statistical features, iteratively reduce the search space. For the Traveling Salesman
+Problem, \cite{fitzpatrick2021learning, sun2021generalization} train classifiers to prune
+edges unlikely to belong to the optimal tour. The main limitation of these approaches is
+their heavy reliance on problem-specific manual feature engineering and trial-and-error
+design, which restricts generalization to new CO problems. To address this limitation,
+\cite{tian2024combhelper} propose COMBHelper, a GNN-based framework with knowledge
+distillation and a problem-specific boosting module designed to generalize across multiple
+CO problems over graphs. While effective, COMBHelper still relies on computationally
+expensive Fourier Feature Mapping and a problem-specific boosting mechanism for strong
+performance.
+
+Hybrid methods that integrate supervised and reinforcement learning tend to be more
+problem-agnostic. GCOMB~\cite{manchanda2020gcomb} uses a probabilistic greedy algorithm
+to generate training data, followed by a linear regression model that applies a
+weighted-degree heuristic to prune the ground set. A Q-learning network is then trained
+on the reduced search space to sequentially predict the solution. A key limitation is
+that the initial pruning depends on a handcrafted degree heuristic, which does not
+generalize well across CO problems~\cite{ireland2022lense}. Similarly,
+LeNSE~\cite{ireland2022lense} employs a two-stage learning process. First, a GNN is
+trained in a supervised manner to generate embeddings for subgraphs sampled from training
+graphs. Then, a policy network uses these embeddings to guide a local search procedure,
+navigating from an initial subgraph to one more likely to contain the optimal solution. A
+major drawback is its reliance on domain expertise to categorize subgraphs, set the
+number of samples per class, and tune critical hyperparameters such as subgraph size and
+embedding dimensionality separately for each dataset and problem. 
+\section{Automated Feature Engineering via LLMs}
+Automated feature engineering seeks to generate useful features from raw data without
+human effort. Prior work with large language models (LLMs) has focused primarily on
+tabular data, where new features are derived from existing columns. These approaches
+either rely on manually designed feature-generation
+rules~\cite{zhang2023openfe, zhang2024dynamic} or few-shot
+prompts~\cite{han2024large}, and thus still depend on hand-crafted design choices.
+Moreover, existing methods~\cite{nam2024optimized, hollmann2023large} suffer from error
+propagation caused by simple feedback loops. We note that these approaches are distinct from methods that directly generate algorithms
+using LLMs~\cite{yang2023large, liu2024evolution}, which often exhibit degraded
+performance as graph size increases.
