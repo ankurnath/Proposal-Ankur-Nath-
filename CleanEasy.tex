@@ -204,11 +204,6 @@
 \end{frame}
 
 \begin{frame}{Contributions}
-  \centering
-  
-
-  \vspace{0.3cm}
-
   \begin{columns}[T]
     \begin{column}{0.32\textwidth}
       \begin{block}{\faCheckCircle\; QuickPrune}
@@ -242,6 +237,10 @@
     Make large-scale submodular optimization practical by automatically reducing
     ground sets without sacrificing solution quality.
   \end{alertblock}
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents[hideallsubsections]
 \end{frame}
 
 %========================================================================================
@@ -356,7 +355,7 @@
   \begin{block}{Complexity}
     \begin{itemize}
       \item $\mathcal{O}(\log(\kappa_{\max}/\kappa_{\min}))$ copies running in parallel
-      \item Same number of oracle queries \textbf{per element}.still a single pass
+      \item Same number of oracle queries per element; still a single pass
         through $\mathcal{U}$
     \end{itemize}
   \end{block}
@@ -374,7 +373,7 @@
     \end{itemize}
   \end{block}
 
-  \begin{block}{Theorem 2 (Multi-Budget.Main Result)}
+  \begin{block}{Theorem 2 (Multi-Budget Main Result)}
     For all $\kappa' \in [\kappa_{\min}, \kappa_{\max}]$ simultaneously:
     \begin{itemize}
       \item \textbf{Value:} $f_{\kappa'}(\mathcal{U}') \geq \Omega(\gamma^5) \cdot
@@ -433,18 +432,37 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{QuickPrune: Multi-Budget Generalization}
-  A single pruned ground set (trained for $k=100$) remains effective across \textbf{all
-  lower budgets}, confirming the theoretical multi-budget guarantee.
+% \begin{frame}{QuickPrune: Knapsack Constraint Results}
+%   QuickPrune achieves the highest combined metric on 45\% of all knapsack
+%   instances tested, outperforming baselines by up to 20\% in retaining
+%   objective value.
+
+%   \begin{figure}
+%     \centering
+%     \includegraphics[width=0.24\textwidth]{figures/quickprune/MaxCover_YouTube.pdf}%
+%     \includegraphics[width=0.24\textwidth]{figures/quickprune/MaxCover_Skitter.pdf}%
+%     \includegraphics[width=0.24\textwidth]{figures/quickprune/MaxCut_YouTube.pdf}%
+%     \includegraphics[width=0.24\textwidth]{figures/quickprune/MaxCut_Skitter.pdf}
+%     \caption{Knapsack constraint results on YouTube and Skitter graphs
+%       for MaxCover and MaxCut. Node costs set following
+%       Yaroslavtsev et al.~\cite{yaroslavtsev2020bring}.}
+%   \end{figure}
+% \end{frame}
+
+
+
+\begin{frame}{QuickPrune: Multi-Budget Generalization (Knapsack Constraint)}
+  The multi-budget guarantee extends to general knapsack constraints. A single
+  pruned ground set remains effective across all lower budgets.
 
   \begin{figure}
     \centering
-    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Wiki.pdf}%
-    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Slashdot.pdf}%
-    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_YouTube.pdf}%
-    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Twitter.pdf}
-    \caption{Influence Maximization: $P_r$ remains close to 1.0 across budgets $k = 1$
-      to $100$ on four graphs.}
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/MaxCover_YouTube.pdf}%
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/MaxCover_Skitter.pdf}%
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/MaxCut_YouTube.pdf}%
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/MaxCut_Skitter.pdf}
+    \caption{Knapsack constraint: $P_r$ across budgets for MaxCover (left) and
+      MaxCut (right) on YouTube and Skitter graphs.}
   \end{figure}
 \end{frame}
 
@@ -463,6 +481,8 @@
 %       size constraints. QuickPrune consistently achieves the highest combined metric.}
 %   \end{figure}
 % \end{frame}
+
+
 
 %========================================================================================
 % H-DEEPPRUNER
@@ -612,14 +632,19 @@
 
 
   \begin{enumerate}
-    \item Size constraints only: the MDP formulation assumes a fixed number of
-      elements; we have found that it does not work well for knapsack constraints
+    \item \faExclamationTriangle\; Size constraints only: the MDP formulation assumes a fixed number of
+      elements; does not extend well to knapsack constraints
 
-    \item MCTS scalability: progressive widening helps, but Stage 2 remains slow
+    \item \faClock\; MCTS scalability: progressive widening helps, but Stage 2 remains slow
       on large action spaces; GNN pre-pruning is needed primarily to make MCTS tractable
+
+    \item \faCogs\; Random node features: while eliminating handcrafted engineering,
+      random initialization provides no problem specific knowledge.
   \end{enumerate}
 
-
+  \vspace{0.4cm}
+  \centering
+  \textit{These gaps motivate LLM2Prune: automated feature discovery with constraint adaptability.}
 \end{frame}
 
 %========================================================================================
@@ -657,26 +682,26 @@
 
   \vspace{0.3cm}
 
-  How it works:
+  \textbf{Pipeline} (each iteration):
   \begin{enumerate}
-    \item Give the LLM a text description of the CO problem and constraints
-    \item The LLM proposes node-level features and writes Python code
-      to compute each feature
+    \item LLM receives a text description of the CO problem and constraints,
+      proposes node-level features with executable Python code
     \item A lightweight GNN is trained on these features to classify nodes
-    \item Feedback (which features helped, which didn't, and model performance) is sent back to the LLM
-    \item The process repeats via \textbf{beam search} to find the best feature set
-    \item Feature search is performed on small synthetic random graphs that
-      approximate the target graph distributions, offsetting the cost of LLM queries;
-      the resulting GCN is then fine-tuned on the target training graph
-      and evaluated on the test graph
+    \item Feedback (feature importance and model performance) guides the LLM
+      in the next iteration via beam search
   \end{enumerate}
 
   \vspace{0.2cm}
 
+  \textbf{Efficient search:} Feature search runs on small synthetic random
+  graphs that approximate the target distribution, offsetting the cost of
+  LLM queries. The resulting GNN is then fine-tuned on the target graph.
+
+  \vspace{0.2cm}
+
   \begin{exampleblock}{Key Advantage}
-    Constraint-adaptive and problem-agnostic: to switch from size to knapsack
-    constraints or to a new CO problem, just change the task description
-    in the prompt.
+    Constraint-adaptive and problem-agnostic: switching from size to knapsack
+    constraints or to a new CO problem requires only changing the text prompt.
   \end{exampleblock}
 \end{frame}
 
@@ -863,37 +888,35 @@
   \end{alertblock}
 \end{frame}
 
-% %========================================================================================
-% % SUMMARY & COMPARISON
-% %========================================================================================
-% \section{Summary}
+%========================================================================================
+% SUMMARY & COMPARISON
+%========================================================================================
+\section{Summary}
 
-% \begin{frame}{Comparison of All Three Methods}
-%   \begin{table}
-%     \centering
-%     \small
-%     \begin{tabular}{lccc}
-%       \toprule
-%       & \textbf{QuickPrune} & \textbf{H-DeepPruner} & \textbf{LLM2Prune} \\
-%       \midrule
-%       Approach & Classical & Supervised + RL & LLM + Supervised \\
-%       Handcrafted features & No & No & No \\
-%       Theoretical guarantees & \textbf{Yes} & No & No \\
-%       Size constraint & Yes & Yes & Yes \\
-%       Knapsack constraint & Yes & No & Yes \\
-%       Inference speed & Moderate & Fast & \textbf{Very fast} \\
-%       Element interactions & No & \textbf{Yes} (MCTS) & No \\
-%       Feature discovery & N/A & Random init & \textbf{Automated} (LLM) \\
-%       \bottomrule
-%     \end{tabular}
-%   \end{table}
+\begin{frame}{Comparison of All Three Methods}
+  \begin{table}
+    \centering
+    \small
+    \begin{tabular}{lccc}
+      \toprule
+      & QuickPrune & H-DeepPruner & LLM2Prune \\
+      \midrule
+      Approach & Classical & GNN + MCTS & LLM + GNN \\
+      Handcrafted features & No & No & No \\
+      Theoretical guarantees & Yes & No & No \\
+      Size constraint & Yes & Yes & Yes \\
+      Knapsack constraint & Yes & No & Yes \\
+      Feature discovery & N/A & Random  & Automated  \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
 
-%   \vspace{0.3cm}
+  \vspace{0.3cm}
 
-%   The three methods are complementary: QuickPrune provides theoretical
-%   foundations, H-DeepPruner captures element interactions, and LLM2Prune automates feature
-%   discovery with constraint adaptability.
-% \end{frame}
+  The three methods are complementary: QuickPrune provides theoretical
+  foundations, H-DeepPruner demonstrates learned pruning without handcrafted features is viable, and LLM2Prune automates feature
+  discovery with constraint adaptability.
+\end{frame}
 
 %========================================================================================
 % TIMELINE
