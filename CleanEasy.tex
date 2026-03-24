@@ -322,18 +322,24 @@
     \end{column}
     \begin{column}{0.42\textwidth}
       \begin{exampleblock}{Intuition}
-        \textbf{Addition:} Think of a hiring bar: only admit candidates whose
-        ``value per dollar'' clears the current standard.
+        \textbf{Feasibility:} Elements exceeding the budget can never belong to
+        any feasible solution --- discard immediately.
 
-        \vspace{0.2cm}
+        \vspace{0.15cm}
 
-        \textbf{Deletion:} As stronger candidates arrive, the bar rises. Earlier hires
-        that no longer meet the bar are let go, keeping the team small and strong.
+        \textbf{Addition:} Retain only elements whose marginal value per unit cost
+        is proportional to the current solution quality.
 
-        \vspace{0.2cm}
+        \vspace{0.15cm}
 
-        \textbf{Result:} A single pass through the data produces a compact pruned set
-        with provable quality guarantees.
+        \textbf{Deletion:} When $f(A)$ grows by factor $n/\epsilon$ since the last
+        checkpoint, the old elements' contributions are negligible by submodularity
+        --- remove them in bulk to bound $|A|$.
+
+        \vspace{0.15cm}
+
+        \textbf{Singleton:} Guards against cases where no combination of elements
+        outperforms a single high-value element.
       \end{exampleblock}
     \end{column}
   \end{columns}
