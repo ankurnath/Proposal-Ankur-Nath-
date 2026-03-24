@@ -1,7 +1,7 @@
 %----------------------------------------------------------------------------------------
 %    PACKAGES AND THEMES
 %----------------------------------------------------------------------------------------
-\documentclass[aspectratio=169,xcolor=dvipsnames,10pt]{beamer}
+\documentclass[aspectratio=169,xcolor=dvipsnames,8pt]{beamer}
 \makeatletter
 \def\input@path{{theme/}}
 \makeatother
@@ -178,7 +178,7 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{\faBook\; Classical Methods}
         \begin{itemize}
-          \item[\faClock] Submodular Sparsification~\cite{zhou2017scaling}: sequential, $O(n^2)$ pairwise computations
+          \item Submodular Sparsification~\cite{zhou2017scaling}: sequential, $O(n^2)$ pairwise computations
           \item[\faTimesCircle] \textbf{No theoretical guarantees} on pruning quality before our work
           \item[\faExclamationTriangle] Do not scale to million-node graphs
         \end{itemize}
@@ -187,9 +187,9 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{\faBrain\; Learning-Based Methods}
         \begin{itemize}
-          \item[\faCogs] GCOMB-P~\cite{manchanda2020gcomb}: handcrafted degree heuristic + reinforcement learning
-          \item[\faWrench] LeNSE~\cite{ireland2022lense}: requires domain expertise for subgraph categorization
-          \item[\faMicrochip] COMBHelper~\cite{tian2024combhelper}: expensive Fourier Feature Mapping + knowledge distillation
+          \item GCOMB-P~\cite{manchanda2020gcomb}: handcrafted degree heuristic + reinforcement learning
+          \item LeNSE~\cite{ireland2022lense}: requires domain expertise for subgraph categorization
+          \item COMBHelper~\cite{tian2024combhelper}: expensive Fourier Feature Mapping + knowledge distillation
           \item[\faLock] \textbf{All designed for size constraints only}; cannot easily adapt to other constraints
         \end{itemize}
       \end{block}
