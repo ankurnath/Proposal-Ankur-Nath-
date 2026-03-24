@@ -322,24 +322,15 @@
     \end{column}
     \begin{column}{0.42\textwidth}
       \begin{exampleblock}{Intuition}
-        \textbf{Feasibility:} Elements exceeding the budget can never belong to
-        any feasible solution --- discard immediately.
+        \textbf{Addition:} Retain elements with sufficient marginal value per unit cost relative to current quality.
 
         \vspace{0.15cm}
 
-        \textbf{Addition:} Retain only elements whose marginal value per unit cost
-        is proportional to the current solution quality.
+        \textbf{Deletion:} Once $f(A)$ grows by $n/\epsilon$, old elements are negligible by submodularity --- discard in bulk to bound $|A|$.
 
         \vspace{0.15cm}
 
-        \textbf{Deletion:} When $f(A)$ grows by factor $n/\epsilon$ since the last
-        checkpoint, the old elements' contributions are negligible by submodularity
-        --- remove them in bulk to bound $|A|$.
-
-        \vspace{0.15cm}
-
-        \textbf{Singleton:} Guards against cases where no combination of elements
-        outperforms a single high-value element.
+        \textbf{Singleton:} Safeguard when a single element dominates any combination.
       \end{exampleblock}
     \end{column}
   \end{columns}
@@ -406,7 +397,7 @@
       \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{figures/quickprune/MaxCover_performance.pdf}
-        \caption{Combined metric $C$ for Maximum Coverage. QuickPrune outperforms all
+        \caption{Combined metric $C$ for an instance of Maximum Coverage. QuickPrune outperforms all
           baselines on most datasets.}
       \end{figure}
     \end{column}
@@ -427,15 +418,16 @@
       \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{figures/quickprune/oracle_calls.pdf}
-        \caption{Number of oracle calls required by each pruning method.}
+        \caption{Oracle calls: SS requires ${\sim}30\times$ more
+          queries than QuickPrune for Maximum Coverage on YouTube.}
       \end{figure}
     \end{column}
     \begin{column}{0.48\textwidth}
       \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{figures/quickprune/alpha_plot.pdf}
-        \caption{Effect of the $\gamma$-weak submodularity parameter on pruning
-          performance.}
+        \caption{Pruning ratio $\alpha(\epsilon, \delta, \gamma)$ from Theorem~2
+          as a function of $\delta$ and $\gamma$-submodularity ($\epsilon = 0.01$).}
       \end{figure}
     \end{column}
   \end{columns}
@@ -456,93 +448,100 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}{QuickPrune: Application to Image Retrieval}
-  QuickPrune generalizes beyond social networks. We apply it to \textbf{image retrieval}
-  where each image is a node in a similarity graph.
+% \begin{frame}{QuickPrune: Application to Image Retrieval}
+%   QuickPrune generalizes beyond social networks. We apply it to \textbf{image retrieval}
+%   where each image is a node in a similarity graph.
 
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.32\textwidth]{figures/quickprune/BEANS.pdf}%
-    \hfill
-    \includegraphics[width=0.32\textwidth]{figures/quickprune/CIFAR100.pdf}%
-    \hfill
-    \includegraphics[width=0.32\textwidth]{figures/quickprune/FOOD101.pdf}
-    \caption{Image retrieval results on Beans, CIFAR-100, and Food-101 datasets under
-      size constraints. QuickPrune consistently achieves the highest combined metric.}
-  \end{figure}
-\end{frame}
+%   \begin{figure}
+%     \centering
+%     \includegraphics[width=0.32\textwidth]{figures/quickprune/BEANS.pdf}%
+%     \hfill
+%     \includegraphics[width=0.32\textwidth]{figures/quickprune/CIFAR100.pdf}%
+%     \hfill
+%     \includegraphics[width=0.32\textwidth]{figures/quickprune/FOOD101.pdf}
+%     \caption{Image retrieval results on Beans, CIFAR-100, and Food-101 datasets under
+%       size constraints. QuickPrune consistently achieves the highest combined metric.}
+%   \end{figure}
+% \end{frame}
 
 %========================================================================================
 % H-DEEPPRUNER
 %========================================================================================
-\section{H-DeepPruner (SoCS 2025)}
+\section{Hierarchical DeepPruner (SoCS 2025)}
 
-\begin{frame}{H-DeepPruner: The Problem}
-  \textbf{Can we design a pruning method that learns without expert algorithm design?}
-
-  \vspace{0.3cm}
-
-  \textbf{Limitations of existing learning-based methods:}
-  \begin{itemize}
-    \item GCOMB-P~\cite{manchanda2020gcomb}, LeNSE~\cite{ireland2022lense}, COMBHelper~\cite{tian2024combhelper} all require \textbf{problem-specific domain
-      knowledge} or handcrafted features
-    \item Difficult to apply to a new CO problem without significant redesign
-  \end{itemize}
+\begin{frame}{Hierarchical DeepPruner: Motivation}
+  \textbf{Key question:} Can learned pruning work \textbf{without handcrafted features}
+  that require problem-specific knowledge?
 
   \vspace{0.3cm}
 
-  \begin{block}{Our Approach}
-    H-DeepPruner: an adaptive two-stage framework combining \textbf{supervised learning}
-    (fast, coarse pruning) with \textbf{reinforcement learning} (fine-grained refinement
-    capturing element interactions). No handcrafted features needed.
-  \end{block}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{All prior learned pruners rely on domain knowledge:}
+      \begin{itemize}
+        \item GCOMB-P~\cite{manchanda2020gcomb}: weighted degree heuristic
+        \item LeNSE~\cite{ireland2022lense}: eigenvector centrality +
+          per-dataset tuning
+        \item COMBHelper~\cite{tian2024combhelper}: Fourier Feature Mapping +
+          problem-specific boosting
+      \end{itemize}
+      Each requires significant redesign for a new CO problem or graph type.
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \begin{block}{Our Proof of Concept}
+        A two-stage framework (GNN + Neural MCTS) that uses only
+        \textbf{random node features} and trains on \textbf{small training graphs},
+        yet matches or exceeds these engineered methods on real-world graphs.
+      \end{block}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-\begin{frame}{H-DeepPruner: Framework Overview}
+\begin{frame}{Hierarchical DeepPruner: Framework Overview}
   \begin{figure}
     \centering
-    \includegraphics[width=0.85\textwidth]{figures/hdeeppruner/framework.pdf}
-    \caption{H-DeepPruner: Stage 1 (GNN) quickly eliminates clearly irrelevant nodes.
-      Stage 2 (MCTS) refines the pruned set by considering element interdependencies.}
+    \includegraphics[width=0.9\textwidth]{figures/hdeeppruner/framework.pdf}
+    \caption{Two-stage pipeline using only random node features: (1) GNN coarsely
+      filters nodes, (2) MCTS refines by considering element interdependencies.}
   \end{figure}
 \end{frame}
 
-\begin{frame}{H-DeepPruner: Stage 1.GNN Pre-Pruning}
-  \textbf{Goal:} Quickly eliminate the bulk of irrelevant nodes.
+\begin{frame}{Hierarchical DeepPruner: Stage 1, GNN Pre-Pruning}
+  \textbf{Goal:} Coarsely filter nodes in a single pass, no feature engineering.
 
   \vspace{0.3cm}
 
   \begin{columns}
     \begin{column}{0.55\textwidth}
       \begin{itemize}
-        \item Train a Graph Convolutional Network (GCN) for \textbf{binary
-          classification}: predict whether each node belongs in the optimal solution
-        \item \textbf{Input features:} random node initialization.random features
-          break symmetry and allow the GNN to distinguish structurally equivalent nodes
-        \item \textbf{No handcrafted features needed}.the GNN learns to extract
-          relevant structural information directly from the graph
-        \item \textbf{Training labels:} obtained by running a heuristic solver on small
-          training graphs
+        \item 2-layer GCN for \textbf{binary classification}: is this node likely
+          part of the optimal solution?
+        \item \textbf{Input:} random node features $h_v \sim U(0,1)$;
+          breaks symmetry without any domain knowledge
+        \item \textbf{Training:} on small Erd\H{o}s-R\'{e}nyi graphs (2000 nodes),
+          labels from a heuristic solver
+        \item \textbf{Inference:} discard nodes predicted as non-solution in one pass
       \end{itemize}
     \end{column}
     \begin{column}{0.42\textwidth}
       \begin{exampleblock}{Why Random Features?}
-        Standard GNNs cannot distinguish nodes with identical neighborhoods. Random
-        initialization provides unique identifiers, enabling the GNN to learn
-        position-aware representations without requiring domain-specific feature
-        engineering.
+        Abboud et al.~\cite{abboud2020surprising} showed that random node
+        initialization gives GNNs surprising expressive power. We hypothesize
+        that solution nodes share similar \textbf{local structural patterns},
+        so random features suffice to learn structurally informative
+        representations purely from graph topology.
       \end{exampleblock}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{H-DeepPruner: Stage 2.Neural MCTS Fine-Pruning}
-  \textbf{Problem:} The GNN treats nodes independently, missing element interactions.
+\begin{frame}{Hierarchical DeepPruner: Stage 2, Neural MCTS Fine-Pruning}
+  \textbf{Limitation of Stage 1:} GNN predicts node membership independently,
+  potentially retaining redundant elements.
 
   \vspace{0.2cm}
 
-  \textbf{Solution:} Formulate pruning as a \textbf{Markov Decision Process} and solve
-  with Monte Carlo Tree Search.
+  \textbf{Stage 2:} Formulate further pruning as an \textbf{MDP} solved with Neural MCTS.
 
   \vspace{0.2cm}
 
@@ -550,42 +549,42 @@
     \begin{column}{0.48\textwidth}
       \textbf{MDP Formulation:}
       \begin{itemize}
-        \item \textbf{State:} current subset of retained nodes
-        \item \textbf{Action:} add or remove a node
-        \item \textbf{Reward:} combined metric $C$ at terminal state
-        \item \textbf{Transition:} deterministic state update
+        \item \textbf{State:} current pruned ground set + candidates
+        \item \textbf{Action:} add an element to the pruned set
+        \item \textbf{Reward:} heuristic objective value on pruned set
+        \item \textbf{Terminal:} fixed number of elements added
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{MCTS Phases:}
+      \textbf{MCTS with GNN guidance:}
       \begin{itemize}
         \item \textbf{Selection:} PUCT balances exploration vs.\ exploitation
-        \item \textbf{Expansion:} progressive widening adds children gradually
-        \item \textbf{Simulation:} evaluate via heuristic
-        \item \textbf{Backpropagation:} update value estimates
+        \item \textbf{Progressive widening:} gradually expands children ($\alpha = 0.1$)
+        \item \textbf{Progressive deepening:} restarts if $\geq 1\%$ improvement;
+          terminates at plateau
       \end{itemize}
     \end{column}
   \end{columns}
 
   \vspace{0.3cm}
 
-  \textbf{Progressive deepening} iteratively increases search depth, allowing the
-  algorithm to refine its decisions as it explores deeper into the search tree.
+  Builds the pruned set from scratch, capturing element \textbf{interdependencies}
+  that the independent GNN predictions miss.
 \end{frame}
 
-\begin{frame}{H-DeepPruner: MCTS Illustration}
+\begin{frame}{Hierarchical DeepPruner: MCTS Illustration}
   \begin{figure}
     \centering
-    \includegraphics[width=0.75\textwidth]{figures/hdeeppruner/mcts.pdf}
-    \caption{Neural MCTS with progressive widening: the tree expands gradually, balancing
-      breadth and depth of search. Each leaf evaluation uses the downstream heuristic
-      to compute the combined metric.}
+    \includegraphics[width=0.9\textwidth]{figures/hdeeppruner/mcts.pdf}
+    \caption{MCTS with progressive widening and deepening. The tree expands gradually;
+      each leaf is evaluated by running the downstream heuristic on the candidate
+      pruned set.}
   \end{figure}
 \end{frame}
 
-\begin{frame}{H-DeepPruner: Results}
-  As a \textbf{learning-based} pruning method, we evaluate H-DeepPruner against existing
-  learned approaches (GCOMB-P, LeNSE, COMBHelper) that share the same supervised/RL paradigm.
+\begin{frame}{Hierarchical DeepPruner: Results}
+  \textbf{Proof of concept:} even without handcrafted features, a learned pruner can
+  match or outperform carefully engineered baselines.
 
   \vspace{0.2cm}
 
@@ -594,19 +593,34 @@
       \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{figures/hdeeppruner/violin_plots.pdf}
-        \caption{Combined metric $C$ across all datasets. H-DeepPruner
-          achieves the highest and most stable performance among learned methods.}
+        \caption{Combined metric $C$ across all datasets. Despite using no domain
+          knowledge, H-DeepPruner is competitive with feature-engineered methods.}
       \end{figure}
     \end{column}
     \begin{column}{0.48\textwidth}
       \begin{figure}
         \centering
         \includegraphics[width=\textwidth]{figures/hdeeppruner/speed_up.pdf}
-        \caption{Speed-up of the downstream heuristic after pruning. H-DeepPruner
-          enables significant acceleration especially on large graphs.}
+        \caption{Downstream heuristic speed-up after pruning. Effective pruning
+          translates directly to practical acceleration.}
       \end{figure}
     \end{column}
   \end{columns}
+\end{frame}
+
+\begin{frame}{Hierarchical DeepPruner: Limitations}
+
+
+  \begin{enumerate}
+    \item \textbf{Size constraints only:} the MDP formulation assumes a fixed number of
+      elements; we have found out that it does not work well for knapsack constraint.
+
+    \item \textbf{MCTS scalability:} Progressive widening helps, but Stage 2 remains slow
+      on large action spaces; GNN pre-pruning is needed primarily to make MCTS tractable
+
+  \end{enumerate}
+
+
 \end{frame}
 
 %========================================================================================
@@ -622,9 +636,9 @@
   \begin{itemize}
     \item \textbf{Classical methods} (QuickPrune, SS): sequential processing limits
       scalability on very large graphs
-    \item \textbf{Learning-based methods} (H-DeepPruner, GCOMB-P, LeNSE, COMBHelper):
-      still require some form of \textbf{handcrafted design choices} (features, subgraph
-      sampling, boosting modules)
+    \item \textbf{Learning-based methods} (GCOMB-P, LeNSE, COMBHelper):
+      require \textbf{handcrafted features or design choices}; H-DeepPruner showed these
+      are unnecessary but still needs \textbf{manual architecture/search decisions}
     \item \textbf{Constraint limitation:} most learning-based methods only work under size
       constraints; adapting to knapsack requires significant redesign
   \end{itemize}
