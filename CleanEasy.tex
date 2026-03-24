@@ -250,8 +250,8 @@
 \section{QuickPrune (AISTATS 2025)}
 
 \begin{frame}{QuickPrune}
-  \textbf{Before our work:} all existing pruning methods were heuristics with
-  \textbf{no formal performance guarantees}.
+  Before our work, all existing pruning methods were heuristics with
+  no formal performance guarantees.
 
   \vspace{0.3cm}
 
@@ -261,12 +261,12 @@
   \vspace{0.3cm}
 
   \begin{block}{Our Answer: Yes}
-    QuickPrune is a \textbf{lightweight, single-pass} algorithm that:
+    QuickPrune is a lightweight, single-pass algorithm that:
     \begin{itemize}
-      \item Processes each element \textbf{exactly once} (streaming)
-      \item Provides \textbf{theoretical guarantees} on $P_r$ and $|\mathcal{U}'|$
-      \item Works under \textbf{$\gamma$-weak submodularity} (generalizes submodularity)
-      \item Handles both \textbf{size and knapsack} constraints
+      \item Processes each element exactly once (streaming)
+      \item Provides theoretical guarantees on $P_r$ and $|\mathcal{U}'|$
+      \item Works under $\gamma$-weak submodularity (generalizes submodularity)
+      \item Handles both size and knapsack constraints
     \end{itemize}
   \end{block}
 \end{frame}
@@ -514,20 +514,20 @@
   \begin{columns}
     \begin{column}{0.55\textwidth}
       \begin{itemize}
-        \item GNN for \textbf{binary classification}: is this node likely
+        \item GNN for binary classification: is this node likely
           part of the optimal solution?
-        \item \textbf{Input:} random node features $h_v \sim U(0,1)$;
+        \item Input: random node features $h_v \sim U(0,1)$;
           breaks symmetry without any domain knowledge
-        \item \textbf{Training:} on small training graphs,
+        \item Training: on small training graphs,
           labels from a heuristic solver
-        \item \textbf{Inference:} discard nodes predicted as non-solution in one pass
+        \item Inference: discard nodes predicted as non-solution in one pass
       \end{itemize}
     \end{column}
     \begin{column}{0.42\textwidth}
       \begin{exampleblock}{Why Random Features?}
         Abboud et al.~\cite{abboud2020surprising} showed that random node
         initialization gives GNNs surprising expressive power. We hypothesize
-        that solution nodes share similar \textbf{local structural patterns},
+        that solution nodes share similar local structural patterns,
         so random features suffice to learn structurally informative
         representations purely from graph topology.
       \end{exampleblock}
@@ -536,31 +536,31 @@
 \end{frame}
 
 \begin{frame}{Hierarchical DeepPruner: Stage 2, Neural MCTS Fine-Pruning}
-  \textbf{Limitation of Stage 1:} GNN predicts node membership independently,
+  Limitation of Stage 1: GNN predicts node membership independently,
   potentially retaining redundant elements.
 
   \vspace{0.2cm}
 
-  \textbf{Stage 2:} Formulate further pruning as an \textbf{MDP} solved with Neural MCTS.
+  Stage 2: formulate further pruning as an MDP solved with Neural MCTS.
 
   \vspace{0.2cm}
 
   \begin{columns}
     \begin{column}{0.48\textwidth}
-      \textbf{MDP Formulation:}
+      MDP Formulation:
       \begin{itemize}
-        \item \textbf{State:} current pruned ground set + candidates
-        \item \textbf{Action:} add an element to the pruned set
-        \item \textbf{Reward:} heuristic objective value on pruned set
-        \item \textbf{Terminal:} fixed number of elements added
+        \item State: current pruned ground set + candidates
+        \item Action: add an element to the pruned set
+        \item Reward: heuristic objective value on pruned set
+        \item Terminal: fixed number of elements added
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{MCTS with GNN guidance:}
+      MCTS with GNN guidance:
       \begin{itemize}
-        \item \textbf{Selection:} PUCT balances exploration vs.\ exploitation
-        \item \textbf{Progressive widening:} gradually expands children ($\alpha = 0.1$)
-        \item \textbf{Progressive deepening:} restarts if $\geq 1\%$ improvement;
+        \item Selection: PUCT balances exploration vs.\ exploitation
+        \item Progressive widening: gradually expands children ($\alpha = 0.1$)
+        \item Progressive deepening: restarts if $\geq 1\%$ improvement;
           terminates at plateau
       \end{itemize}
     \end{column}
@@ -568,7 +568,7 @@
 
   \vspace{0.3cm}
 
-  Builds the pruned set from scratch, capturing element \textbf{interdependencies}
+  Builds the pruned set from scratch, capturing element interdependencies
   that the independent GNN predictions miss.
 \end{frame}
 
@@ -612,12 +612,11 @@
 
 
   \begin{enumerate}
-    \item \textbf{Size constraints only:} the MDP formulation assumes a fixed number of
-      elements; we have found out that it does not work well for knapsack constraint.
+    \item Size constraints only: the MDP formulation assumes a fixed number of
+      elements; we have found that it does not work well for knapsack constraints
 
-    \item \textbf{MCTS scalability:} Progressive widening helps, but Stage 2 remains slow
+    \item MCTS scalability: progressive widening helps, but Stage 2 remains slow
       on large action spaces; GNN pre-pruning is needed primarily to make MCTS tractable
-
   \end{enumerate}
 
 
@@ -629,17 +628,16 @@
 \section{LLM2Prune (Proposed Work)}
 
 \begin{frame}{LLM2Prune: Motivation}
-  \textbf{Key question:} Can we develop a pruning framework that \textbf{easily adapts
-  to diverse constraints} and at the same time \textbf{does not require manual
-  engineering} for each problem?
+  \textbf{Key question:} Can we develop a pruning framework that easily adapts
+  to diverse constraints and does not require manual engineering for each problem?
 
   \vspace{0.3cm}
 
-  \textbf{Remaining gaps in learned pruning methods:}
+  Remaining gaps in learned pruning methods:
   \begin{itemize}
-    \item H-DeepPruner eliminates handcrafted features but is \textbf{limited to size constraints} and is slower than the classical QuickPrune algorithm
+    \item H-DeepPruner eliminates handcrafted features but is limited to size constraints and is slower than the classical QuickPrune algorithm
     \item GCOMB-P, LeNSE, and COMBHelper each require
-      \textbf{problem-specific redesign} to handle new constraints or objectives
+      problem-specific redesign to handle new constraints or objectives
     \item No existing learned method can switch between constraint types
       (e.g., size $\to$ knapsack) without significant re-engineering
   \end{itemize}
@@ -647,7 +645,7 @@
   \vspace{0.3cm}
 
   \begin{block}{LLM2Prune}
-    An LLM-directed beam search that \textbf{automatically discovers} pruning
+    An LLM-directed beam search that automatically discovers pruning
     features. Adapting from size to knapsack constraints requires only changing
     the prompt.
   \end{block}
@@ -655,22 +653,21 @@
 
 \begin{frame}{LLM2Prune: Main Idea}
   \textbf{Insight:} Large language models encode broad domain knowledge about graph theory,
-  optimization, and network science. We can leverage this knowledge to \textbf{automate
-  feature discovery}.
+  optimization, and network science. We leverage this to automate feature discovery.
 
   \vspace{0.3cm}
 
-  \textbf{How it works:}
+  How it works:
   \begin{enumerate}
-    \item Give the LLM a \textbf{text description} of the CO problem and constraints
-    \item The LLM \textbf{proposes node-level features} and \textbf{writes Python code}
+    \item Give the LLM a text description of the CO problem and constraints
+    \item The LLM proposes node-level features and writes Python code
       to compute each feature
     \item A lightweight GNN is trained on these features to classify nodes
-    \item \textbf{Feedback} (which features helped, which didn't, and model performance) is sent back to the LLM
+    \item Feedback (which features helped, which didn't, and model performance) is sent back to the LLM
     \item The process repeats via \textbf{beam search} to find the best feature set
-    \item Feature search is performed on \textbf{small synthetic random graphs} that
+    \item Feature search is performed on small synthetic random graphs that
       approximate the target graph distributions, offsetting the cost of LLM queries;
-      the resulting GCN is then \textbf{fine-tuned on the target training graph}
+      the resulting GCN is then fine-tuned on the target training graph
       and evaluated on the test graph
   \end{enumerate}
 
@@ -678,8 +675,8 @@
 
   \begin{exampleblock}{Key Advantage}
     Constraint-adaptive and problem-agnostic: to switch from size to knapsack
-    constraints or to a new CO problem, just \textbf{change the task description
-    in the prompt}. 
+    constraints or to a new CO problem, just change the task description
+    in the prompt.
   \end{exampleblock}
 \end{frame}
 
@@ -694,7 +691,7 @@
 \end{frame}
 
 \begin{frame}{LLM2Prune: Decision Tree Formulation}
-  The feature search is formalized as a \textbf{decision tree} $\mathcal{T}$:
+  The feature search is formalized as a decision tree $\mathcal{T}$:
 
   \vspace{0.2cm}
 
@@ -708,7 +705,7 @@
 
   \vspace{0.2cm}
 
-  \textbf{Cumulative history} $\mathcal{H}_{d,i}$ records all past attempts along the
+  Cumulative history $\mathcal{H}_{d,i}$ records all past attempts along the
   root-to-node path:
   \[
     \mathcal{H}_{d,i} = \bigcup_{\ell=0}^{d} \bigcup_{j \in \pi(\ell,i)}
@@ -725,7 +722,7 @@
 \end{frame}
 
 \begin{frame}{LLM2Prune: Expansion and Pruning}
-  \textbf{At each depth $d$, for each node in beam $B_d$:}
+  At each depth $d$, for each node in beam $B_d$:
 
   \vspace{0.2cm}
 
@@ -733,14 +730,14 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{Expansion Phase}
         \begin{enumerate}
-          \item LLM \textbf{summarizes} history into key insights
-          \item LLM \textbf{proposes} $\gamma$ child feature sets guided by refinement
+          \item LLM summarizes history into key insights
+          \item LLM proposes $\gamma$ child feature sets guided by refinement
             rules
-          \item LLM \textbf{generates code} for each feature (timeout $\tau$ discards
+          \item LLM generates code for each feature (timeout $\tau$ discards
             expensive ones)
-          \item Train GCN with \textbf{semi-supervised learning} (soft pseudo-labels
+          \item Train GCN with semi-supervised learning (soft pseudo-labels
             mitigate label noise)
-          \item \textbf{GNNExplainer} extracts feature importance scores
+          \item GNNExplainer extracts feature importance scores
         \end{enumerate}
       \end{block}
     \end{column}
@@ -764,8 +761,8 @@
 \begin{frame}{LLM2Prune: Preliminary Results (Size Constraint)}
   \begin{itemize}
     \item Competitive with classical methods (QuickPrune, SS) on combined metric
-    \item \textbf{1-4 orders of magnitude faster} at inference on large graphs
-    \item Consistently \textbf{outperforms all learning-based baselines}
+    \item 1--4 orders of magnitude faster at inference on large graphs
+    \item Consistently outperforms all learning-based baselines
   \end{itemize}
 
   \begin{figure}
@@ -808,18 +805,18 @@
 \begin{frame}{LLM2Prune: Ablation Study}
   \begin{columns}
     \begin{column}{0.42\textwidth}
-      Compared four variants with the \textbf{same number of LLM API calls}:
+      Compared four variants with the same number of LLM API calls:
       \begin{enumerate}
         \item Single-shot prompt
         \item Feedback loop (performance)
         \item Feedback loop (performance + importance)
-        \item \textbf{Beam search}
+        \item Beam search
       \end{enumerate}
 
       \vspace{0.2cm}
 
-      Beam search achieves \textbf{higher and more stable} performance. Simpler variants
-      suffer from \textbf{error propagation} when early iterations contain reasoning
+      Beam search achieves higher and more stable performance. Simpler variants
+      suffer from error propagation when early iterations contain reasoning
       errors.
     \end{column}
     \begin{column}{0.55\textwidth}
@@ -856,7 +853,7 @@
 
   \begin{alertblock}{Remaining Work}
     \begin{itemize}
-      \item Comprehensive evaluation under \textbf{knapsack constraints} across all
+      \item Comprehensive evaluation under knapsack constraints across all
         datasets and applications
       \item LLM2Prune adapts by simply modifying the task description.no algorithmic
         changes required
@@ -891,7 +888,7 @@
 
   \vspace{0.3cm}
 
-  The three methods are \textbf{complementary}: QuickPrune provides theoretical
+  The three methods are complementary: QuickPrune provides theoretical
   foundations, H-DeepPruner captures element interactions, and LLM2Prune automates feature
   discovery with constraint adaptability.
 \end{frame}
