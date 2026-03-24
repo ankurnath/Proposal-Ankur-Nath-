@@ -683,7 +683,7 @@
 \begin{frame}{LLM2Prune: Framework}
   \begin{figure}
     \centering
-    \includegraphics[width=0.92\textwidth]{figures/llm2prune/LLM_cropped.pdf}
+    \includegraphics[width=0.85\textwidth]{figures/llm2prune/LLM_cropped.pdf}
     \caption{(a) Beam search with expansion and pruning phases. (b) Expansion: LLM
       proposes features $\to$ generates code $\to$ trains GNN $\to$ evaluates performance
       and feature importance $\to$ feeds back to LLM.}
@@ -802,33 +802,33 @@
 %   yet LLM2Prune discovers them \textbf{automatically from the task description alone}.
 % \end{frame}
 
-\begin{frame}{LLM2Prune: Ablation Study}
-  \begin{columns}
-    \begin{column}{0.42\textwidth}
-      Compared four variants with the same number of LLM API calls:
-      \begin{enumerate}
-        \item Single-shot prompt
-        \item Feedback loop (performance)
-        \item Feedback loop (performance + importance)
-        \item Beam search
-      \end{enumerate}
+% \begin{frame}{LLM2Prune: Ablation Study}
+%   \begin{columns}
+%     \begin{column}{0.42\textwidth}
+%       Compared four variants with the same number of LLM API calls:
+%       \begin{enumerate}
+%         \item Single-shot prompt
+%         \item Feedback loop (performance)
+%         \item Feedback loop (performance + importance)
+%         \item Beam search
+%       \end{enumerate}
 
-      \vspace{0.2cm}
+%       \vspace{0.2cm}
 
-      Beam search achieves higher and more stable performance. Simpler variants
-      suffer from error propagation when early iterations contain reasoning
-      errors.
-    \end{column}
-    \begin{column}{0.55\textwidth}
-      \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{figures/llm2prune/ablation.pdf}
-        \caption{Combined metric across three CO problems. Beam search has median close
-          to 1.0 with minimal variance.}
-      \end{figure}
-    \end{column}
-  \end{columns}
-\end{frame}
+%       Beam search achieves higher and more stable performance. Simpler variants
+%       suffer from error propagation when early iterations contain reasoning
+%       errors.
+%     \end{column}
+%     \begin{column}{0.55\textwidth}
+%       \begin{figure}
+%         \centering
+%         \includegraphics[width=\textwidth]{figures/llm2prune/ablation.pdf}
+%         \caption{Combined metric across three CO problems. Beam search has median close
+%           to 1.0 with minimal variance.}
+%       \end{figure}
+%     \end{column}
+%   \end{columns}
+% \end{frame}
 
 % \begin{frame}{LLM2Prune: LLM Choice}
 %   \begin{figure}
@@ -844,7 +844,7 @@
   \begin{block}{Completed}
     \begin{itemize}
       \item Framework design and implementation
-      \item Ablation study justifying beam search over simpler alternatives
+      
       \item Comprehensive evaluation under size constraints (3 problems, 8 datasets)
     \end{itemize}
   \end{block}
@@ -853,45 +853,47 @@
 
   \begin{alertblock}{Remaining Work}
     \begin{itemize}
+      
       \item Comprehensive evaluation under knapsack constraints across all
         datasets and applications
-      \item LLM2Prune adapts by simply modifying the task description.no algorithmic
-        changes required
+      \item Ablation study justifying beam search over simpler alternatives
+      % \item LLM2Prune adapts by simply modifying the task description.no algorithmic
+      %   changes required
     \end{itemize}
   \end{alertblock}
 \end{frame}
 
-%========================================================================================
-% SUMMARY & COMPARISON
-%========================================================================================
-\section{Summary}
+% %========================================================================================
+% % SUMMARY & COMPARISON
+% %========================================================================================
+% \section{Summary}
 
-\begin{frame}{Comparison of All Three Methods}
-  \begin{table}
-    \centering
-    \small
-    \begin{tabular}{lccc}
-      \toprule
-      & \textbf{QuickPrune} & \textbf{H-DeepPruner} & \textbf{LLM2Prune} \\
-      \midrule
-      Approach & Classical & Supervised + RL & LLM + Supervised \\
-      Handcrafted features & No & No & No \\
-      Theoretical guarantees & \textbf{Yes} & No & No \\
-      Size constraint & Yes & Yes & Yes \\
-      Knapsack constraint & Yes & No & Yes \\
-      Inference speed & Moderate & Fast & \textbf{Very fast} \\
-      Element interactions & No & \textbf{Yes} (MCTS) & No \\
-      Feature discovery & N/A & Random init & \textbf{Automated} (LLM) \\
-      \bottomrule
-    \end{tabular}
-  \end{table}
+% \begin{frame}{Comparison of All Three Methods}
+%   \begin{table}
+%     \centering
+%     \small
+%     \begin{tabular}{lccc}
+%       \toprule
+%       & \textbf{QuickPrune} & \textbf{H-DeepPruner} & \textbf{LLM2Prune} \\
+%       \midrule
+%       Approach & Classical & Supervised + RL & LLM + Supervised \\
+%       Handcrafted features & No & No & No \\
+%       Theoretical guarantees & \textbf{Yes} & No & No \\
+%       Size constraint & Yes & Yes & Yes \\
+%       Knapsack constraint & Yes & No & Yes \\
+%       Inference speed & Moderate & Fast & \textbf{Very fast} \\
+%       Element interactions & No & \textbf{Yes} (MCTS) & No \\
+%       Feature discovery & N/A & Random init & \textbf{Automated} (LLM) \\
+%       \bottomrule
+%     \end{tabular}
+%   \end{table}
 
-  \vspace{0.3cm}
+%   \vspace{0.3cm}
 
-  The three methods are complementary: QuickPrune provides theoretical
-  foundations, H-DeepPruner captures element interactions, and LLM2Prune automates feature
-  discovery with constraint adaptability.
-\end{frame}
+%   The three methods are complementary: QuickPrune provides theoretical
+%   foundations, H-DeepPruner captures element interactions, and LLM2Prune automates feature
+%   discovery with constraint adaptability.
+% \end{frame}
 
 %========================================================================================
 % TIMELINE
@@ -907,12 +909,12 @@
       \midrule
       QuickPrune (AISTATS 2025) & Completed \\
       H-DeepPruner (SoCS 2025) & Completed \\
-      LLM2Prune: Size constraint experiments \& ablation & Completed \\
+      LLM2Prune:  Preliminary experiments  & Completed \\
       \midrule
       Preliminary Exam \& Proposal Defense & April 2026 \\
-      LLM2Prune: Knapsack experiments \& manuscript & April -- June 2026 \\
-      Thesis Writing & July -- September 2026 \\
-      Thesis Defense & October 2026 \\
+      LLM2Prune:  experiments \& manuscript & April - June 2026 \\
+      Thesis Writing & July  2026 \\
+      Thesis Defense & August 2026 \\
       \bottomrule
     \end{tabular}
   \end{table}
