@@ -230,7 +230,7 @@
       \begin{block}{\faLightbulb\; LLM2Prune}
         \textit{Proposed}\\[4pt]
         LLM-directed beam search for \textbf{automated feature discovery}.
-        Constraint-adaptive via text prompts.
+        Constraint-adaptive via prompts.
       \end{block}
       % \centering\small\textcolor{gray}{LLM-driven}
     \end{column}
@@ -249,7 +249,7 @@
 %========================================================================================
 \section{QuickPrune (AISTATS 2025)}
 
-\begin{frame}{QuickPrune: The Problem}
+\begin{frame}{QuickPrune}
   \textbf{Before our work:} all existing pruning methods were heuristics with
   \textbf{no formal performance guarantees}.
 
@@ -291,7 +291,7 @@
 \end{frame}
 
 \begin{frame}{QuickPrune-Single: How It Works}
-  For a single budget $\kappa$, maintain a set $A$ of currently retained elements (initially empty) and stream through $\mathcal{U}$ one element at a time:
+  For a single budget $\kappa$, maintain a set $A$ of currently retained elements and a checkpoint set $A_s$ recording elements from the previous epoch (both initially empty). Stream through $\mathcal{U}$ one element at a time:
 
   \vspace{0.2cm}
 
@@ -309,10 +309,10 @@
           This ensures we only retain elements that contribute enough
           value per unit cost compared to what we already have
 
-        \item \textbf{Deletion step:} Periodically (when $f(A)$ grows by factor
-          $n/\epsilon$), re-evaluate all retained elements and discard those whose
-          marginal gain no longer meets the threshold, as better elements have since
-          arrived, making earlier picks redundant
+        \item \textbf{Deletion step:} When $f(A) > \frac{n}{\epsilon}\, f(A_s)$
+          (i.e., the current value exceeds the checkpoint value $f(A_s)$ by factor
+          $n/\epsilon$), discard the entire previous checkpoint set:
+          $A \gets A \setminus A_s$, then reset $A_s \gets A$
 
         \item \textbf{Singleton tracking:} Always track the single best element $a^*$
           to guard against pathological cases
