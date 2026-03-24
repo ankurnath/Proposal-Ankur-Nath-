@@ -514,11 +514,11 @@
   \begin{columns}
     \begin{column}{0.55\textwidth}
       \begin{itemize}
-        \item 2-layer GCN for \textbf{binary classification}: is this node likely
+        \item GNN for \textbf{binary classification}: is this node likely
           part of the optimal solution?
         \item \textbf{Input:} random node features $h_v \sim U(0,1)$;
           breaks symmetry without any domain knowledge
-        \item \textbf{Training:} on small Erd\H{o}s-R\'{e}nyi graphs (2000 nodes),
+        \item \textbf{Training:} on small training graphs,
           labels from a heuristic solver
         \item \textbf{Inference:} discard nodes predicted as non-solution in one pass
       \end{itemize}
@@ -628,27 +628,28 @@
 %========================================================================================
 \section{LLM2Prune (Proposed Work)}
 
-\begin{frame}{LLM2Prune: The Problem}
-  \textbf{Despite progress, a key bottleneck remains:}
+\begin{frame}{LLM2Prune: Motivation}
+  \textbf{Key question:} Can we develop a pruning framework that \textbf{easily adapts
+  to diverse constraints} and at the same time \textbf{does not require manual
+  engineering} for each problem?
 
-  \vspace{0.2cm}
+  \vspace{0.3cm}
 
+  \textbf{Remaining gaps in learned pruning methods:}
   \begin{itemize}
-    \item \textbf{Classical methods} (QuickPrune, SS): sequential processing limits
-      scalability on very large graphs
-    \item \textbf{Learning-based methods} (GCOMB-P, LeNSE, COMBHelper):
-      require \textbf{handcrafted features or design choices}; H-DeepPruner showed these
-      are unnecessary but still needs \textbf{manual architecture/search decisions}
-    \item \textbf{Constraint limitation:} most learning-based methods only work under size
-      constraints; adapting to knapsack requires significant redesign
+    \item H-DeepPruner eliminates handcrafted features but is \textbf{limited to size constraints} and is slower than the classical QuickPrune algorithm
+    \item GCOMB-P, LeNSE, and COMBHelper each require
+      \textbf{problem-specific redesign} to handle new constraints or objectives
+    \item No existing learned method can switch between constraint types
+      (e.g., size $\to$ knapsack) without significant re-engineering
   \end{itemize}
 
   \vspace{0.3cm}
 
-  \begin{block}{Key Question}
-    Can we design a pruning framework that \textbf{avoids all handcrafted features},
-    delivers strong performance across \textbf{general CO problems over graphs}, and
-    adapts to \textbf{different constraints} without any algorithmic changes?
+  \begin{block}{LLM2Prune}
+    An LLM-directed beam search that \textbf{automatically discovers} pruning
+    features. Adapting from size to knapsack constraints requires only changing
+    the prompt.
   \end{block}
 \end{frame}
 
@@ -659,21 +660,26 @@
 
   \vspace{0.3cm}
 
-  \textbf{How it works (in simple terms):}
+  \textbf{How it works:}
   \begin{enumerate}
     \item Give the LLM a \textbf{text description} of the CO problem and constraints
-    \item The LLM \textbf{proposes node-level features} (e.g., ``degree-to-weight ratio'')
-    \item The LLM \textbf{writes Python code} to compute each feature
-    \item A lightweight GCN is trained on these features to classify nodes
-    \item \textbf{Feedback} (which features helped, which didn't) is sent back to the LLM
+    \item The LLM \textbf{proposes node-level features} and \textbf{writes Python code}
+      to compute each feature
+    \item A lightweight GNN is trained on these features to classify nodes
+    \item \textbf{Feedback} (which features helped, which didn't, and model performance) is sent back to the LLM
     \item The process repeats via \textbf{beam search} to find the best feature set
+    \item Feature search is performed on \textbf{small synthetic random graphs} that
+      approximate the target graph distributions, offsetting the cost of LLM queries;
+      the resulting GCN is then \textbf{fine-tuned on the target training graph}
+      and evaluated on the test graph
   \end{enumerate}
 
   \vspace{0.2cm}
 
   \begin{exampleblock}{Key Advantage}
-    To adapt from size to knapsack constraints: just \textbf{change the task description
-    text}. No code changes, no retraining of the search process.
+    Constraint-adaptive and problem-agnostic: to switch from size to knapsack
+    constraints or to a new CO problem, just \textbf{change the task description
+    in the prompt}. 
   \end{exampleblock}
 \end{frame}
 
@@ -682,7 +688,7 @@
     \centering
     \includegraphics[width=0.92\textwidth]{figures/llm2prune/LLM_cropped.pdf}
     \caption{(a) Beam search with expansion and pruning phases. (b) Expansion: LLM
-      proposes features $\to$ generates code $\to$ trains GCN $\to$ evaluates performance
+      proposes features $\to$ generates code $\to$ trains GNN $\to$ evaluates performance
       and feature importance $\to$ feeds back to LLM.}
   \end{figure}
 \end{frame}
@@ -758,7 +764,7 @@
 \begin{frame}{LLM2Prune: Preliminary Results (Size Constraint)}
   \begin{itemize}
     \item Competitive with classical methods (QuickPrune, SS) on combined metric
-    \item \textbf{1--4 orders of magnitude faster} at inference on large graphs
+    \item \textbf{1-4 orders of magnitude faster} at inference on large graphs
     \item Consistently \textbf{outperforms all learning-based baselines}
   \end{itemize}
 
@@ -770,34 +776,34 @@
   \end{figure}
 \end{frame}
 
-\begin{frame}{LLM2Prune: Discovered Features}
-  LLM2Prune discovers features that are \textbf{grounded in the problem objective}, not
-  generic graph statistics:
+% \begin{frame}{LLM2Prune: Discovered Features}
+%   LLM2Prune discovers features that are \textbf{grounded in the problem objective}, not
+%   generic graph statistics:
 
-  \vspace{0.3cm}
+%   \vspace{0.3cm}
 
-  \begin{columns}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Maximum Cut}
-        \textbf{Random cut expectation:} expected marginal contribution of a node to the
-        cut under a random partition. Directly derived from the cut objective.
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Influence Maximization}
-        \textbf{Avg.\ incoming activation probability:} mean probability a node is
-        activated by neighbors (susceptibility).\\
-        \textbf{Outgoing activation probability sum:} captures direct influence spread.
-      \end{block}
-    \end{column}
-  \end{columns}
+%   \begin{columns}
+%     \begin{column}{0.48\textwidth}
+%       \begin{block}{Maximum Cut}
+%         \textbf{Random cut expectation:} expected marginal contribution of a node to the
+%         cut under a random partition. Directly derived from the cut objective.
+%       \end{block}
+%     \end{column}
+%     \begin{column}{0.48\textwidth}
+%       \begin{block}{Influence Maximization}
+%         \textbf{Avg.\ incoming activation probability:} mean probability a node is
+%         activated by neighbors (susceptibility).\\
+%         \textbf{Outgoing activation probability sum:} captures direct influence spread.
+%       \end{block}
+%     \end{column}
+%   \end{columns}
 
-  \vspace{0.3cm}
+%   \vspace{0.3cm}
 
-  \centering
-  These features would require significant domain expertise to design manually,\\
-  yet LLM2Prune discovers them \textbf{automatically from the task description alone}.
-\end{frame}
+%   \centering
+%   These features would require significant domain expertise to design manually,\\
+%   yet LLM2Prune discovers them \textbf{automatically from the task description alone}.
+% \end{frame}
 
 \begin{frame}{LLM2Prune: Ablation Study}
   \begin{columns}
@@ -827,15 +833,15 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{LLM2Prune: LLM Choice}
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{figures/llm2prune/models.pdf}
-    \caption{Comparison of LLM2Prune using two different LLMs. Both models achieve
-      comparable performance, indicating the framework is not sensitive to the specific
-      LLM used.}
-  \end{figure}
-\end{frame}
+% \begin{frame}{LLM2Prune: LLM Choice}
+%   \begin{figure}
+%     \centering
+%     \includegraphics[width=0.6\textwidth]{figures/llm2prune/models.pdf}
+%     \caption{Comparison of LLM2Prune using two different LLMs. Both models achieve
+%       comparable performance, indicating the framework is not sensitive to the specific
+%       LLM used.}
+%   \end{figure}
+% \end{frame}
 
 \begin{frame}{LLM2Prune: Status and Remaining Work}
   \begin{block}{Completed}
