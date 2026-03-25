@@ -3,10 +3,10 @@
 \chapter{\uppercase {LLM2Prune: Using LLMs as Domain Experts for Search Space Reduction}}
 
 While QuickPrune (Chapter~3) provides theoretically grounded pruning and H-DeepPruner
-(Chapter~4) combines supervised and reinforcement learning for adaptive pruning, both
-approaches have limitations: classical methods like QuickPrune process elements
-sequentially and do not scale well to very large graphs, while learning-based methods
-including H-DeepPruner rely on handcrafted, problem-specific features or domain knowledge.
+(Chapter~4) demonstrates that learning-based pruning can be problem-agnostic, both
+approaches have limitations: QuickPrune processes elements sequentially and does not
+scale well to problems where marginal gain computation is \#P-hard, while H-DeepPruner
+operates only under size constraints and provides no theoretical guarantees.
 A central question remains: \emph{is it possible to design a scalable pruning framework
 that avoids handcrafted features, delivers strong performance across general CO problems
 over graphs, and adapts easily to different constraints?} In this chapter, we propose
@@ -21,8 +21,8 @@ constraint types.
 
 The limitations of existing pruning approaches motivate the need for a fundamentally
 different strategy. Classical approaches such as QuickPrune~\citep{pmlr-v258-nath25a} and
-Submodular Sparsification~\citep{zhou2017scaling} are limited by sequential processing,
-which does not scale well to large graphs. Among learning-based methods,
+Submodular Sparsification~\citep{zhou2017scaling} process elements sequentially, which
+does not scale well to problems where marginal gain computation is \#P-hard. Among learning-based methods,
 GCOMB-P~\citep{manchanda2020gcomb} depends on a handcrafted degree heuristic that does not
 generalize well across CO problems~\citep{ireland2022lense}.
 LeNSE~\citep{ireland2022lense} relies on domain expertise to categorize subgraphs, set the
@@ -134,7 +134,7 @@ equally unimportant~\citep{manchanda2020gcomb}.
 
 Feature-importance scores are then extracted using
 GNNExplainer~\citep{ying2019gnnexplainer}, which provides attribution scores indicating
-each feature's contribution to the classifier's predictions. These scores form the
+the contribution of each feature to the predictions of the classifier. These scores form the
 feedback signal $\text{Imp}_{d,i}$ used to guide subsequent feature generation.
 
 \subsection{Pruning Phase}
@@ -251,18 +251,11 @@ Skitter & 0.9813 & 0.9999 & 0.9812 & 1.0032 & 0.9991 & 1.0023 & 1.0035 & 0.9970 
 }
 \end{table}
 
-From Table~\ref{tab:llm2prune-size}, LLM2Prune performs competitively with classical
-methods such as QuickPrune and SS on the combined metric. However, both classical
-approaches rely on sequential submodularity-based pruning, which is orders of magnitude
-slower than LLM2Prune on large datasets such as YouTube and Skitter
-(Figure~\ref{fig:llm2prune-runtime}). In contrast, LLM2Prune achieves comparable or
-better performance without relying on hand-crafted features, demonstrating that
-learning-based pruning can be both effective and efficient. Within the learning-based
-category, LLM2Prune outperforms prior methods in both combined metric and runtime.
-GCOMB-P and COMBHelper frequently underperform, while LeNSE is more stable but generally
-results in lower combined-metric values. Unlike other learning-based methods that depend
-on handcrafted features, LLM2Prune balances efficiency with strong performance,
-effectively narrowing the gap with classical methods.
+From Table~\ref{tab:llm2prune-size}, LLM2Prune performs competitively with QuickPrune
+and SS on the combined metric while being orders of magnitude faster on large datasets
+such as YouTube and Skitter (Figure~\ref{fig:llm2prune-runtime}). Among learning-based
+methods, LLM2Prune consistently outperforms GCOMB-P, LeNSE, and COMBHelper in both
+combined metric and runtime, without relying on hand-crafted features.
 
 \begin{figure}[t]
   \centering
@@ -280,7 +273,7 @@ cut expectation}, the expected marginal contribution of a node to the cut under 
 partition, a non-trivial descriptor directly derived from the cut objective. For IM, it
 identifies \emph{average incoming activation probability} and \emph{outgoing activation
 probability sum}, which require reasoning about the independent cascade model and capture a
-node's susceptibility and direct influence spread, respectively. These features would
+the susceptibility of a node and its direct influence spread, respectively. These features would
 require significant domain expertise to design manually, yet LLM2Prune discovers them
 automatically from the task description alone.
 
@@ -291,10 +284,13 @@ variants using the same number of API calls: (1)~a single-shot prompt with no it
 refinement, (2)~a simple feedback loop with performance metrics only, (3)~a simple feedback
 loop with both performance metrics and feature-importance scores, and (4)~the full beam
 search. Figure~\ref{fig:llm2prune-ablation} reports the combined metric across three CO
-problems. The results show that beam search consistently achieves higher and more stable
-performance, with median values close to $1.0$ and minimal variance across runs. Simpler
-variants suffer from error propagation when early iterations contain reasoning errors,
-whereas beam search mitigates this issue by maintaining multiple candidate paths.
+problems under both size and knapsack constraints. The results show that beam search
+consistently achieves higher and more stable performance across all six settings, with
+median values close to $1.0$ and minimal variance across runs. Simpler variants suffer
+from error propagation when early iterations contain reasoning errors, whereas beam search
+mitigates this issue by maintaining multiple candidate paths. Notably, the advantage of
+beam search is even more pronounced under knapsack constraints, where the feature space
+is more complex.
 
 \begin{figure}[t]
   \centering
@@ -308,12 +304,15 @@ whereas beam search mitigates this issue by maintaining multiple candidate paths
 \section{Remaining Work}
 
 We have completed the proposed framework design, the ablation study justifying the beam
-search strategy, and a comprehensive evaluation under size constraints across three CO
-problems and eight real-world datasets. The results demonstrate that LLM2Prune performs
-competitively with classical methods while being orders of magnitude faster at inference,
-and consistently outperforms all existing learning-based approaches. The primary remaining
-work is to conduct a comprehensive evaluation under knapsack constraints across all
-datasets and applications. Unlike other learning-based methods, LLM2Prune can naturally
-adapt to the knapsack constraint by simply modifying the task description provided to the
-LLM, without requiring any changes to the underlying framework or retraining the feature
-discovery pipeline.
+search strategy under both size and knapsack constraints, and a comprehensive comparative
+evaluation under size constraints across three CO problems and eight real-world datasets.
+The results demonstrate that LLM2Prune performs competitively with classical methods while
+being orders of magnitude faster at inference, and consistently outperforms all existing
+learning-based approaches. All results reported in this chapter were generated using GPT-4.1 as the backbone LLM.
+The primary remaining work includes: (1)~conducting a full comparative evaluation under
+knapsack constraints against all baselines across all datasets and applications, and
+(2)~evaluating LLM2Prune with open-source LLMs to assess whether the framework
+generalizes beyond proprietary models.
+Unlike other learning-based methods, LLM2Prune can naturally adapt to the knapsack
+constraint by simply modifying the task description provided to the LLM, without requiring
+any changes to the underlying framework or retraining the feature discovery pipeline.
