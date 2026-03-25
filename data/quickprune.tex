@@ -3,7 +3,7 @@
 \chapter{\uppercase {QuickPrune: Theoretically Grounded Pruning of Large Ground Sets}}
 
 Prior to our work, all existing pruning methods were heuristics with no formal performance
-guarantees. It was unknown whether it is even possible to efficiently produce a pruned
+guarantees. It was unknown whether it was even possible to efficiently produce a pruned
 ground set with provable bounds on both its size and the fraction of optimal value it
 retains. In this chapter, we introduce QuickPrune~\citep{pmlr-v258-nath25a}, a lightweight
 pruning algorithm for constrained discrete optimization that processes elements in a
@@ -210,7 +210,7 @@ problem across three graph CO problems, for both size and knapsack constraints.
 \subsection{Experimental Setup}
 
 \textbf{Applications.} All problems are defined on an undirected graph $G = (V, E)$ where
-each node $v \in V$ has cost $c(v)$. We evaluate on three applications:
+each node $v \in V$ has cost $c(v)$. We evaluate on three graph CO problems:
 
 \begin{itemize}
   \item \textbf{Maximum Coverage (MaxCover):} Find $S \subseteq V$ with
@@ -259,7 +259,7 @@ provides a balanced evaluation.
 For the size constraint experiments with budget $k = 100$, we observe that all algorithms
 achieve similar pruning approximation ratios. However, QuickPrune is able to prune the
 original ground set by orders of magnitude more than most algorithms. Table~\ref{tab:size_constraint}
-summarizes the results across all applications and datasets. Specifically:
+summarizes the results across all applications and datasets.
 
 \begin{table}[t]
 \centering

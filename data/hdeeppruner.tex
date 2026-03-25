@@ -2,17 +2,20 @@
 
 \chapter{\uppercase {Hierarchical DeepPruner: A Novel Framework for Search Space Reduction}}
 
-As graph instances grow to millions of nodes, even a lightweight sequential algorithm
-faces scalability challenges, particularly for problems where calculating marginal gain
-is \#P-hard. At the same time, existing learning-based pruning methods achieve fast
-inference but demand problem-specific domain knowledge for algorithm design, making them
-difficult to apply to new CO problems. In this chapter, we introduce Hierarchical
-DeepPruner (H-DeepPruner)~\citep{nath2025hdeeppruner}, an adaptive two-stage framework
-that combines supervised learning with reinforcement learning for search space reduction
-under size constraints. The first stage uses a graph neural network to quickly eliminate
-vertices unlikely to be part of the solution, without requiring any hand-crafted features
-or domain knowledge. The second stage applies a tree search procedure to further refine
-the pruned ground set by considering interdependencies among elements.
+QuickPrune (Chapter~3) establishes that principled, problem-agnostic pruning is achievable
+with theoretical guarantees. A natural follow-up question is whether a purely learning-based
+approach can also achieve effective pruning without relying on hand-crafted features or
+domain-specific knowledge. Existing learning-based pruning methods achieve fast inference
+but demand problem-specific design choices, making them difficult to apply to new CO
+problems. In this chapter, we present Hierarchical DeepPruner
+(H-DeepPruner)~\citep{nath2025hdeeppruner} as a proof of concept demonstrating that
+learning-based pruning can be both problem-agnostic and competitive, using only random
+node features and synthetic training data. H-DeepPruner is a two-stage framework that
+combines supervised learning with reinforcement learning for search space reduction under
+size constraints. The first stage uses a graph neural network to quickly eliminate
+vertices unlikely to be part of the solution. The second stage applies a tree search
+procedure to further refine the pruned ground set by considering interdependencies among
+elements.
 
 \begin{figure}[t]
   \centering
@@ -25,15 +28,16 @@ the pruned ground set by considering interdependencies among elements.
 
 \section{Problem Setting}
 
-We consider the same pruning problem as in Chapter~3, restricted to size constraints.
+We consider the pruning problem defined in Chapter~3, restricted to size constraints.
 Given a ground set $\mathcal{U}$ and an exact method $\mathcal{OPT}$, an optimal solution
 is defined as $X^\star = \arg\max_{X \subset \mathcal{U}, |X| \leq B} f(X)$. The goal is
 to find a significantly smaller ground set $\mathcal{U}'$ with
 $|\mathcal{U}'| \ll |\mathcal{U}|$ while preserving the objective value, i.e.,
-$f(\mathcal{OPT}(\mathcal{U}')) / f(\mathcal{OPT}(\mathcal{U})) = 1$. The motivating
-question is: \emph{Is it possible to develop a pruning algorithm that does not rely on
-domain-specific knowledge or feature engineering, yet remains practical and competitive
-with existing heuristics?}
+$f(\mathcal{OPT}(\mathcal{U}')) / f(\mathcal{OPT}(\mathcal{U})) = 1$. Unlike QuickPrune,
+which provides formal approximation guarantees under both size and knapsack constraints,
+H-DeepPruner operates only under size constraints and offers no theoretical guarantees.
+Instead, the motivating question is empirical: \emph{Can a learning-based pruning method
+achieve competitive performance without any hand-crafted features or domain knowledge?}
 
 \section{Method}
 
@@ -41,7 +45,7 @@ H-DeepPruner is schematically illustrated in Figure~\ref{fig:hdp-framework}. It 
 of two main stages: an initial pruning step using a GNN, followed by Neural Monte Carlo
 Tree Search (NMCTS) for further reduction. The key insight behind this hierarchical
 design is that each stage addresses a different aspect of the pruning problem. The GNN
-performs a fast, coarse-grained pruning by classifying each node independently --- it
+performs a fast, coarse-grained pruning by classifying each node independently. It
 can quickly eliminate a large number of clearly irrelevant nodes (e.g., low-degree
 peripheral nodes in influence maximization) but cannot reason about redundancy among
 the retained nodes. NMCTS then performs a slower, fine-grained refinement that accounts
@@ -65,7 +69,7 @@ f_1^{(k)}\!\left(\left\{h_u^{(k-1)} : u \in N(v_i)\right\}\right)\right\}\right)
 \]
 where $N(v_i) = \{v_j \in V \mid A_{i,j} \neq 0\}$ is the set of neighbors of node
 $v_i$, function $f_1^{(k)}$ aggregates feature information over the set of neighboring
-nodes, and function $f_2^{(k)}$ combines the node's own hidden features from iteration
+nodes, and function $f_2^{(k)}$ combines the own hidden features of the node from iteration
 $(k-1)$ with the aggregated neighborhood features. We empirically find that GCN,
 which retains full neighborhood information, outperforms GraphSAGE, which samples a
 fixed-size subset of neighbors.
@@ -260,33 +264,30 @@ Skitter   & 0.883 & 1.000 & \textbf{0.883} & 0.883 & 0.990 & 0.874 & -- & -- & -
 }
 \end{table}
 
-From Table~\ref{tab:hdp_size_constraint}, H-DeepPruner achieves the highest combined
-metric in 88\% of all tested instances across all three problems and all eight datasets.
-H-DeepPruner typically achieves a near-optimal pruning approximation ratio while pruning
-over 95\% of the original ground set. H-DeepPruner significantly outperforms methods like
-COMBHelper and GCOMB, which overlook the relationships between vertices. By considering
-interdependencies among elements, H-DeepPruner ensures that the selected vertices form a
-well-balanced ground set, leading to better overall performance. The initial pruning
-process of GCOMB, based on a handcrafted heuristic, is computationally cheap and fast;
-however, except for Influence Maximization, it either prunes too little (e.g., MaxCover)
-or too much (e.g., MaxCut), indicating that GCOMB is not problem-agnostic. Similarly,
-COMBHelper performs well in problems where the pruned ground set can be large, but it
-performs poorly in problems like MaxCover and IM when the pruned ground set can be quite
-small without compromising performance. On the other hand, LeNSE exhibits a more balanced
-performance but requires tuning for each dataset and problem, whereas our approach
-generalizes across datasets and problems while achieving significantly greater pruning
-than LeNSE.
+Table~\ref{tab:hdp_size_constraint} demonstrates that a learning-based approach can
+achieve strong pruning performance without hand-crafted features or domain knowledge.
+H-DeepPruner achieves the highest combined metric in 88\% of all tested instances,
+typically maintaining a near-optimal pruning approximation ratio while pruning over 95\%
+of the original ground set. This is notable because, unlike the baselines, H-DeepPruner
+uses only random node features and trains exclusively on small, synthetic ER random
+graphs, yet it generalizes to large, out-of-distribution real-world graphs without
+performance degradation.
 
-Notably, compared to other learning-based models, our approach does not require any
-computationally expensive feature computation or domain knowledge. LeNSE requires
-calculating the eigenvector centrality of each node, which is a costly calculation for
-large graphs. COMBHelper relies on a problem-specific boosting module to enhance
-performance. Our approach achieves a 54\% improvement in the combined metric over the
-leading competitor, LeNSE, quantified as
-$(C_{\text{H-DeepPruner}} - C_{\text{LeNSE}}) / C_{\text{LeNSE}}$.
-An important property of H-DeepPruner is that all training is performed on small,
-synthetic ER random graphs, yet the model successfully generalizes to large,
-out-of-distribution real-world graphs at inference time without performance degradation.
+In contrast, existing learning-based methods that rely on domain knowledge show
+inconsistent performance across problems. The handcrafted degree heuristic of GCOMB either
+prunes too little (e.g., MaxCover) or too much (e.g., MaxCut), indicating it is not
+problem-agnostic. COMBHelper performs well when the pruned ground set can be large but
+struggles when aggressive pruning is needed. LeNSE exhibits more balanced performance
+but requires per-dataset and per-problem tuning. The two-stage design of H-DeepPruner,
+where the GNN handles coarse pruning and NMCTS accounts for element interdependencies,
+achieves consistent results across all three problems without any such tuning.
+
+These results serve as a proof of concept that learning-based pruning can be both
+problem-agnostic and effective. However, H-DeepPruner has important limitations: it
+operates only under size constraints, provides no theoretical guarantees on solution
+quality, and the NMCTS stage adds computational overhead that limits scalability.
+These limitations motivate the design of LLM2Prune (Chapter~5), which aims to combine
+the generality of a learning-based approach with broader constraint support.
 Figure~\ref{fig:hdp-violin} shows box plots of the combined metric across all algorithms
 and problems.
 
@@ -364,7 +365,7 @@ while only slightly reducing $P_r$, resulting in much higher combined metrics. F
 example, on Deezer-MaxCover, the GNN alone achieves $C = 0.763$ while H-DeepPruner
 achieves $C = 0.993$. The utility of the GNN pre-pruning step is more pronounced on
 larger instances, where running NMCTS on the full ground set would be computationally
-infeasible --- the GNN reduces the search space to a manageable size for NMCTS to
+infeasible -- the GNN reduces the search space to a manageable size for NMCTS to
 operate effectively.
 
 \begin{table}[t]
