@@ -317,10 +317,19 @@ datasets for MaxCover.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.7\textwidth]{figures/hdeeppruner/speed_up.pdf}
+  \includegraphics[width=0.8\textwidth]{figures/hdeeppruner/speedup_new.pdf}
   \caption{Relative speed-up of using the heuristic on the pruned ground set for all
-    algorithms across different datasets for Maximum Cover.}
+    algorithms across different datasets for Maximum Cover. Datasets are sorted by
+    H-DeepPruner speed-up; x-axis uses log scale.}
   \label{fig:hdp-speedup}
+\end{figure}
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=0.7\textwidth]{figures/hdeeppruner/speed_up.pdf}
+%   \caption{Relative speed-up of using the heuristic on the pruned ground set for all
+%     algorithms across different datasets for Maximum Cover.}
+%   \label{fig:hdp-speedup-old}
 \end{figure}
 
 \subsection{Multi-Budget Analysis}
@@ -368,19 +377,10 @@ where $P_r$ drops below 0.85 at low budgets.
 
 \subsection{Ablation Study}
 
-To understand the contribution of each component, we conduct an ablation study comparing
-the GNN-only variant (Stage 1 alone) against the full H-DeepPruner pipeline (Stage 1 +
-Stage 2). Table~\ref{tab:hdp_ablation} shows that both components are essential for strong
-performance, but they contribute in complementary ways. The GNN alone achieves high pruning approximation ratios
-($P_r$ close to 1.0) but moderate pruned fractions ($P_g$ around 0.77--0.86), meaning it
-preserves solution quality well but does not prune aggressively enough. Adding NMCTS
-increases $P_g$ substantially (often to 0.95--1.0) while only slightly reducing $P_r$,
-resulting in much higher combined metrics. For example, on Deezer-MaxCover, the GNN alone
-achieves $C = 0.763$ while H-DeepPruner achieves $C = 0.993$. The GNN pre-pruning step
-is more pronounced on
-larger instances, where running NMCTS on the full ground set would be computationally
-infeasible; the GNN reduces the search space to a manageable size for NMCTS to operate
-effectively.
+Table~\ref{tab:hdp_ablation} compares the GNN-only variant (Stage 1) against the full
+pipeline (Stage 1 + Stage 2). The GNN preserves solution quality ($P_r \approx 1.0$) but
+prunes only moderately ($P_g$ around 0.77--0.86). Adding NMCTS raises $P_g$ to 0.95--1.0
+with minimal loss in $P_r$, yielding substantially higher combined metrics.
 
 % \begin{figure}[t]
 %   \centering
