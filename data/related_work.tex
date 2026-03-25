@@ -2,60 +2,74 @@
 
 \chapter{\uppercase {Related Work}}
 
-The proposed work draws on three areas of prior research: classical pruning methods for
-combinatorial optimization, learning-based approaches for search space reduction, and
-automated feature engineering using large language models. This chapter surveys existing
-work in each area and highlights the limitations that motivate the contributions of this
-proposal.
+The proposed work draws on three areas of prior research: classical pruning methods,
+learning-based pruning methods, and automated feature engineering using large language
+models. This chapter reviews existing work in each area and highlights the limitations
+that motivate the contributions of this proposal.
 
 \section{Classical Approaches to Pruning}
-To improve the scalability of solvers for combinatorial optimization (CO) problems,
-classical methods have been proposed to reduce the search space before
-optimization. Most notably, \cite{zhou2017scaling} propose a pruning algorithm based on submodularity
-to reduce the cost of submodular maximization under size constraints. Their method
-constructs a pruned submodularity graph to identify and discard elements with low marginal
-contributions. However, this approach processes elements sequentially, which limits its
-scalability to large instances.
+Classical pruning methods for combinatorial optimization (CO) fall into two categories:
+problem-specific heuristics and general-purpose algorithms. Problem-specific heuristics
+exploit the structure of a single CO problem to discard unpromising elements, such as
+degree-based candidate filtering for influence
+maximization~\cite{chen2010scalable} and edge elimination rules for the traveling
+salesman problem~\cite{sun2021generalization}. While effective within their respective
+domains, these techniques do not transfer to other CO problems.
 
-A common limitation of classical approaches is that they are formulated for a single
-instance of size-constrained maximization and provide no mechanism to leverage patterns
-across problem instances.
+On the general-purpose side, \cite{zhou2017scaling} propose a pruning algorithm grounded
+in submodularity to reduce the cost of submodular maximization under size constraints.
+Their method constructs a pruned submodularity graph to identify and discard elements with
+low marginal contributions. However, this approach processes elements sequentially, which
+limits its scalability to large instances. More broadly, all existing classical pruning
+methods share three limitations: they target a single instance of size-constrained
+maximization, they provide no mechanism to leverage patterns across problem instances, and
+they lack formal guarantees on the quality of the pruned ground set.
 
 \section{Learning-Based Approaches to Pruning}
-Learning-based methods aim to overcome the scalability limitations of classical approaches
-by training models to predict which elements can be safely removed from the ground set.
-In the supervised setting, small problem instances are first solved with exact or
-heuristic solvers, and the resulting solutions are used to train a binary classifier that
-predicts whether a vertex or edge can be safely removed without compromising solution
-quality. For Maximum Clique Enumeration, \cite{lauri2019fine} apply logistic regression
-with hand-crafted graph-theoretic features to prune vertices, while
-\cite{grassia2019learning, lauri2023learning} extend this line of work with a multi-stage
-pruning strategy in which successive classifiers, trained on graph-theoretic and
-statistical features, iteratively reduce the search space. For the Traveling Salesman
-Problem, \cite{fitzpatrick2021learning, sun2021generalization} train classifiers to prune
-edges unlikely to belong to the optimal tour. The main limitation of these approaches is
-their heavy reliance on problem-specific manual feature engineering and trial-and-error
-design, which restricts generalization to new CO problems. To address this limitation,
-\cite{tian2024combhelper} propose COMBHelper, a GNN-based framework with knowledge
-distillation and a problem-specific boosting module designed to generalize across multiple
-CO problems over graphs. While effective, COMBHelper still relies on computationally
-expensive Fourier Feature Mapping and a problem-specific boosting mechanism for strong
+Learning-based methods take a data-driven approach to pruning, training models on solved
+instances to identify elements that can be removed from the ground set.
+These methods can be broadly organized into three categories: supervised approaches with
+hand-crafted features, GNN-based approaches, and hybrid methods combining supervised and
+reinforcement learning.
+
+\paragraph{Supervised approaches with hand-crafted features.}
+The earliest learning-based pruning methods train binary classifiers on small, pre-solved
+instances to predict whether a vertex or edge belongs to an optimal solution. For Maximum
+Clique Enumeration, \cite{lauri2019fine} apply logistic regression with hand-crafted
+graph-theoretic features, and \cite{grassia2019learning, lauri2023learning} extend this
+with multi-stage classifiers that iteratively reduce the search space. For the Traveling
+Salesman Problem, \cite{fitzpatrick2021learning, sun2021generalization} train classifiers
+to prune edges unlikely to belong to the optimal tour. A common limitation across these
+methods is their heavy reliance on problem-specific feature engineering, which restricts
+generalization to new CO problems.
+
+\paragraph{GNN-based approaches.}
+To reduce the dependence on hand-crafted features, \cite{tian2024combhelper} propose
+COMBHelper, a GNN-based framework with knowledge distillation and a problem-specific
+boosting module designed to generalize across multiple CO problems. While COMBHelper
+represents a step toward problem-agnostic pruning, it still relies on computationally
+expensive Fourier-based feature transformations and a problem-specific boosting mechanism for strong
 performance.
 
-Hybrid methods that integrate supervised and reinforcement learning tend to be more
-problem-agnostic. GCOMB~\cite{manchanda2020gcomb} uses a probabilistic greedy algorithm
-to generate training data, followed by a linear regression model that applies a
-weighted-degree heuristic to prune the ground set. A Q-learning network is then trained
-on the reduced search space to sequentially predict the solution. A key limitation is
-that the initial pruning depends on a handcrafted degree heuristic, which does not
-generalize well across CO problems~\cite{ireland2022lense}. Similarly,
-LeNSE~\cite{ireland2022lense} employs a two-stage learning process. First, a GNN is
-trained in a supervised manner to generate embeddings for subgraphs sampled from training
-graphs. Then, a policy network uses these embeddings to guide a local search procedure,
-navigating from an initial subgraph to one more likely to contain the optimal solution. A
-major drawback is its reliance on domain expertise to categorize subgraphs, set the
-number of samples per class, and tune critical hyperparameters such as subgraph size and
-embedding dimensionality separately for each dataset and problem.
+\paragraph{Hybrid supervised and reinforcement learning methods.}
+Hybrid methods that combine supervised learning with reinforcement learning are more
+problem-agnostic. GCOMB~\cite{manchanda2020gcomb} uses a probabilistic greedy
+algorithm to generate training data, then applies a weighted-degree heuristic to prune
+the ground set before training a Q-learning network on the reduced search space. However,
+its initial pruning depends on a handcrafted degree heuristic that does not generalize
+well across CO problems~\cite{ireland2022lense}. LeNSE~\cite{ireland2022lense} takes a
+different approach: a GNN is first trained to generate embeddings for sampled subgraphs,
+and a policy network then uses these embeddings to guide a local search toward subgraphs
+likely to contain the optimal solution. A major drawback is its reliance on domain
+expertise to categorize subgraphs, set class-specific sample counts, and tune
+hyperparameters such as subgraph size and embedding dimensionality separately for each
+dataset and problem.
+
+Despite these advances, no existing learning-based pruning method simultaneously achieves
+problem-agnostic design, freedom from hand-crafted features, and scalability to large
+graph instances. Moreover, all existing methods are designed and evaluated exclusively
+under size constraints, leaving other constraint types such as knapsack constraints
+unaddressed.
 
 \section{Automated Feature Engineering via LLMs}
 Automated feature engineering seeks to generate useful features from raw data without
@@ -65,9 +79,11 @@ either rely on manually designed feature-generation
 rules~\cite{zhang2023openfe, zhang2024dynamic} or few-shot
 prompts~\cite{han2024large}, and thus still depend on hand-crafted design choices.
 Moreover, existing methods~\cite{nam2024optimized, hollmann2023large} suffer from error
-propagation caused by simple feedback loops.
+propagation caused by simple feedback loops. These approaches are distinct from methods
+that directly generate algorithms using LLMs~\cite{yang2023large, liu2024evolution},
+which often exhibit degraded performance as graph size increases.
 
-These approaches are distinct from methods that directly generate algorithms
-using LLMs~\cite{yang2023large, liu2024evolution}, which often exhibit degraded
-performance as graph size increases. To the best of our knowledge, no prior work has
-applied LLM-driven feature engineering to search space reduction for graph CO problems.
+LLM-driven feature engineering is a natural fit for pruning, as LLMs can encode the kind
+of domain knowledge that would otherwise require expert design of problem-specific
+features. To the best of our knowledge, no prior work has applied LLM-driven feature
+engineering to search space reduction for graph CO problems.
