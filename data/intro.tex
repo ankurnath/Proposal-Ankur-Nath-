@@ -9,52 +9,60 @@ arise as combinatorial optimization (CO) problems on graphs. From
 identifying influential individuals in social
 networks~\cite{kempe2003maximizing} to designing efficient transportation
 routes~\cite{sun2021generalization} and allocating resources in telecommunication
-systems, graph-based CO problems are pervasive. These problems are, in general, computationally intractable: among the 21 NP-complete
+systems, graph CO problems are pervasive. These problems are, in general, computationally intractable: among the 21 NP-complete
 problems introduced by Karp~\cite{karp2009reducibility}, 10 are decision versions of
-graph optimization problems, and many of the remaining ones can be naturally reformulated
+graph optimization problems, and most of the remaining ones can be naturally reformulated
 on graphs. Over
 the decades, researchers have developed heuristics and approximation algorithms that
 produce near-optimal solutions in polynomial
 time~\cite{nemhauser1978analysis, kempe2003maximizing, tang2015influence}, enabling
-practical progress on problems that are intractable to solve exactly.
+practical solution on problems that are intractable to solve exactly.
 
 As real-world graphs continue to grow in size, even state-of-the-art solvers face
 significant scalability challenges. Modern real-world graphs routinely contain
 millions or billions of nodes, from online social networks to web-scale knowledge
 graphs. At the same time, the budget constraints of many practical applications are such
 that an optimal solution involves only a small number of elements. For example, in viral
-marketing, a company may have the budget to promote only a handful of products while
-aiming to maximize overall customer reach~\cite{kempe2003maximizing}. In these settings,
+marketing, a company may have the budget to seed only a handful of individuals while
+aiming to maximize overall information spread~\cite{kempe2003maximizing}. In these settings,
 the vast majority of candidates in the ground set are irrelevant to the optimal
 solution, yet existing solvers must consider all of them. This mismatch between the
 enormous size of the ground set and the small size of the optimal solution creates a
 fundamental scalability bottleneck. A natural strategy to address this bottleneck is pruning: given the full ground set
 $\mathcal{U}$, the goal is to identify and discard elements that are unlikely to
-contribute to a high-quality solution, producing a much smaller subset
-$\mathcal{U}' \subseteq \mathcal{U}$ with $|\mathcal{U}'| \ll |\mathcal{U}|$. A solver
-can then operate on the reduced instance $\mathcal{U}'$ instead of $\mathcal{U}$, ideally
-with little or no loss in solution quality. Formally, a CO problem can be expressed as a
-tuple $(S, \Omega, f)$, where $S$ denotes the search space over discrete decision
-variables, $\Omega$ represents the set of constraints that define feasibility, and
-$f: S \to \mathbb{R}$ is the objective function to be optimized. Given a ground set
-$\mathcal{U}$ and an exact solver $\mathcal{OPT}$, the optimal solution is
-$X^\star = \mathcal{OPT}(\mathcal{U}) = \arg\max_{X \subseteq \mathcal{U}, \; X \text{
-satisfies } \Omega} f(X)$. The pruning problem seeks to construct a much smaller ground
-set $\mathcal{U}'$ with $|\mathcal{U}'| \ll |\mathcal{U}|$, such that solving the reduced
-instance yields nearly the same objective value:
-$f(\mathcal{OPT}(\mathcal{U}')) / f(\mathcal{OPT}(\mathcal{U})) = 1 - \epsilon$ for a
-small approximation factor $\epsilon \geq 0$. However, existing
+contribute to a high-quality solution, producing a much smaller subset 
+$\mathcal{U}' \subseteq \mathcal{U}$ with $|\mathcal{U}'| \ll |\mathcal{U}|$. A solver can then operate on $\mathcal{U}'$ instead of $\mathcal{U}$, ideally with
+little or no loss in solution quality. Formally, a CO problem is a tuple
+$(S, \Omega, f)$, where $S$ is the search space over discrete decision variables,
+$\Omega$ the feasibility constraints, and $f: S \to \mathbb{R}$ the objective function.
+Given a ground set $\mathcal{U}$ and a solver $\mathcal{OPT}$, the optimal solution is
+%
+\begin{equation}
+  X^\star = \mathcal{OPT}(\mathcal{U}) = \arg\max_{X \subseteq \mathcal{U}, \; X \text{ satisfies } \Omega} f(X).
+\end{equation}
+%
+The pruning problem seeks a subset $\mathcal{U}' \subseteq \mathcal{U}$ with
+$|\mathcal{U}'| \ll |\mathcal{U}|$ such that
+%
+\begin{equation}
+  \frac{f\bigl(\mathcal{OPT}(\mathcal{U}')\bigr)}{f\bigl(\mathcal{OPT}(\mathcal{U})\bigr)} \geq 1 - \epsilon,
+\end{equation}
+%
+for a small approximation factor $\epsilon \geq 0$. However, existing
 pruning approaches are limited by poor scalability of sequential classical
-methods~\cite{zhou2017scaling}, reliance on hand-crafted, problem-specific features in
-learning-based methods~\cite{manchanda2020gcomb, ireland2022lense,
-tian2024combhelper}, and a complete absence of theoretical guarantees on pruning quality.
+methods~\cite{zhou2017scaling}, applicability to only a single CO problem in methods designed for maximum clique
+enumeration~\cite{lauri2019fine, grassia2019learning, lauri2023learning} or the traveling
+salesman problem~\cite{fitzpatrick2021learning, sun2021generalization}, reliance on
+hand-crafted, problem-specific features in learning-based
+methods~\cite{manchanda2020gcomb, ireland2022lense, tian2024combhelper}, and a complete
+absence of theoretical guarantees on pruning quality.
 Altogether, these limitations motivate a focused research effort on developing pruning
 strategies that are scalable, general, and principled. The overarching goal of the
 proposed work is to address this challenge by developing a suite of pruning methods for
-graph-based combinatorial optimization, aiming to make solvers faster, more general, and
+graph CO, aiming to make solvers faster, more general, and
 more practical for large-scale graph instances.
 
-Prior to our work, all existing pruning methods were heuristics with no formal
+Prior to our first work, all existing pruning methods were heuristics with no formal
 performance guarantees. It was unknown whether it is even possible to efficiently produce
 a pruned ground set with provable bounds on both its size and the fraction of optimal
 value it retains. To answer this question, we introduce
