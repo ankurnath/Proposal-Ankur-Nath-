@@ -7,7 +7,7 @@ faces scalability challenges, particularly for problems where calculating margin
 is \#P-hard. At the same time, existing learning-based pruning methods achieve fast
 inference but demand problem-specific domain knowledge for algorithm design, making them
 difficult to apply to new CO problems. In this chapter, we introduce Hierarchical
-DeepPruner (H-DeepPruner)~\cite{nath2025hdeeppruner}, an adaptive two-stage framework
+DeepPruner (H-DeepPruner)~\citep{nath2025hdeeppruner}, an adaptive two-stage framework
 that combines supervised learning with reinforcement learning for search space reduction
 under size constraints. The first stage uses a graph neural network to quickly eliminate
 vertices unlikely to be part of the solution, without requiring any hand-crafted features
@@ -52,12 +52,12 @@ retained element contributes meaningfully to the solution.
 
 The first stage introduces a GNN to eliminate nodes that are unlikely to be part of the
 solution, allowing NMCTS to focus computational resources on promising nodes. This step
-parallels the handcrafted degree heuristic in GCOMB~\cite{manchanda2020gcomb}, but
+parallels the handcrafted degree heuristic in GCOMB~\citep{manchanda2020gcomb}, but
 instead of relying on a manually designed heuristic, we hypothesize that vertices in the
 optimal solution exhibit similar local structures that can be identified from local
 neighborhood features alone.
 
-We use a Graph Convolutional Network (GCN)~\cite{kipf2016semi}. Given an undirected graph
+We use a Graph Convolutional Network (GCN)~\citep{kipf2016semi}. Given an undirected graph
 $G(V, E)$ with adjacency matrix $A$, the GCN updates node representations as:
 \[
 h_{v_i}^{(k)} = f_2^{(k)}\!\left(\left\{h_{v_i}^{(k-1)},\;
@@ -71,15 +71,15 @@ which retains full neighborhood information, outperforms GraphSAGE, which sample
 fixed-size subset of neighbors.
 
 \textbf{Random Node Initialization.} Instead of using hand-crafted features, we adopt
-random node initialization~\cite{abboud2020surprising}, where node features are set as
+random node initialization~\citep{abboud2020surprising}, where node features are set as
 $h_{v_i}^{(0)} \sim U(0,1)$. The hypothesis is that vertices in the optimal solution
 exhibit similar local structures, identifiable from local neighborhood features alone.
 This eliminates the need for problem-specific features such as eigenvector centrality
-(used by LeNSE~\cite{ireland2022lense}) or Fourier Feature Mapping (used by
-COMBHelper~\cite{tian2024combhelper}).
+(used by LeNSE~\citep{ireland2022lense}) or Fourier Feature Mapping (used by
+COMBHelper~\citep{tian2024combhelper}).
 
 \textbf{Training.} Training data is generated from Erd\H{o}s-R\'{e}nyi (ER) random
-graphs~\cite{erdos1960evolution}. Each graph is solved with a heuristic to obtain the
+graphs~\citep{erdos1960evolution}. Each graph is solved with a heuristic to obtain the
 optimal ground set.
 The GNN is trained with weighted cross-entropy loss to prevent non-solution vertices from
 dominating training, with balanced sampling from solution and non-solution sets each
@@ -160,7 +160,7 @@ update the statistics of all visited nodes, refining the estimates for future de
 
 \textbf{Progressive Widening.} During testing, the NMCTS is too slow especially for large
 action spaces. As a result, the number of simulations becomes intractable. We apply
-progressive widening~\cite{couetoux2011continuous}, which maintains a finite list of
+progressive widening~\citep{couetoux2011continuous}, which maintains a finite list of
 child chance nodes to be searched and incrementally adds a new child chance node $N_c$ to
 the list of child nodes of parent node $N_p$ based on the visitation counts. Specifically,
 a new child node is added every time the following is satisfied:
@@ -185,7 +185,7 @@ only when progress is being made.
 
 We compare H-DeepPruner to three state-of-the-art learning-based pruning methods across
 three CO problems on graphs, following the experimental setup
-of~\cite{ireland2022lense}.
+of~\citep{ireland2022lense}.
 
 \subsection{Experimental Setup}
 
@@ -194,12 +194,12 @@ of~\cite{ireland2022lense}.
 cascade model with $p = 0.01$, all with budget $k = 100$.
 
 \textbf{Datasets.} We use the same eight real-world graphs from
-SNAP~\cite{leskovec2016snap} as in Chapter~3. Importantly, H-DeepPruner is trained on
-ER graphs~\cite{erdos1960evolution} (not the SNAP training splits), unlike baselines which
+SNAP~\citep{leskovec2016snap} as in Chapter~3. Importantly, H-DeepPruner is trained on
+ER graphs~\citep{erdos1960evolution} (not the SNAP training splits), unlike baselines which
 train on the actual graph data.
 
-\textbf{Baselines.} We compare against GCOMB~\cite{manchanda2020gcomb},
-COMBHelper~\cite{tian2024combhelper}, and LeNSE~\cite{ireland2022lense}.
+\textbf{Baselines.} We compare against GCOMB~\citep{manchanda2020gcomb},
+COMBHelper~\citep{tian2024combhelper}, and LeNSE~\citep{ireland2022lense}.
 
 \textbf{Evaluation Metrics.} We use the same three metrics as in Chapter~3: pruning
 approximation ratio $P_r$, pruned fraction $P_g$, and combined metric $C = P_r \cdot P_g$.
@@ -214,7 +214,7 @@ measuring the acceleration of heuristics on the pruned ground set.
 \caption{Size constraint results ($k = 100$) for H-DeepPruner: pruning approximation
   ratio $P_r$, pruned fraction $P_g$, and combined metric $C = P_r \cdot P_g$. Best $C$
   in bold; ``--'' indicates timeout. *Values as reported
-  in~\cite{ireland2022lense}.}
+  in~\citep{ireland2022lense}.}
 \label{tab:hdp_size_constraint}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}l ccc ccc ccc ccc@{}}

@@ -5,7 +5,7 @@
 Prior to our work, all existing pruning methods were heuristics with no formal performance
 guarantees. It was unknown whether it is even possible to efficiently produce a pruned
 ground set with provable bounds on both its size and the fraction of optimal value it
-retains. In this chapter, we introduce QuickPrune~\cite{pmlr-v258-nath25a}, a lightweight
+retains. In this chapter, we introduce QuickPrune~\citep{pmlr-v258-nath25a}, a lightweight
 pruning algorithm for constrained discrete optimization that processes elements in a
 single pass through the ground set, discarding those unlikely to appear in an optimal
 solution. Under mild assumptions on the objective function and element costs, we prove
@@ -49,7 +49,7 @@ the optimal value over $\mathcal{U}$ under budget $\kappa$. For many application
 problem, the ground set $\mathcal{U}$ is massive, with size $n$ in the billion-scale or
 larger. On the other hand, the budget constraints are frequently such that an optimal set
 has only a few elements. For example, in viral marketing
-campaigns~\cite{kempe2003maximizing}, a company may have a budget to promote only a
+campaigns~\citep{kempe2003maximizing}, a company may have a budget to promote only a
 limited number of products while still aiming to maximize overall sales or customer reach.
 Since elements not in the pruned set $\mathcal{U}'$ are discarded, we desire a range of
 budgets $[\kappa_{\min}, \kappa_{\max}]$ to be supported, so that the pruned ground set
@@ -218,20 +218,20 @@ find $S \subseteq V$ maximizing the number of covered vertices subject to a budg
 (2) Maximum Cut (MaxCut): find $S \subseteq V$ maximizing the number of edges crossing
 the cut subject to a budget; (3) Influence Maximization (IM): under the independent
 cascade model with $p = 0.01$, find $S \subseteq V$ maximizing expected
-spread~\cite{tang2015influence}; and (4) Information Retrieval: image and video retrieval
+spread~\citep{tang2015influence}; and (4) Information Retrieval: image and video retrieval
 using a graph cut function with similarity kernel.
 
 \textbf{Datasets.} We evaluate on eight real-world graphs from the Stanford Large Network
-Dataset Collection (SNAP)~\cite{leskovec2016snap}, following the experimental setup
-of~\cite{ireland2022lense}. The graphs range from small networks
+Dataset Collection (SNAP)~\citep{leskovec2016snap}, following the experimental setup
+of~\citep{ireland2022lense}. The graphs range from small networks
 (Facebook, $\sim$4K vertices) to large-scale graphs (Skitter, $\sim$1.7M vertices).
 For the retrieval system, we use the
-Beans~\cite{beansdata}, CIFAR100~\cite{Krizhevsky09learningmultiple},
-FOOD101~\cite{bossard14}, and UCF101~\cite{soomro2012ucf101dataset101human} datasets.
+Beans~\citep{beansdata}, CIFAR100~\citep{Krizhevsky09learningmultiple},
+FOOD101~\citep{bossard14}, and UCF101~\citep{soomro2012ucf101dataset101human} datasets.
 
 \textbf{Baselines.} We compare against: Submodular Sparsification
-(SS)~\cite{zhou2017scaling}, GCOMB~\cite{manchanda2020gcomb},
-LeNSE~\cite{ireland2022lense}, COMBHelper~\cite{tian2024combhelper}, and GNNPruner, a
+(SS)~\citep{zhou2017scaling}, GCOMB~\citep{manchanda2020gcomb},
+LeNSE~\citep{ireland2022lense}, COMBHelper~\citep{tian2024combhelper}, and GNNPruner, a
 proposed baseline that is a simplified version of COMBHelper using a GCN with random node
 features instead of hand-crafted features. For knapsack constraints, since the prior ML
 methods do not easily generalize, we compare to GNNPruner and a Top-$k$ approach that
@@ -259,7 +259,7 @@ summarizes the results across all applications and datasets. Specifically:
 \centering
 \caption{Size constraint results ($k = 100$): pruning approximation ratio $P_r$, pruned
   fraction $P_g$, and combined metric $C = P_r \cdot P_g$. Best $C$ in bold; ``--''
-  indicates timeout. *Values as reported in~\cite{ireland2022lense}.}
+  indicates timeout. *Values as reported in~\citep{ireland2022lense}.}
 \label{tab:size_constraint}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}l ccc ccc ccc ccc ccc ccc@{}}
@@ -307,7 +307,7 @@ Across all three applications, QuickPrune achieves the highest combined metric o
 majority of instances. For MaxCover and MaxCut, QuickPrune retains near-perfect objective
 value while pruning over 99\% of the ground set on large graphs, whereas baselines such as
 GCOMB prune far less and COMBHelper fails to complete within the time limit on Skitter.
-For Influence Maximization, the IMM heuristic~\cite{tang2015influence} occasionally
+For Influence Maximization, the IMM heuristic~\citep{tang2015influence} occasionally
 achieves better solutions on the pruned ground set than on the full ground set (i.e.,
 $P_r > 1.0$), suggesting that pruning can sometimes enhance solver performance. SS
 outperforms QuickPrune on some IM instances but requires over $30\times$ more oracle
@@ -360,7 +360,7 @@ all image retrieval datasets.
 \subsection{Results on Knapsack Constraints}
 
 For general knapsack constraints, where the cost of each node is set proportional to its
-degree following~\cite{yaroslavtsev2020bring}, QuickPrune achieves the highest combined metric on 45\% of
+degree following~\citep{yaroslavtsev2020bring}, QuickPrune achieves the highest combined metric on 45\% of
 all instances tested. For MaxCover and MaxCut, QuickPrune often outperforms the Top-$k$
 baseline by 20\% in retaining objective value, except on Deezer-MaxCover and
 Skitter-MaxCut. The Top-$k$ approach does not account for relationships between vertices,

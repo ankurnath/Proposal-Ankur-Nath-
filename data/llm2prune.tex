@@ -20,14 +20,14 @@ constraint types.
 \section{Motivation}
 
 The limitations of existing pruning approaches motivate the need for a fundamentally
-different strategy. Classical approaches such as QuickPrune~\cite{pmlr-v258-nath25a} and
-Submodular Sparsification~\cite{zhou2017scaling} are limited by sequential processing,
+different strategy. Classical approaches such as QuickPrune~\citep{pmlr-v258-nath25a} and
+Submodular Sparsification~\citep{zhou2017scaling} are limited by sequential processing,
 which does not scale well to large graphs. Among learning-based methods,
-GCOMB-P~\cite{manchanda2020gcomb} depends on a handcrafted degree heuristic that does not
-generalize well across CO problems~\cite{ireland2022lense}.
-LeNSE~\cite{ireland2022lense} relies on domain expertise to categorize subgraphs, set the
+GCOMB-P~\citep{manchanda2020gcomb} depends on a handcrafted degree heuristic that does not
+generalize well across CO problems~\citep{ireland2022lense}.
+LeNSE~\citep{ireland2022lense} relies on domain expertise to categorize subgraphs, set the
 number of samples per class, and tune critical parameters separately for each dataset and
-problem. COMBHelper~\cite{tian2024combhelper} still relies on computationally expensive
+problem. COMBHelper~\citep{tian2024combhelper} still relies on computationally expensive
 Fourier Feature Mapping and a problem-specific boosting mechanism for strong performance.
 Furthermore, most learning-based methods are designed specifically for size constraints and
 do not generalize to knapsack constraints.
@@ -40,7 +40,7 @@ feature discovery process entirely.
 \section{Proposed Approach}
 
 The core idea of LLM2Prune is to use LLMs to automatically generate node-level features
-for a lightweight GCN classifier~\cite{kipf2016semi} that predicts which nodes belong in
+for a lightweight GCN classifier~\citep{kipf2016semi} that predicts which nodes belong in
 the pruned ground set. The feature discovery process is formalized as a decision tree
 $\mathcal{T}$, where the search is guided by an LLM-directed beam search over the feature
 space (Figure~\ref{fig:llm2prune-framework}).
@@ -119,7 +119,7 @@ feature is discarded. This mechanism keeps the pruning process lightweight by ex
 costly features and prevents further exploration of features correlated with discarded
 ones.
 
-A classifier $g_\theta$ (a two-layer GCN~\cite{kipf2016semi}) is then trained on the
+A classifier $g_\theta$ (a two-layer GCN~\citep{kipf2016semi}) is then trained on the
 features in $\mathcal{F}_{d+1,j}$ using semi-supervised learning. After a warm-up period,
 the classifier retains high-confidence nodes:
 \[
@@ -130,10 +130,10 @@ pseudo-labels $\tilde{y}_v = p_\theta(y \mid v)$ are assigned. These soft pseudo
 together with the ground-truth labels on the supervised subset, guide further training and
 improve robustness by incorporating uncertainty rather than enforcing hard assignments.
 This approach mitigates label noise that arises when all non-solution nodes are treated as
-equally unimportant~\cite{manchanda2020gcomb}.
+equally unimportant~\citep{manchanda2020gcomb}.
 
 Feature-importance scores are then extracted using
-GNNExplainer~\cite{ying2019gnnexplainer}, which provides attribution scores indicating
+GNNExplainer~\citep{ying2019gnnexplainer}, which provides attribution scores indicating
 each feature's contribution to the classifier's predictions. These scores form the
 feedback signal $\text{Imp}_{d,i}$ used to guide subsequent feature generation.
 
@@ -189,25 +189,25 @@ We have conducted preliminary experiments to validate the proposed approach. We 
 LLM2Prune on three graph CO problems, namely Maximum Coverage (MaxCover), Maximum Cut
 (MaxCut), and Influence Maximization (IM), under both size and knapsack constraints, using
 eight real-world datasets from the Stanford Large Network Dataset
-Collection~\cite{leskovec2016snap}. The same datasets and train-test splits as in
-Chapters~3 and~4 are used, following~\cite{ireland2022lense}. For size constraints,
-Standard Greedy~\cite{nemhauser1978analysis} is used for MaxCover and MaxCut, and
-IMM~\cite{tang2015influence} for IM. Under knapsack constraints,
-\cite{khuller1999budgeted} is used for IM and MaxCover, and \cite{pham2023linear} for
+Collection~\citep{leskovec2016snap}. The same datasets and train-test splits as in
+Chapters~3 and~4 are used, following~\citep{ireland2022lense}. For size constraints,
+Standard Greedy~\citep{nemhauser1978analysis} is used for MaxCover and MaxCut, and
+IMM~\citep{tang2015influence} for IM. Under knapsack constraints,
+\citet{khuller1999budgeted} is used for IM and MaxCover, and \citet{pham2023linear} for
 MaxCut. The cost of each node under knapsack constraints is set proportional to its degree
-following~\cite{pmlr-v258-nath25a, yaroslavtsev2020bring}. Since running beam search on
+following~\citep{pmlr-v258-nath25a, yaroslavtsev2020bring}. Since running beam search on
 each instance would be costly, we perform feature-space search using the Holme-Kim random
-graph model~\cite{holme2002growing}, which closely resembles large-scale social networks
+graph model~\citep{holme2002growing}, which closely resembles large-scale social networks
 with both scale-free degree distribution and high clustering coefficient. After identifying
 the feature set, we fine-tune the downstream classifier for each instance.
 
 \subsection{Size Constraint Results}
 
 Under the size constraint, we compare LLM2Prune with classical methods
-(QuickPrune~\cite{pmlr-v258-nath25a} and Submodular
-Sparsification~\cite{zhou2017scaling}) and learning-based methods
-(GCOMB-P~\cite{manchanda2020gcomb}, LeNSE~\cite{ireland2022lense}, and
-COMBHelper~\cite{tian2024combhelper}). Table~\ref{tab:llm2prune-size} reports the results
+(QuickPrune~\citep{pmlr-v258-nath25a} and Submodular
+Sparsification~\citep{zhou2017scaling}) and learning-based methods
+(GCOMB-P~\citep{manchanda2020gcomb}, LeNSE~\citep{ireland2022lense}, and
+COMBHelper~\citep{tian2024combhelper}). Table~\ref{tab:llm2prune-size} reports the results
 for Maximum Cut and Influence Maximization.
 
 \begin{table}[t]
@@ -215,7 +215,7 @@ for Maximum Cut and Influence Maximization.
 \caption{Comparison of pruning algorithms under size constraints. Reported are the pruning
   approximation ratio ($P_r$), pruned fraction ($P_g$), and combined metric ($C = P_r
   \cdot P_g$). Results for GCOMB-P, LeNSE, and COMBHelper are reported
-  from~\cite{ireland2022lense, pmlr-v258-nath25a}. ``--'' indicates no reasonable result.}
+  from~\citep{ireland2022lense, pmlr-v258-nath25a}. ``--'' indicates no reasonable result.}
 \label{tab:llm2prune-size}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lccc|ccc|ccc|ccc|ccc|ccc}

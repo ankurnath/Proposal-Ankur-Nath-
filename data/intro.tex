@@ -7,15 +7,15 @@
 A wide range of computational problems in science and engineering naturally
 arise as combinatorial optimization (CO) problems on graphs. From
 identifying influential individuals in social
-networks~\cite{kempe2003maximizing} to designing efficient transportation
-routes~\cite{sun2021generalization} and allocating resources in telecommunication
+networks~\citep{kempe2003maximizing} to designing efficient transportation
+routes~\citep{sun2021generalization} and allocating resources in telecommunication
 systems, graph CO problems are pervasive. These problems are, in general, computationally intractable: among the 21 NP-complete
-problems introduced by Karp~\cite{karp2009reducibility}, 10 are decision versions of
+problems introduced by Karp~\citep{karp2009reducibility}, 10 are decision versions of
 graph optimization problems, and most of the remaining ones can be naturally reformulated
 on graphs. Over
 the decades, researchers have developed heuristics and approximation algorithms that
 produce near-optimal solutions in polynomial
-time~\cite{nemhauser1978analysis, kempe2003maximizing, tang2015influence}, enabling
+time~\citep{nemhauser1978analysis, kempe2003maximizing, tang2015influence}, enabling
 practical solutions to problems that are intractable to solve exactly.
 
 As real-world graphs continue to grow in size, even state-of-the-art solvers face
@@ -24,7 +24,7 @@ millions or billions of nodes, from online social networks to web-scale knowledg
 graphs. At the same time, the budget constraints of many practical applications are such
 that an optimal solution involves only a small number of elements. For example, in viral
 marketing, a company may have the budget to seed only a handful of individuals while
-aiming to maximize overall information spread~\cite{kempe2003maximizing}. In these settings,
+aiming to maximize overall information spread~\citep{kempe2003maximizing}. In these settings,
 the vast majority of candidates in the ground set are irrelevant to the optimal
 solution, yet existing solvers must consider all of them. This mismatch between the
 enormous size of the ground set and the small size of the optimal solution creates a
@@ -50,11 +50,11 @@ $|\mathcal{U}'| \ll |\mathcal{U}|$ such that
 %
 for a small approximation factor $\epsilon \geq 0$. However, existing
 pruning approaches are limited by poor scalability of sequential classical
-methods~\cite{zhou2017scaling}, applicability to only a single CO problem in methods designed for maximum clique
-enumeration~\cite{lauri2019fine, grassia2019learning, lauri2023learning} or the traveling
-salesman problem~\cite{fitzpatrick2021learning, sun2021generalization}, reliance on
+methods~\citep{zhou2017scaling}, applicability to only a single CO problem in methods designed for maximum clique
+enumeration~\citep{lauri2019fine, grassia2019learning, lauri2023learning} or the traveling
+salesman problem~\citep{fitzpatrick2021learning, sun2021generalization}, reliance on
 hand-crafted, problem-specific features in learning-based
-methods~\cite{manchanda2020gcomb, ireland2022lense, tian2024combhelper}, and a complete
+methods~\citep{manchanda2020gcomb, ireland2022lense, tian2024combhelper}, and a complete
 absence of theoretical guarantees on pruning quality.
 Altogether, these limitations motivate a focused research effort on developing pruning
 strategies that are scalable, general, and principled. The overarching goal of the
@@ -66,7 +66,7 @@ Prior to our first work, all existing pruning methods were heuristics with no fo
 performance guarantees. It was unknown whether it was even possible to efficiently produce
 a pruned ground set with provable bounds on both its size and the fraction of optimal
 value it retains. To answer this question, we introduce
-QuickPrune~\cite{pmlr-v258-nath25a}, a lightweight pruning algorithm for constrained
+QuickPrune~\citep{pmlr-v258-nath25a}, a lightweight pruning algorithm for constrained
 discrete optimization that processes elements in a single pass through the ground set,
 discarding those unlikely to appear in an optimal solution. Under mild assumptions on
 the objective function and element costs, we prove that the pruned ground set retains a
@@ -80,10 +80,10 @@ algorithms for pruning.
 
 As graph instances grow to millions of nodes, even a lightweight sequential algorithm
 faces scalability challenges, particularly for problems where calculating marginal gain
-is \#P-hard~\cite{chen2010scalable}. At the same time, existing learning-based pruning methods achieve fast
+is \#P-hard~\citep{chen2010scalable}. At the same time, existing learning-based pruning methods achieve fast
 inference but demand problem-specific domain knowledge for feature engineering, making them
 difficult to apply to new CO problems. To overcome both of these limitations, we propose
-Hierarchical DeepPruner (H-DeepPruner)~\cite{nath2025hdeeppruner}, an adaptive
+Hierarchical DeepPruner (H-DeepPruner)~\citep{nath2025hdeeppruner}, an adaptive
 two-stage framework that combines supervised learning with reinforcement learning for
 search space reduction under size constraints. The first stage uses a graph neural
 network to quickly eliminate vertices unlikely to be part of the solution, without

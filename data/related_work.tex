@@ -12,11 +12,11 @@ Classical pruning methods for combinatorial optimization (CO) fall into two cate
 problem-specific heuristics and general-purpose algorithms. Problem-specific heuristics
 exploit the structure of a single CO problem to discard unpromising elements, such as
 degree-based candidate filtering for influence
-maximization~\cite{chen2010scalable} and edge elimination rules for the traveling
-salesman problem~\cite{sun2021generalization}. While effective within their respective
+maximization~\citep{chen2010scalable} and edge elimination rules for the traveling
+salesman problem~\citep{sun2021generalization}. While effective within their respective
 domains, these techniques do not transfer to other CO problems.
 
-On the general-purpose side, \cite{zhou2017scaling} propose a pruning algorithm grounded
+On the general-purpose side, \citet{zhou2017scaling} propose a pruning algorithm grounded
 in submodularity to reduce the cost of submodular maximization under size constraints.
 Their method constructs a pruned submodularity graph to identify and discard elements with
 low marginal contributions. However, this approach processes elements sequentially, which
@@ -35,16 +35,16 @@ reinforcement learning.
 \textbf{Supervised approaches with hand-crafted features.}
 The earliest learning-based pruning methods train binary classifiers on small, pre-solved
 instances to predict whether a vertex or edge belongs to an optimal solution. For Maximum
-Clique Enumeration, \cite{lauri2019fine} apply logistic regression with hand-crafted
-graph-theoretic features, and \cite{grassia2019learning, lauri2023learning} extend this
+Clique Enumeration, \citet{lauri2019fine} apply logistic regression with hand-crafted
+graph-theoretic features, and \citet{grassia2019learning, lauri2023learning} extend this
 with multi-stage classifiers that iteratively reduce the search space. For the Traveling
-Salesman Problem, \cite{fitzpatrick2021learning, sun2021generalization} train classifiers
+Salesman Problem, \citet{fitzpatrick2021learning, sun2021generalization} train classifiers
 to prune edges unlikely to belong to the optimal tour. A common limitation across these
 methods is their heavy reliance on problem-specific feature engineering, which restricts
 generalization to new CO problems.
 
 \textbf{GNN-based approaches.}
-To reduce the dependence on hand-crafted features, \cite{tian2024combhelper} propose
+To reduce the dependence on hand-crafted features, \citet{tian2024combhelper} propose
 COMBHelper, a GNN-based framework with knowledge distillation and a problem-specific
 boosting module designed to generalize across multiple CO problems. While COMBHelper
 represents a step toward problem-agnostic pruning, it still relies on computationally
@@ -53,11 +53,11 @@ performance.
 
 \textbf{Hybrid supervised and reinforcement learning methods.}
 Hybrid methods that combine supervised learning with reinforcement learning are more
-problem-agnostic. GCOMB~\cite{manchanda2020gcomb} uses a probabilistic greedy
+problem-agnostic. GCOMB~\citep{manchanda2020gcomb} uses a probabilistic greedy
 algorithm to generate training data, then applies a weighted-degree heuristic to prune
 the ground set before training a Q-learning network on the reduced search space. However,
 its initial pruning depends on a handcrafted degree heuristic that does not generalize
-well across CO problems~\cite{ireland2022lense}. LeNSE~\cite{ireland2022lense} takes a
+well across CO problems~\citep{ireland2022lense}. LeNSE~\citep{ireland2022lense} takes a
 different approach: a GNN is first trained to generate embeddings for sampled subgraphs,
 and a policy network then uses these embeddings to guide a local search toward subgraphs
 likely to contain the optimal solution. A major drawback is its reliance on domain
@@ -76,11 +76,11 @@ Automated feature engineering seeks to generate useful features from raw data wi
 human effort. Prior work with large language models (LLMs) has focused primarily on
 tabular data, where new features are derived from existing columns. These approaches
 either rely on manually designed feature-generation
-rules~\cite{zhang2023openfe, zhang2024dynamic} or few-shot
-prompts~\cite{han2024large}, and thus still depend on hand-crafted design choices.
-Moreover, existing methods~\cite{nam2024optimized, hollmann2023large} suffer from error
+rules~\citep{zhang2023openfe, zhang2024dynamic} or few-shot
+prompts~\citep{han2024large}, and thus still depend on hand-crafted design choices.
+Moreover, existing methods~\citep{nam2024optimized, hollmann2023large} suffer from error
 propagation caused by simple feedback loops. These approaches are distinct from methods
-that directly generate algorithms using LLMs~\cite{yang2023large, liu2024evolution},
+that directly generate algorithms using LLMs~\citep{yang2023large, liu2024evolution},
 which often exhibit degraded performance as graph size increases.
 
 LLM-driven feature engineering is a natural fit for pruning, as LLMs can encode the kind
