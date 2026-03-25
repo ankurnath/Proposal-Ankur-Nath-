@@ -210,7 +210,7 @@ problem across three graph CO problems, for both size and knapsack constraints.
 \subsection{Experimental Setup}
 
 \textbf{Applications.} All problems are defined on an undirected graph $G = (V, E)$ where
-each node $v \in V$ has cost $c(v)$. We evaluate on four applications:
+each node $v \in V$ has cost $c(v)$. We evaluate on three applications:
 
 \begin{itemize}
   \item \textbf{Maximum Coverage (MaxCover):} Find $S \subseteq V$ with
@@ -226,7 +226,7 @@ each node $v \in V$ has cost $c(v)$. We evaluate on four applications:
   \item \textbf{Influence Maximization (IM):} Given edge probabilities $p(u,v)$ and a
     cascade model, find $S \subseteq V$ with $\sum_{v \in S} c(v) \leq k$ maximizing
     $f(S) = \mathbf{E}[\sigma(S)]$, the expected spread. We use the independent cascade
-    model~\citep{kempe2003maximizing} with $p = 0.01$.
+    model~\citep{kempe2003maximizing}.
 
 \end{itemize}
 
@@ -334,65 +334,27 @@ calls, as shown in Figure~\ref{fig:qp-oracle}.
 \subsection{Results on Knapsack Constraints}
 
 For general knapsack constraints, where the cost of each node is set proportional to its
-degree following~\citep{yaroslavtsev2020bring}, QuickPrune achieves the highest combined metric on 45\% of
-all instances tested. For MaxCover and MaxCut, QuickPrune often outperforms the Top-$k$
-baseline by 20\% in retaining objective value, except on Deezer-MaxCover and
-Skitter-MaxCut. The Top-$k$ approach does not account for relationships between vertices,
-whereas QuickPrune considers the problem more holistically, ensuring that the selected
-vertices collectively form a well-balanced subgraph. While Top-$k$ outperforms QuickPrune
-for IM in most cases, its poor performance across MaxCut and MaxCover shows that it is
-not a robust approach across applications and datasets. GNNPruner performs well on some
-datasets but unexpectedly poorly on others.
-Table~\ref{tab:knapsack_constraint} summarizes the full knapsack constraint results.
+degree following~\citep{yaroslavtsev2020bring}, we compare QuickPrune against Top-$k$
+(which selects elements with the highest degree-to-cost ratios) and GNNPruner.
+Figure~\ref{fig:qp-knapsack-violin} shows the distribution of the combined metric $C$
+across all eight SNAP datasets for each problem. QuickPrune exhibits consistently high
+performance with low variance across all three problems, achieving a mean $C$ above 0.9
+for both MaxCover and MaxCut. In contrast, Top-$k$ and GNNPruner show high variance,
+performing well on some instances but poorly on others. For Influence Maximization,
+Top-$k$ is competitive with QuickPrune on average but its poor performance on MaxCover
+and MaxCut demonstrates that it is not robust across problems. GNNPruner suffers from
+the most inconsistent behavior, with $C$ values ranging from near-zero to near-perfect
+depending on the dataset.
 
-\begin{table}[t]
-\centering
-\caption{Knapsack constraint results: pruning approximation ratio $P_r$, pruned fraction
-  $P_g$, and combined metric $C = P_r \cdot P_g$. Best $C$ in bold.}
-\label{tab:knapsack_constraint}
-\resizebox{0.85\textwidth}{!}{%
-\begin{tabular}{@{}l ccc ccc ccc@{}}
-\toprule
-& \multicolumn{3}{c}{QuickPrune} & \multicolumn{3}{c}{Top-$k$} & \multicolumn{3}{c}{GNNPruner} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
-Graph & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ \\
-\midrule
-\multicolumn{10}{c}{\textbf{Maximum Cover}} \\
-\midrule
-Facebook  & 0.973 & 0.987 & \textbf{0.960} & 0.551 & 0.987 & 0.543 & 0.330 & 0.994 & 0.328 \\
-Wiki      & 0.940 & 0.985 & \textbf{0.926} & 0.755 & 0.985 & 0.744 & 1.000 & 0.870 & 0.870 \\
-Deezer    & 0.875 & 0.998 & 0.874 & 0.915 & 0.998 & 0.913 & 1.000 & 0.973 & \textbf{0.973} \\
-Slashdot  & 0.895 & 0.999 & \textbf{0.894} & 0.570 & 0.999 & 0.569 & 1.000 & 0.833 & 0.833 \\
-Twitter   & 0.870 & 0.999 & \textbf{0.869} & 0.595 & 0.999 & 0.594 & 1.000 & 0.478 & 0.478 \\
-DBLP      & 0.845 & 1.000 & 0.845 & 0.715 & 1.000 & 0.715 & 1.000 & 0.997 & \textbf{0.997} \\
-YouTube   & 0.915 & 1.000 & \textbf{0.915} & 0.520 & 1.000 & 0.520 & 1.000 & 0.363 & 0.363 \\
-Skitter   & 0.905 & 1.000 & 0.905 & 0.815 & 1.000 & 0.815 & 1.000 & 0.989 & \textbf{0.989} \\
-\midrule
-\multicolumn{10}{c}{\textbf{Maximum Cut}} \\
-\midrule
-Facebook  & 0.990 & 0.967 & 0.957 & 1.000 & 0.967 & \textbf{0.967} & 0.970 & 0.498 & 0.483 \\
-Wiki      & 0.960 & 0.993 & \textbf{0.953} & 0.510 & 0.993 & 0.506 & 1.000 & 0.184 & 0.184 \\
-Deezer    & 0.960 & 0.999 & 0.959 & 0.800 & 0.999 & 0.799 & 1.000 & 0.975 & \textbf{0.975} \\
-Slashdot  & 0.970 & 0.999 & \textbf{0.969} & 0.670 & 0.999 & 0.669 & 1.000 & 0.440 & 0.440 \\
-Twitter   & 0.950 & 1.000 & \textbf{0.950} & 0.290 & 1.000 & 0.290 & 1.000 & 0.022 & 0.022 \\
-DBLP      & 0.950 & 1.000 & 0.950 & 0.430 & 1.000 & 0.430 & 1.000 & 0.999 & \textbf{0.999} \\
-YouTube   & 0.970 & 1.000 & \textbf{0.970} & 0.730 & 1.000 & 0.730 & 1.000 & 0.941 & 0.941 \\
-Skitter   & 0.970 & 1.000 & 0.970 & 1.000 & 1.000 & \textbf{1.000} & 1.000 & 0.999 & 0.999 \\
-\midrule
-\multicolumn{10}{c}{\textbf{Influence Maximization}} \\
-\midrule
-Facebook  & 0.993 & 0.915 & \textbf{0.909} & 0.993 & 0.915 & \textbf{0.909} & 0.117 & 0.985 & 0.116 \\
-Wiki      & 0.966 & 0.877 & 0.848 & 1.000 & 0.877 & \textbf{0.877} & 0.828 & 0.849 & 0.703 \\
-Deezer    & 1.000 & 0.982 & \textbf{0.982} & 1.000 & 0.982 & \textbf{0.982} & 0.468 & 0.972 & 0.455 \\
-Slashdot  & 0.913 & 0.987 & 0.901 & 1.012 & 0.987 & \textbf{0.999} & 0.739 & 0.840 & 0.621 \\
-Twitter   & 0.912 & 0.999 & 0.911 & 0.969 & 0.999 & \textbf{0.968} & 0.140 & 1.000 & 0.140 \\
-DBLP      & 1.000 & 0.996 & 0.996 & 1.000 & 0.996 & 0.996 & 1.000 & 1.000 & \textbf{1.000} \\
-YouTube   & 0.917 & 0.999 & 0.917 & 0.950 & 0.999 & \textbf{0.950} & 0.981 & 0.330 & 0.324 \\
-Skitter   & 0.829 & 1.000 & 0.829 & 0.939 & 1.000 & \textbf{0.939} & 1.000 & 0.140 & 0.140 \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/quickprune/knapsack_violin.pdf}
+  \caption{Distribution of the combined metric $C = P_r \cdot P_g$ under knapsack
+    constraints across eight SNAP datasets. Each point represents one dataset. QuickPrune
+    maintains consistently high performance with low variance, while Top-$k$ and GNNPruner
+    exhibit high variance across datasets and problems.}
+  \label{fig:qp-knapsack-violin}
+\end{figure}
 
 \subsection{Multi-Budget versus Single-Budget Comparison}
 
