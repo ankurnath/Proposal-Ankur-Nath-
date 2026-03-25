@@ -32,7 +32,7 @@ These methods can be broadly organized into three categories: supervised approac
 hand-crafted features, GNN-based approaches, and hybrid methods combining supervised and
 reinforcement learning.
 
-\paragraph{Supervised approaches with hand-crafted features.}
+\textbf{Supervised approaches with hand-crafted features.}
 The earliest learning-based pruning methods train binary classifiers on small, pre-solved
 instances to predict whether a vertex or edge belongs to an optimal solution. For Maximum
 Clique Enumeration, \cite{lauri2019fine} apply logistic regression with hand-crafted
@@ -43,7 +43,7 @@ to prune edges unlikely to belong to the optimal tour. A common limitation acros
 methods is their heavy reliance on problem-specific feature engineering, which restricts
 generalization to new CO problems.
 
-\paragraph{GNN-based approaches.}
+\textbf{GNN-based approaches.}
 To reduce the dependence on hand-crafted features, \cite{tian2024combhelper} propose
 COMBHelper, a GNN-based framework with knowledge distillation and a problem-specific
 boosting module designed to generalize across multiple CO problems. While COMBHelper
@@ -51,7 +51,7 @@ represents a step toward problem-agnostic pruning, it still relies on computatio
 expensive Fourier-based feature transformations and a problem-specific boosting mechanism for strong
 performance.
 
-\paragraph{Hybrid supervised and reinforcement learning methods.}
+\textbf{Hybrid supervised and reinforcement learning methods.}
 Hybrid methods that combine supervised learning with reinforcement learning are more
 problem-agnostic. GCOMB~\cite{manchanda2020gcomb} uses a probabilistic greedy
 algorithm to generate training data, then applies a weighted-degree heuristic to prune
