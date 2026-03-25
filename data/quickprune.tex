@@ -39,21 +39,17 @@ support a range of budgets simultaneously rather than a single budget instance.
 
 \section{Problem Setting}
 
-We consider maximization of an objective function $f$ defined on subsets of a ground set
-$\mathcal{U}$, subject to a knapsack constraint: a modular cost function $c$ on the
-elements is restricted to be at most the budget $\kappa$. We denote by
+QuickPrune operates under a general knapsack constraint: each element $e \in \mathcal{U}$
+has a modular cost $c(e) > 0$, and a feasible solution $S$ must satisfy $c(S) \leq \kappa$
+for a given budget $\kappa$. We denote the optimal value under budget $\kappa$ by
 \[
-f_{\kappa}(\mathcal{U}) = \max_{S \subseteq \mathcal{U} : c(S) \leq \kappa} f(S)
+f_{\kappa}(\mathcal{U}) = \max_{S \subseteq \mathcal{U} : c(S) \leq \kappa} f(S).
 \]
-the optimal value over $\mathcal{U}$ under budget $\kappa$. For many applications of this
-problem, the ground set $\mathcal{U}$ is massive, with size $n$ in the billion-scale or
-larger. On the other hand, the budget constraints are frequently such that an optimal set
-has only a few elements. For example, in viral marketing
-campaigns~\citep{kempe2003maximizing}, a company may have a budget to promote only a
-limited number of products while still aiming to maximize overall sales or customer reach.
-Since elements not in the pruned set $\mathcal{U}'$ are discarded, we desire a range of
-budgets $[\kappa_{\min}, \kappa_{\max}]$ to be supported, so that the pruned ground set
-has value beyond a single use.
+Size constraints are a special case where $c(e) = 1$ for all $e$. A key requirement is
+that pruning should be effective across a range of budgets
+$[\kappa_{\min}, \kappa_{\max}]$, not just a single value, since the pruned set
+permanently discards elements and should remain useful for downstream solvers under
+varying budget scenarios.
 
 \section{Key Assumptions}
 
@@ -209,30 +205,40 @@ that is logarithmic in the original ground set size $n$.
 \section{Experimental Evaluation}
 
 We compare the empirical performance of QuickPrune to existing methods for the pruning
-problem across four different objective functions, for both size and knapsack constraints.
+problem across three graph CO problems, for both size and knapsack constraints.
 
 \subsection{Experimental Setup}
 
-\textbf{Applications.} We evaluate on four applications: (1) Maximum Coverage (MaxCover):
-find $S \subseteq V$ maximizing the number of covered vertices subject to a budget;
-(2) Maximum Cut (MaxCut): find $S \subseteq V$ maximizing the number of edges crossing
-the cut subject to a budget; (3) Influence Maximization (IM): under the independent
-cascade model with $p = 0.01$, find $S \subseteq V$ maximizing expected
-spread~\citep{tang2015influence}; and (4) Information Retrieval: image and video retrieval
-using a graph cut function with similarity kernel.
+\textbf{Applications.} All problems are defined on an undirected graph $G = (V, E)$ where
+each node $v \in V$ has cost $c(v)$. We evaluate on four applications:
+
+\begin{itemize}
+  \item \textbf{Maximum Coverage (MaxCover):} Find $S \subseteq V$ with
+    $\sum_{v \in S} c(v) \leq k$ maximizing
+    $f(S) = |\{v \mid v \in S \lor \exists (u,v) \in E,\, u \in S\}|$,
+    the number of vertices covered by $S$ and its neighbors.
+
+  \item \textbf{Maximum Cut (MaxCut):} Find $S \subseteq V$ with
+    $\sum_{v \in S} c(v) \leq k$ maximizing
+    $f(S) = |\{(u,v) \in E : v \in S,\, u \in V \setminus S\}|$,
+    the number of edges crossing the cut.
+
+  \item \textbf{Influence Maximization (IM):} Given edge probabilities $p(u,v)$ and a
+    cascade model, find $S \subseteq V$ with $\sum_{v \in S} c(v) \leq k$ maximizing
+    $f(S) = \mathbf{E}[\sigma(S)]$, the expected spread. We use the independent cascade
+    model~\citep{kempe2003maximizing} with $p = 0.01$.
+
+\end{itemize}
 
 \textbf{Datasets.} We evaluate on eight real-world graphs from the Stanford Large Network
 Dataset Collection (SNAP)~\citep{leskovec2016snap}, following the experimental setup
 of~\citep{ireland2022lense}. The graphs range from small networks
 (Facebook, $\sim$4K vertices) to large-scale graphs (Skitter, $\sim$1.7M vertices).
-For the retrieval system, we use the
-Beans~\citep{beansdata}, CIFAR100~\citep{Krizhevsky09learningmultiple},
-FOOD101~\citep{bossard14}, and UCF101~\citep{soomro2012ucf101dataset101human} datasets.
 
 \textbf{Baselines.} We compare against: Submodular Sparsification
 (SS)~\citep{zhou2017scaling}, GCOMB~\citep{manchanda2020gcomb},
 LeNSE~\citep{ireland2022lense}, COMBHelper~\citep{tian2024combhelper}, and GNNPruner, a
-proposed baseline that is a simplified version of COMBHelper using a GCN with random node
+proposed baseline that is a simplified version of COMBHelper using a GNN with random node
 features instead of hand-crafted features. For knapsack constraints, since the prior ML
 methods do not easily generalize, we compare to GNNPruner and a Top-$k$ approach that
 selects elements with the highest degree-to-cost ratios.
@@ -257,9 +263,12 @@ summarizes the results across all applications and datasets. Specifically:
 
 \begin{table}[t]
 \centering
-\caption{Size constraint results ($k = 100$): pruning approximation ratio $P_r$, pruned
-  fraction $P_g$, and combined metric $C = P_r \cdot P_g$. Best $C$ in bold; ``--''
-  indicates timeout. *Values as reported in~\citep{ireland2022lense}.}
+\caption{Comparison of pruning methods under size constraints ($k = 100$) across
+  MaxCover, MaxCut, and Influence Maximization on eight SNAP graphs. $P_r$: fraction of
+  solver objective retained after pruning; $P_g$: fraction of ground set removed;
+  $C = P_r \cdot P_g$: combined metric balancing quality and reduction. Best $C$ per
+  instance in bold; ``--'' indicates the method exceeded the time limit.
+  *Values as reported in~\citep{ireland2022lense}.}
 \label{tab:size_constraint}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}l ccc ccc ccc ccc ccc ccc@{}}
@@ -320,41 +329,6 @@ calls, as shown in Figure~\ref{fig:qp-oracle}.
     MaxCover across all datasets. QuickPrune requires orders of magnitude fewer oracle
     calls than SS.}
   \label{fig:qp-oracle}
-\end{figure}
-
-\textbf{Image Retrieval.} We also evaluate QuickPrune on an image retrieval system that
-uses a graph cut function with cosine similarity kernel over fine-tuned embeddings. Under
-size constraints, QuickPrune outperforms random selection on all image datasets (Beans,
-CIFAR100, FOOD101). SS performs slightly better on FOOD101 but returns a ground set that
-is 14$\times$ larger, and on CIFAR100, SS fails to complete pruning within the three-hour
-cutoff time. Figure~\ref{fig:qp-image-retrieval} shows the multi-budget analysis across
-all image retrieval datasets.
-
-\begin{figure}[t]
-  \centering
-  \begin{subfigure}[b]{0.32\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/quickprune/BEANS.pdf}
-    \caption{Beans}
-    \label{fig:qp-beans}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[b]{0.32\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/quickprune/CIFAR100.pdf}
-    \caption{CIFAR100}
-    \label{fig:qp-cifar}
-  \end{subfigure}
-  \hfill
-  \begin{subfigure}[b]{0.32\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{figures/quickprune/FOOD101.pdf}
-    \caption{FOOD101}
-    \label{fig:qp-food}
-  \end{subfigure}
-  \caption{Multi-budget analysis of the image retrieval system under size constraints for
-    budgets ranging from 5 to 20.}
-  \label{fig:qp-image-retrieval}
 \end{figure}
 
 \subsection{Results on Knapsack Constraints}
@@ -419,20 +393,6 @@ Skitter   & 0.829 & 1.000 & 0.829 & 0.939 & 1.000 & \textbf{0.939} & 1.000 & 0.1
 \end{tabular}%
 }
 \end{table}
-
-\textbf{Video Retrieval.} For the video retrieval system on UCF101, where the cost of
-each video is proportional to its length, QuickPrune outperforms random selection by 80\%
-while also outperforming the Top-$k$ approach. Figure~\ref{fig:qp-video-retrieval} shows
-the multi-budget analysis.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.5\textwidth]{figures/quickprune/UCF101.pdf}
-  \caption{Multi-budget analysis of the video retrieval system on UCF101 under knapsack
-    constraints, where the cost of each video is proportional to its length. Budgets range
-    from 5 to 20.}
-  \label{fig:qp-video-retrieval}
-\end{figure}
 
 \subsection{Multi-Budget versus Single-Budget Comparison}
 
