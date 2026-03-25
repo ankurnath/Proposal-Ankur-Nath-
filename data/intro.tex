@@ -16,7 +16,7 @@ on graphs. Over
 the decades, researchers have developed heuristics and approximation algorithms that
 produce near-optimal solutions in polynomial
 time~\cite{nemhauser1978analysis, kempe2003maximizing, tang2015influence}, enabling
-practical solution on problems that are intractable to solve exactly.
+practical solutions to problems that are intractable to solve exactly.
 
 As real-world graphs continue to grow in size, even state-of-the-art solvers face
 significant scalability challenges. Modern real-world graphs routinely contain
@@ -63,7 +63,7 @@ graph CO, aiming to make solvers faster, more general, and
 more practical for large-scale graph instances.
 
 Prior to our first work, all existing pruning methods were heuristics with no formal
-performance guarantees. It was unknown whether it is even possible to efficiently produce
+performance guarantees. It was unknown whether it was even possible to efficiently produce
 a pruned ground set with provable bounds on both its size and the fraction of optimal
 value it retains. To answer this question, we introduce
 QuickPrune~\cite{pmlr-v258-nath25a}, a lightweight pruning algorithm for constrained
@@ -76,12 +76,12 @@ algorithm to provide such guarantees, and the first to support a range of budget
 simultaneously rather than a single budget instance. Through extensive experiments on
 real-world datasets for various applications, we demonstrate that QuickPrune efficiently
 prunes the ground set and outperforms state-of-the-art classical and machine learning
-heuristics for pruning.
+algorithms for pruning.
 
 As graph instances grow to millions of nodes, even a lightweight sequential algorithm
 faces scalability challenges, particularly for problems where calculating marginal gain
-is \#P-hard. At the same time, existing learning-based pruning methods achieve fast
-inference but demand problem-specific domain knowledge for algorithm design, making them
+is \#P-hard~\cite{chen2010scalable}. At the same time, existing learning-based pruning methods achieve fast
+inference but demand problem-specific domain knowledge for feature engineering, making them
 difficult to apply to new CO problems. To overcome both of these limitations, we propose
 Hierarchical DeepPruner (H-DeepPruner)~\cite{nath2025hdeeppruner}, an adaptive
 two-stage framework that combines supervised learning with reinforcement learning for
@@ -92,19 +92,21 @@ tree search procedure to further refine the pruned ground set by considering
 interdependencies among elements. Our experiments demonstrate that H-DeepPruner
 significantly outperforms existing learning-based pruning methods across multiple graph
 CO problems, showing that principled combinations of supervised and reinforcement
-learning can achieve effective pruning without domain-specific knowledge.
+learning can achieve effective pruning without domain-specific knowledge. However,
+H-DeepPruner is designed for size-constrained problems and does not directly extend to
+other constraint types.
 
 While H-DeepPruner eliminates the need for hand-crafted features, the features it uses
 are problem-agnostic and may lack the expressiveness needed to capture problem-specific
 structural patterns. On the other end of the spectrum, existing methods use carefully
 engineered features that are expressive but require substantial domain expertise,
 limiting their transferability across problems and constraints. To bridge this gap, we
-propose LLM2Prune~\cite{nath2025llm2prune}, a framework that leverages Large Language
-Models to automatically discover problem-grounded node features for a downstream
+propose LLM2Prune, a framework that leverages large language
+models to automatically discover problem-grounded node features for a downstream
 classifier. Given only a natural language task description, LLM2Prune guides the feature
 discovery process using both performance evaluation and feature-importance feedback,
 producing features that are tailored to the specific problem without any human
-engineering. LLM2Prune discovers non-trivial features automatically that would typically
+engineering. LLM2Prune automatically discovers non-trivial features that would typically
 require significant domain expertise to design manually, and adapts naturally to
 different constraint types by simply modifying the task description. Our experiments
 show that LLM2Prune achieves competitive performance with classical methods while

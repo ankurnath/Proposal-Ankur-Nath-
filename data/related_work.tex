@@ -10,12 +10,14 @@ proposal.
 
 \section{Classical Approaches to Pruning}
 To improve the scalability of solvers for combinatorial optimization (CO) problems,
-several classical methods have been proposed to reduce the search space before
-optimization. \cite{zhou2017scaling} propose a pruning algorithm based on submodularity
+classical methods have been proposed to reduce the search space before
+optimization. Most notably, \cite{zhou2017scaling} propose a pruning algorithm based on submodularity
 to reduce the cost of submodular maximization under size constraints. Their method
 constructs a pruned submodularity graph to identify and discard elements with low marginal
 contributions. However, this approach processes elements sequentially, which limits its
-scalability to large instances. A common limitation of classical approaches is that they are formulated for a single
+scalability to large instances.
+
+A common limitation of classical approaches is that they are formulated for a single
 instance of size-constrained maximization and provide no mechanism to leverage patterns
 across problem instances.
 
@@ -53,7 +55,8 @@ graphs. Then, a policy network uses these embeddings to guide a local search pro
 navigating from an initial subgraph to one more likely to contain the optimal solution. A
 major drawback is its reliance on domain expertise to categorize subgraphs, set the
 number of samples per class, and tune critical hyperparameters such as subgraph size and
-embedding dimensionality separately for each dataset and problem. 
+embedding dimensionality separately for each dataset and problem.
+
 \section{Automated Feature Engineering via LLMs}
 Automated feature engineering seeks to generate useful features from raw data without
 human effort. Prior work with large language models (LLMs) has focused primarily on
@@ -62,6 +65,9 @@ either rely on manually designed feature-generation
 rules~\cite{zhang2023openfe, zhang2024dynamic} or few-shot
 prompts~\cite{han2024large}, and thus still depend on hand-crafted design choices.
 Moreover, existing methods~\cite{nam2024optimized, hollmann2023large} suffer from error
-propagation caused by simple feedback loops. We note that these approaches are distinct from methods that directly generate algorithms
+propagation caused by simple feedback loops.
+
+These approaches are distinct from methods that directly generate algorithms
 using LLMs~\cite{yang2023large, liu2024evolution}, which often exhibit degraded
-performance as graph size increases.
+performance as graph size increases. To the best of our knowledge, no prior work has
+applied LLM-driven feature engineering to search space reduction for graph CO problems.
