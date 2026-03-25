@@ -19,7 +19,7 @@ elements.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.9\textwidth]{figures/hdeeppruner/framework.pdf}
+  \includegraphics[width=0.95\textwidth]{figures/hdeeppruner/framework.pdf}
   \caption{Illustration of the H-DeepPruner framework. The process begins with a GNN
     discarding elements unlikely to contribute to an optimal solution. MCTS then
     iteratively constructs a much smaller ground set with progressive deepening.}
@@ -59,7 +59,7 @@ solution, allowing NMCTS to focus computational resources on promising nodes. Th
 parallels the handcrafted degree heuristic in GCOMB~\citep{manchanda2020gcomb}, but
 instead of relying on a manually designed heuristic, we hypothesize that vertices in the
 optimal solution exhibit similar local structures that can be identified from local
-neighborhood features alone.
+neighborhood features alone. 
 
 We use a Graph Convolutional Network (GCN)~\citep{kipf2016semi}. Given an undirected graph
 $G(V, E)$ with adjacency matrix $A$, the GCN updates node representations as:
@@ -154,7 +154,7 @@ update the statistics of all visited nodes, refining the estimates for future de
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.9\textwidth]{figures/hdeeppruner/mcts.pdf}
+  \includegraphics[width=0.95\textwidth]{figures/hdeeppruner/mcts.pdf}
   \caption{Illustration of MCTS with fixed depth and progressive widening for generating
     a pruned ground set. The search begins with an empty ground set and incrementally adds
     candidate elements. After each depth-limited search, progressive deepening checks
@@ -193,14 +193,11 @@ of~\citep{ireland2022lense}.
 
 \subsection{Experimental Setup}
 
-\textbf{Applications.} We evaluate on three budget-constrained CO problems: Maximum Cover
-(MaxCover), Maximum Cut (MaxCut), and Influence Maximization (IM) under the independent
-cascade model with $p = 0.01$, all with budget $k = 100$.
-
-\textbf{Datasets.} We use the same eight real-world graphs from
-SNAP~\citep{leskovec2016snap} as in Chapter~3. Importantly, H-DeepPruner is trained on
-ER graphs~\citep{erdos1960evolution} (not the SNAP training splits), unlike baselines which
-train on the actual graph data.
+\textbf{Applications and Datasets.} We use the same three graph CO problems (MaxCover,
+MaxCut, and IM under the independent cascade model) and the same eight
+real-world SNAP graphs~\citep{leskovec2016snap} as in Chapter~3, with budget $k = 100$.
+Unlike the baselines, which train on the actual graph data, H-DeepPruner is trained
+entirely on synthetic ER graphs~\citep{erdos1960evolution}.
 
 \textbf{Baselines.} We compare against GCOMB~\citep{manchanda2020gcomb},
 COMBHelper~\citep{tian2024combhelper}, and LeNSE~\citep{ireland2022lense}.
@@ -213,74 +210,83 @@ measuring the acceleration of heuristics on the pruned ground set.
 
 \subsection{Results}
 
-\begin{table}[t]
-\centering
-\caption{Size constraint results ($k = 100$) for H-DeepPruner: pruning approximation
-  ratio $P_r$, pruned fraction $P_g$, and combined metric $C = P_r \cdot P_g$. Best $C$
-  in bold; ``--'' indicates timeout. *Values as reported
-  in~\citep{ireland2022lense}.}
-\label{tab:hdp_size_constraint}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}l ccc ccc ccc ccc@{}}
-\toprule
-& \multicolumn{3}{c}{H-DeepPruner} & \multicolumn{3}{c}{GCOMB*} & \multicolumn{3}{c}{COMBHelper} & \multicolumn{3}{c}{LeNSE*} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
-Graph & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ \\
-\midrule
-\multicolumn{13}{c}{\textbf{Maximum Cover}} \\
-\midrule
-Facebook  & 0.985 & 0.950 & \textbf{0.936} & 0.927 & 0.070 & 0.065 & 1.000 & 0.384 & 0.384 & 0.966 & 0.070 & 0.068 \\
-Wiki      & 0.997 & 0.961 & \textbf{0.958} & 0.990 & 0.030 & 0.030 & 1.000 & 0.453 & 0.453 & 1.094 & 0.340 & 0.372 \\
-Deezer    & 0.997 & 0.995 & \textbf{0.993} & 0.994 & 0.130 & 0.129 & 1.000 & 0.728 & 0.728 & 0.979 & 0.750 & 0.734 \\
-Slashdot  & 0.990 & 0.997 & \textbf{0.987} & 1.000 & 0.020 & 0.020 & 1.000 & 0.984 & 0.984 & 0.979 & 0.690 & 0.676 \\
-Twitter   & 0.972 & 0.997 & \textbf{0.969} & 0.997 & 0.170 & 0.170 & 1.000 & 0.565 & 0.565 & 0.989 & 0.330 & 0.326 \\
-DBLP      & 0.969 & 0.999 & \textbf{0.969} & 0.999 & 0.030 & 0.030 & 1.000 & 0.182 & 0.182 & 0.990 & 0.900 & 0.891 \\
-YouTube   & 0.997 & 1.000 & \textbf{0.997} & 0.998 & 0.070 & 0.070 & 1.000 & 0.957 & 0.957 & 0.982 & 0.790 & 0.776 \\
-Skitter   & 0.959 & 1.000 & \textbf{0.959} & 0.999 & 0.100 & 0.100 & -- & -- & -- & 0.976 & 0.700 & 0.683 \\
-\midrule
-\multicolumn{13}{c}{\textbf{Maximum Cut}} \\
-\midrule
-Facebook  & 0.998 & \textbf{0.880} & \textbf{0.879} & 0.813 & 0.950 & 0.772 & 1.000 & 0.154 & 0.154 & 1.000 & 0.070 & 0.070 \\
-Wiki      & 0.998 & 0.969 & \textbf{0.966} & 0.920 & 0.960 & 0.883 & 1.000 & 0.701 & 0.701 & 0.981 & 0.390 & 0.383 \\
-Deezer    & 0.998 & 0.995 & \textbf{0.993} & 0.850 & 0.990 & 0.842 & 1.000 & 0.375 & 0.375 & 0.975 & 0.740 & 0.722 \\
-Slashdot  & 1.000 & 0.997 & \textbf{0.997} & 0.632 & 0.990 & 0.626 & 0.794 & 0.993 & 0.788 & 0.990 & 0.620 & 0.614 \\
-Twitter   & 0.974 & 0.997 & \textbf{0.971} & 0.628 & 0.990 & 0.622 & 1.000 & 0.554 & 0.554 & 0.987 & 0.480 & 0.474 \\
-DBLP      & 0.964 & 0.999 & \textbf{0.963} & 0.646 & 0.990 & 0.640 & 1.000 & 0.183 & 0.183 & 0.993 & 0.920 & 0.914 \\
-YouTube   & 0.981 & 1.000 & \textbf{0.981} & 0.536 & 0.990 & 0.531 & 0.999 & 0.971 & 0.970 & 0.987 & 0.790 & 0.780 \\
-Skitter   & 0.999 & 0.671 & 0.671 & 0.427 & 0.990 & 0.423 & -- & -- & -- & 0.974 & 0.710 & \textbf{0.692} \\
-\midrule
-\multicolumn{13}{c}{\textbf{Influence Maximization}} \\
-\midrule
-Facebook  & 0.933 & 0.938 & \textbf{0.874} & 0.951 & 0.730 & 0.694 & 1.004 & 0.325 & 0.326 & 0.979 & 0.090 & 0.088 \\
-Wiki      & 0.964 & 0.969 & \textbf{0.934} & 0.969 & 0.900 & 0.872 & 0.997 & 0.607 & 0.605 & 0.960 & 0.510 & 0.490 \\
-Deezer    & 0.965 & 0.995 & \textbf{0.961} & 0.805 & 0.550 & 0.443 & 0.984 & 0.109 & 0.108 & 0.972 & 0.760 & 0.739 \\
-Slashdot  & 0.997 & 0.996 & \textbf{0.994} & 0.966 & 0.980 & 0.947 & 1.008 & 0.988 & 0.995 & 0.966 & 0.770 & 0.744 \\
-Twitter   & 0.961 & 0.998 & \textbf{0.959} & 0.920 & 0.980 & 0.902 & 0.997 & 0.495 & 0.493 & 0.966 & 0.400 & 0.386 \\
-DBLP      & 0.863 & 0.999 & 0.850 & 0.854 & 0.990 & 0.854 & 0.987 & 0.019 & 0.019 & 0.969 & 0.890 & \textbf{0.862} \\
-YouTube   & 0.933 & 1.000 & \textbf{0.932} & 0.933 & 0.990 & 0.924 & 0.999 & 0.971 & 0.970 & 0.971 & 0.750 & 0.728 \\
-Skitter   & 0.883 & 1.000 & \textbf{0.883} & 0.883 & 0.990 & 0.874 & -- & -- & -- & 0.983 & 0.780 & 0.767 \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+% \begin{table}[t]
+% \centering
+% \caption{Size constraint results ($k = 100$) for H-DeepPruner: pruning approximation
+%   ratio $P_r$, pruned fraction $P_g$, and combined metric $C = P_r \cdot P_g$. Best $C$
+%   in bold; ``--'' indicates timeout. *Values as reported
+%   in~\citep{ireland2022lense}.}
+% \label{tab:hdp_size_constraint}
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{@{}l ccc ccc ccc ccc@{}}
+% \toprule
+% & \multicolumn{3}{c}{H-DeepPruner} & \multicolumn{3}{c}{GCOMB*} & \multicolumn{3}{c}{COMBHelper} & \multicolumn{3}{c}{LeNSE*} \\
+% \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
+% Graph & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ \\
+% \midrule
+% \multicolumn{13}{c}{\textbf{Maximum Cover}} \\
+% \midrule
+% Facebook  & 0.985 & 0.950 & \textbf{0.936} & 0.927 & 0.070 & 0.065 & 1.000 & 0.384 & 0.384 & 0.966 & 0.070 & 0.068 \\
+% Wiki      & 0.997 & 0.961 & \textbf{0.958} & 0.990 & 0.030 & 0.030 & 1.000 & 0.453 & 0.453 & 1.094 & 0.340 & 0.372 \\
+% Deezer    & 0.997 & 0.995 & \textbf{0.993} & 0.994 & 0.130 & 0.129 & 1.000 & 0.728 & 0.728 & 0.979 & 0.750 & 0.734 \\
+% Slashdot  & 0.990 & 0.997 & \textbf{0.987} & 1.000 & 0.020 & 0.020 & 1.000 & 0.984 & 0.984 & 0.979 & 0.690 & 0.676 \\
+% Twitter   & 0.972 & 0.997 & \textbf{0.969} & 0.997 & 0.170 & 0.170 & 1.000 & 0.565 & 0.565 & 0.989 & 0.330 & 0.326 \\
+% DBLP      & 0.969 & 0.999 & \textbf{0.969} & 0.999 & 0.030 & 0.030 & 1.000 & 0.182 & 0.182 & 0.990 & 0.900 & 0.891 \\
+% YouTube   & 0.997 & 1.000 & \textbf{0.997} & 0.998 & 0.070 & 0.070 & 1.000 & 0.957 & 0.957 & 0.982 & 0.790 & 0.776 \\
+% Skitter   & 0.959 & 1.000 & \textbf{0.959} & 0.999 & 0.100 & 0.100 & -- & -- & -- & 0.976 & 0.700 & 0.683 \\
+% \midrule
+% \multicolumn{13}{c}{\textbf{Maximum Cut}} \\
+% \midrule
+% Facebook  & 0.998 & \textbf{0.880} & \textbf{0.879} & 0.813 & 0.950 & 0.772 & 1.000 & 0.154 & 0.154 & 1.000 & 0.070 & 0.070 \\
+% Wiki      & 0.998 & 0.969 & \textbf{0.966} & 0.920 & 0.960 & 0.883 & 1.000 & 0.701 & 0.701 & 0.981 & 0.390 & 0.383 \\
+% Deezer    & 0.998 & 0.995 & \textbf{0.993} & 0.850 & 0.990 & 0.842 & 1.000 & 0.375 & 0.375 & 0.975 & 0.740 & 0.722 \\
+% Slashdot  & 1.000 & 0.997 & \textbf{0.997} & 0.632 & 0.990 & 0.626 & 0.794 & 0.993 & 0.788 & 0.990 & 0.620 & 0.614 \\
+% Twitter   & 0.974 & 0.997 & \textbf{0.971} & 0.628 & 0.990 & 0.622 & 1.000 & 0.554 & 0.554 & 0.987 & 0.480 & 0.474 \\
+% DBLP      & 0.964 & 0.999 & \textbf{0.963} & 0.646 & 0.990 & 0.640 & 1.000 & 0.183 & 0.183 & 0.993 & 0.920 & 0.914 \\
+% YouTube   & 0.981 & 1.000 & \textbf{0.981} & 0.536 & 0.990 & 0.531 & 0.999 & 0.971 & 0.970 & 0.987 & 0.790 & 0.780 \\
+% Skitter   & 0.999 & 0.671 & 0.671 & 0.427 & 0.990 & 0.423 & -- & -- & -- & 0.974 & 0.710 & \textbf{0.692} \\
+% \midrule
+% \multicolumn{13}{c}{\textbf{Influence Maximization}} \\
+% \midrule
+% Facebook  & 0.933 & 0.938 & \textbf{0.874} & 0.951 & 0.730 & 0.694 & 1.004 & 0.325 & 0.326 & 0.979 & 0.090 & 0.088 \\
+% Wiki      & 0.964 & 0.969 & \textbf{0.934} & 0.969 & 0.900 & 0.872 & 0.997 & 0.607 & 0.605 & 0.960 & 0.510 & 0.490 \\
+% Deezer    & 0.965 & 0.995 & \textbf{0.961} & 0.805 & 0.550 & 0.443 & 0.984 & 0.109 & 0.108 & 0.972 & 0.760 & 0.739 \\
+% Slashdot  & 0.997 & 0.996 & \textbf{0.994} & 0.966 & 0.980 & 0.947 & 1.008 & 0.988 & 0.995 & 0.966 & 0.770 & 0.744 \\
+% Twitter   & 0.961 & 0.998 & \textbf{0.959} & 0.920 & 0.980 & 0.902 & 0.997 & 0.495 & 0.493 & 0.966 & 0.400 & 0.386 \\
+% DBLP      & 0.863 & 0.999 & 0.850 & 0.854 & 0.990 & 0.854 & 0.987 & 0.019 & 0.019 & 0.969 & 0.890 & \textbf{0.862} \\
+% YouTube   & 0.933 & 1.000 & \textbf{0.932} & 0.933 & 0.990 & 0.924 & 0.999 & 0.971 & 0.970 & 0.971 & 0.750 & 0.728 \\
+% Skitter   & 0.883 & 1.000 & \textbf{0.883} & 0.883 & 0.990 & 0.874 & -- & -- & -- & 0.983 & 0.780 & 0.767 \\
+% \bottomrule
+% \end{tabular}%
+% }
+% \end{table}
 
-Table~\ref{tab:hdp_size_constraint} demonstrates that a learning-based approach can
-achieve strong pruning performance without hand-crafted features or domain knowledge.
-H-DeepPruner achieves the highest combined metric in 88\% of all tested instances,
-typically maintaining a near-optimal pruning approximation ratio while pruning over 95\%
-of the original ground set. This is notable because, unlike the baselines, H-DeepPruner
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/hdeeppruner/hdp_violin.pdf}
+  \caption{Violin plots of the combined metric $C = P_r \cdot P_g$ (higher is better) for
+    H-DeepPruner and three learning-based baselines across all eight SNAP datasets. Each
+    point represents one dataset. H-DeepPruner achieves consistently high $C$ across all
+    three problems without hand-crafted features or domain knowledge.}
+  \label{fig:hdp-violin}
+\end{figure}
+
+Figure~\ref{fig:hdp-violin} summarizes the distribution of the combined metric across
+all datasets for each method. H-DeepPruner achieves the highest combined metric in 88\%
+of all tested instances, with a tight distribution concentrated near 0.95 across all
+three problems. This consistency is notable because, unlike the baselines, H-DeepPruner
 uses only random node features and trains exclusively on small, synthetic ER random
 graphs, yet it generalizes to large, out-of-distribution real-world graphs without
 performance degradation.
 
-In contrast, existing learning-based methods that rely on domain knowledge show
-inconsistent performance across problems. The handcrafted degree heuristic of GCOMB either
-prunes too little (e.g., MaxCover) or too much (e.g., MaxCut), indicating it is not
-problem-agnostic. COMBHelper performs well when the pruned ground set can be large but
-struggles when aggressive pruning is needed. LeNSE exhibits more balanced performance
-but requires per-dataset and per-problem tuning. The two-stage design of H-DeepPruner,
-where the GNN handles coarse pruning and NMCTS accounts for element interdependencies,
-achieves consistent results across all three problems without any such tuning.
+In contrast, the baselines exhibit high variance and problem-dependent behavior. GCOMB
+shows a wide spread, with near-zero $C$ on MaxCover (where its degree heuristic prunes
+too little) and low values on MaxCut (where it prunes too aggressively). COMBHelper
+also varies widely across problems, performing well only when the pruned ground set can
+remain large. LeNSE shows more balanced performance but requires per-dataset and
+per-problem tuning. The two-stage design of H-DeepPruner, where the GNN handles coarse
+pruning and NMCTS accounts for element interdependencies, achieves consistent results
+across all three problems without any such tuning.
 
 These results serve as a proof of concept that learning-based pruning can be both
 problem-agnostic and effective. However, H-DeepPruner has important limitations: it
@@ -288,16 +294,14 @@ operates only under size constraints, provides no theoretical guarantees on solu
 quality, and the NMCTS stage adds computational overhead that limits scalability.
 These limitations motivate the design of LLM2Prune (Chapter~5), which aims to combine
 the generality of a learning-based approach with broader constraint support.
-Figure~\ref{fig:hdp-violin} shows box plots of the combined metric across all algorithms
-and problems.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/hdeeppruner/violin_plots.pdf}
-  \caption{Box plots of the combined metric (higher is better) for all algorithms across
-    all problems. H-DeepPruner consistently achieves the highest combined metric.}
-  \label{fig:hdp-violin}
-\end{figure}
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\textwidth]{figures/hdeeppruner/violin_plots.pdf}
+%   \caption{Box plots of the combined metric (higher is better) for all algorithms across
+%     all problems. H-DeepPruner consistently achieves the highest combined metric.}
+%   \label{fig:hdp-violin-old}
+% \end{figure}
 
 \subsection{Speed-up Analysis}
 
@@ -365,7 +369,7 @@ while only slightly reducing $P_r$, resulting in much higher combined metrics. F
 example, on Deezer-MaxCover, the GNN alone achieves $C = 0.763$ while H-DeepPruner
 achieves $C = 0.993$. The utility of the GNN pre-pruning step is more pronounced on
 larger instances, where running NMCTS on the full ground set would be computationally
-infeasible -- the GNN reduces the search space to a manageable size for NMCTS to
+infeasible; the GNN reduces the search space to a manageable size for NMCTS to
 operate effectively.
 
 \begin{table}[t]
