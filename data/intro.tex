@@ -89,10 +89,10 @@ search space reduction under size constraints. The first stage uses a graph neur
 network to quickly eliminate vertices unlikely to be part of the solution, without
 requiring any hand-crafted features or domain knowledge. The second stage applies a
 tree search procedure to further refine the pruned ground set by considering
-interdependencies among elements. Our experiments demonstrate that H-DeepPruner
-significantly outperforms existing learning-based pruning methods across multiple graph
-CO problems, showing that principled combinations of supervised and reinforcement
-learning can achieve effective pruning without domain-specific knowledge. However,
+interdependencies among elements. As a proof of concept, our experiments demonstrate
+that H-DeepPruner achieves competitive performance with existing learning-based pruning
+methods across multiple graph CO problems, showing that effective pruning is possible
+without domain-specific knowledge or hand-crafted features. However,
 H-DeepPruner is designed for size-constrained problems and does not directly extend to
 other constraint types.
 
@@ -116,7 +116,7 @@ The research presented in this proposal collectively addresses the challenge of 
 combinatorial optimization to massive graph instances through principled search space
 reduction. QuickPrune establishes the theoretical foundations, proving that pruning with
 formal value-retention bounds is achievable under natural assumptions. Hierarchical
-DeepPruner demonstrates that learning-based methods can achieve superior empirical
+DeepPruner demonstrates that learning-based methods can achieve effective empirical
 performance under size constraints without requiring any domain expertise. LLM2Prune
 completes the picture by automating the feature discovery process entirely, closing the
 gap between problem-agnostic design and problem-aware performance. This integrated

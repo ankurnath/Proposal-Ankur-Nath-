@@ -399,9 +399,9 @@ To understand the contribution of each component, we conduct an ablation study c
 the GNN-only variant (Stage 1 alone) against the full H-DeepPruner pipeline (Stage 1 +
 Stage 2). Table~\ref{tab:hdp_ablation} shows that both components are essential for strong
 performance, but they contribute in complementary ways. The GNN alone achieves high pruning approximation ratios
-($P_r$ close to 1.0) but moderate pruned fractions ($P_g$ around 0.77--0.86), meaning it
+($P_r$ close to 1.0) but moderate pruned fractions ($P_g$ around 0.77-0.86), meaning it
 preserves solution quality well but does not prune aggressively enough. Adding NMCTS
-increases $P_g$ substantially (often to 0.95--1.0) while only slightly reducing $P_r$,
+increases $P_g$ substantially (often to 0.95-1.0) while only slightly reducing $P_r$,
 resulting in much higher combined metrics. For example, on Deezer-MaxCover, the GNN alone
 achieves $C = 0.763$ while H-DeepPruner achieves $C = 0.993$. The GNN pre-pruning step
 is more pronounced on larger instances, where running NMCTS on the full ground set would

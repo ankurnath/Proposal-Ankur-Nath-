@@ -187,7 +187,7 @@ Algorithm~\ref{alg:llm2prune} describes the full LLM2Prune pipeline.
 
 We have conducted preliminary experiments to validate the proposed approach. We evaluate
 LLM2Prune on three graph CO problems, namely Maximum Coverage (MaxCover), Maximum Cut
-(MaxCut), and Influence Maximization (IM), under both size and knapsack constraints, using
+(MaxCut), and Influence Maximization (IM), using
 eight real-world datasets from the Stanford Large Network Dataset
 Collection~\citep{leskovec2016snap}. The same datasets and train-test splits as in
 Chapters~3 and~4 are used, following~\citep{ireland2022lense}. For size constraints,
@@ -272,7 +272,7 @@ statistics but are grounded in the problem objective. For MaxCut, it discovers \
 cut expectation}, the expected marginal contribution of a node to the cut under a random
 partition, a non-trivial descriptor directly derived from the cut objective. For IM, it
 identifies \emph{average incoming activation probability} and \emph{outgoing activation
-probability sum}, which require reasoning about the independent cascade model and capture a
+probability sum}, which require reasoning about the independent cascade model and capture
 the susceptibility of a node and its direct influence spread, respectively. These features would
 require significant domain expertise to design manually, yet LLM2Prune discovers them
 automatically from the task description alone.
