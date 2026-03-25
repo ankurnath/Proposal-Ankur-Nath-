@@ -19,36 +19,36 @@
 \pagenumbering{roman} % Roman numerals
 \setcounter{page}{2}
 
-Many combinatorial optimization (CO) problems can be naturally defined on graphs,
-arising in domains such as social networks, transportation, and telecommunications.
-Scaling solvers for these problems to massive real-world graph instances remains a
-fundamental challenge, as the NP-hard nature of graph CO problems causes even the best
-heuristics to degrade in both runtime and solution quality as problem size grows. This research develops a unified approach to search space pruning
-for graph-based combinatorial optimization that spans theoretical foundations,
-learning-based methods, and large language model-driven automation.
 
-We begin with the algorithmic foundations of pruning and introduce QuickPrune, a
-lightweight, single-pass pruning algorithm that provides provable guarantees on both the
-fraction of optimal value retained and the size of the resulting pruned ground set under
-weak submodularity assumptions.
+Many combinatorial optimization (CO) problems are naturally defined on graphs, arising
+in domains such as social networks, transportation, and telecommunications. Because
+these problems are typically NP-hard, even the best heuristics struggle as real-world
+graphs grow to millions or billions of nodes. To scale these solvers, a natural strategy is to prune the search
+space by discarding elements unlikely to contribute to a high-quality solution, so that
+solvers operate on a much smaller instance. This research develops a unified approach to
+search space pruning for graph CO that spans classical approaches with theoretical guarantees, learning-based
+methods, and large language model-driven automation.
+
+We begin with the classical foundations of pruning and introduce QuickPrune, a
+lightweight, single-pass algorithm that provides provable guarantees on both the fraction
+of optimal value retained and the size of the resulting pruned ground set under weak
+submodularity assumptions.
 
 To overcome the sequential nature of classical approaches and the domain expertise
-required in algorithm design, we propose Hierarchical DeepPruner, an adaptive
-two-stage framework that combines graph neural network pre-pruning with neural Monte
-Carlo Tree Search fine-pruning, eliminating the need for domain-specific feature
-engineering while achieving state-of-the-art pruning performance across diverse graph
-problems.
+required in algorithm design, we propose Hierarchical DeepPruner, an adaptive two-stage
+framework that combines graph neural network pre-pruning with neural Monte Carlo Tree
+Search fine-pruning, eliminating the need for domain-specific feature engineering while
+achieving state-of-the-art performance across diverse graph CO problems under size
+constraints, even when trained on small synthetic graphs.
 
-Building on this foundation, we propose LLM2Prune, a novel framework that leverages
-large language models as
-domain experts to automatically discover problem-grounded node features through an
-LLM-guided beam search, enabling scalable and constraint-adaptive pruning without human
-intervention.
+Building on this foundation, we introduce LLM2Prune, a framework that leverages large
+language models as domain experts to automatically discover problem-specific features through an LLM-guided beam search, enabling scalable and constraint-adaptive
+pruning without human intervention.
 
-Taken together, this work presents a unified view of search space reduction for graph
-combinatorial optimization, from provable classical algorithms to problem-agnostic deep
-learning and automated feature discovery, demonstrating that efficient pruning can
-preserve near-optimal solution quality while reducing ground sets by over 90\%, enabling
-combinatorial optimization at scales previously intractable.
+Taken together, this work presents a unified view of search space reduction for graph CO,
+from provable classical algorithms to problem-agnostic deep learning and automated
+feature discovery, demonstrating that efficient pruning can preserve near-optimal solution
+quality while reducing ground sets by over 90\%, enabling optimization at scales
+previously intractable.
 
 \pagebreak{}
