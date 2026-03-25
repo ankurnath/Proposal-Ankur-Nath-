@@ -326,87 +326,95 @@ datasets for MaxCover.
 \subsection{Multi-Budget Analysis}
 
 We investigate whether the ground set provided by H-DeepPruner for budget $k = 100$ also
-yields close-to-optimal results for lower budgets. Table~\ref{tab:hdp_multibudget} reports
+yields close-to-optimal results for lower budgets. Figure~\ref{fig:hdp-multibudget} plots
 the pruning approximation ratio $P_r$ for budgets 1, 10, 25, 50, 75, and 100 on the IM
-problem. In most cases, the ground set provided by H-DeepPruner is also close-to-optimal
-for budgets lower than those for which the agent is trained. Values of $P_r > 1$ indicate
-that the heuristic achieves a better solution on the pruned ground set than on the full
-ground set.
+problem. For most datasets, $P_r$ remains close to 1.0 across all budgets, indicating
+that the pruned ground set generalizes well beyond the training budget. The dashed line
+marks $P_r = 1$; values above it indicate that the heuristic found a better solution on
+the pruned ground set than on the full ground set. DBLP is the only notable exception,
+where $P_r$ drops below 0.85 at low budgets.
 
-\begin{table}[t]
-\centering
-\caption{Pruning approximation ratio $P_r$ for IM at various budgets, using the ground set
-  produced by H-DeepPruner trained at budget $k = 100$.}
-\label{tab:hdp_multibudget}
-\resizebox{0.85\textwidth}{!}{%
-\begin{tabular}{@{}l cccccc@{}}
-\toprule
-Graph & $k=1$ & $k=10$ & $k=25$ & $k=50$ & $k=75$ & $k=100$ \\
-\midrule
-Facebook  & 1.084 & 0.990 & 0.978 & 0.955 & 0.932 & 0.966 \\
-Wiki      & 1.063 & 1.014 & 1.001 & 1.011 & 0.968 & 0.969 \\
-Deezer    & 0.948 & 0.928 & 0.967 & 0.986 & 0.985 & 0.996 \\
-Slashdot  & 1.011 & 1.057 & 0.961 & 0.976 & 1.019 & 0.986 \\
-Twitter   & 1.024 & 0.990 & 0.950 & 0.976 & 0.982 & 0.918 \\
-DBLP      & 0.615 & 0.659 & 0.763 & 0.810 & 0.852 & 0.835 \\
-YouTube   & 1.034 & 1.005 & 1.022 & 0.992 & 0.957 & 0.958 \\
-Skitter   & 0.980 & 1.042 & 0.962 & 0.995 & 0.929 & 0.949 \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figures/hdeeppruner/multibudget.pdf}
+  \caption{Pruning approximation ratio $P_r$ for Influence Maximization at various budgets,
+    using the ground set produced by H-DeepPruner trained at budget $k = 100$. The dashed
+    line marks $P_r = 1$.}
+  \label{fig:hdp-multibudget}
+\end{figure}
+
+% \begin{table}[t]
+% \centering
+% \caption{Pruning approximation ratio $P_r$ for IM at various budgets, using the ground set
+%   produced by H-DeepPruner trained at budget $k = 100$.}
+% \label{tab:hdp_multibudget}
+% \resizebox{0.85\textwidth}{!}{%
+% \begin{tabular}{@{}l cccccc@{}}
+% \toprule
+% Graph & $k=1$ & $k=10$ & $k=25$ & $k=50$ & $k=75$ & $k=100$ \\
+% \midrule
+% Facebook  & 1.084 & 0.990 & 0.978 & 0.955 & 0.932 & 0.966 \\
+% Wiki      & 1.063 & 1.014 & 1.001 & 1.011 & 0.968 & 0.969 \\
+% Deezer    & 0.948 & 0.928 & 0.967 & 0.986 & 0.985 & 0.996 \\
+% Slashdot  & 1.011 & 1.057 & 0.961 & 0.976 & 1.019 & 0.986 \\
+% Twitter   & 1.024 & 0.990 & 0.950 & 0.976 & 0.982 & 0.918 \\
+% DBLP      & 0.615 & 0.659 & 0.763 & 0.810 & 0.852 & 0.835 \\
+% YouTube   & 1.034 & 1.005 & 1.022 & 0.992 & 0.957 & 0.958 \\
+% Skitter   & 0.980 & 1.042 & 0.962 & 0.995 & 0.929 & 0.949 \\
+% \bottomrule
+% \end{tabular}%
+% }
+% \end{table}
 
 \subsection{Ablation Study}
 
 To understand the contribution of each component, we conduct an ablation study comparing
 the GNN-only variant (Stage 1 alone) against the full H-DeepPruner pipeline (Stage 1 +
-Stage 2). Figure~\ref{fig:hdp-ablation} plots the combined metric $C$ for each
-configuration, where every point above the diagonal indicates that adding NMCTS improved
-performance. Nearly all points lie above the diagonal, confirming that both stages
-contribute in complementary ways. The GNN alone achieves high pruning approximation ratios
+Stage 2). Table~\ref{tab:hdp_ablation} shows that both components are essential for strong
+performance, but they contribute in complementary ways. The GNN alone achieves high pruning approximation ratios
 ($P_r$ close to 1.0) but moderate pruned fractions ($P_g$ around 0.77--0.86), meaning it
 preserves solution quality well but does not prune aggressively enough. Adding NMCTS
 increases $P_g$ substantially (often to 0.95--1.0) while only slightly reducing $P_r$,
-resulting in much higher combined metrics. The improvement is most pronounced for
-Influence Maximization, where the GNN alone achieves $C$ as low as 0.41
-but the full pipeline raises it above 0.85. The GNN pre-pruning step is essential on
+resulting in much higher combined metrics. For example, on Deezer-MaxCover, the GNN alone
+achieves $C = 0.763$ while H-DeepPruner achieves $C = 0.993$. The GNN pre-pruning step
+is more pronounced on
 larger instances, where running NMCTS on the full ground set would be computationally
 infeasible; the GNN reduces the search space to a manageable size for NMCTS to operate
 effectively.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\textwidth]{figures/hdeeppruner/ablation_scatter.pdf}
-  \caption{Ablation study: combined metric $C$ for GNN-only (x-axis) versus the full
-    H-DeepPruner pipeline (y-axis) across all eight SNAP datasets, shown separately for
-    each problem. Points above the diagonal indicate that adding NMCTS (Stage 2) improved
-    performance over GNN-only pruning (Stage 1).}
-  \label{fig:hdp-ablation}
-\end{figure}
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\textwidth]{figures/hdeeppruner/ablation_scatter.pdf}
+%   \caption{Ablation study: combined metric $C$ for GNN-only (x-axis) versus the full
+%     H-DeepPruner pipeline (y-axis) across all eight SNAP datasets, shown separately for
+%     each problem. Points above the diagonal indicate that adding NMCTS (Stage 2) improved
+%     performance over GNN-only pruning (Stage 1).}
+%   \label{fig:hdp-ablation}
+% \end{figure}
 
-% \begin{table}[t]
-% \centering
-% \caption{Ablation study: combined metric $C$ for GNN-only versus the full H-DeepPruner
-%   (GNN + NMCTS) on the SNAP datasets for budget $k = 100$.}
-% \label{tab:hdp_ablation}
-% \resizebox{\textwidth}{!}{%
-% \begin{tabular}{@{}l ccc ccc ccc ccc ccc ccc@{}}
-% \toprule
-% & \multicolumn{6}{c}{\textbf{Maximum Cover}} & \multicolumn{6}{c}{\textbf{Maximum Cut}} & \multicolumn{6}{c}{\textbf{Influence Maximization}} \\
-% \cmidrule(lr){2-7}\cmidrule(lr){8-13}\cmidrule(lr){14-19}
-% & \multicolumn{3}{c}{GNN} & \multicolumn{3}{c}{H-DeepPruner} & \multicolumn{3}{c}{GNN} & \multicolumn{3}{c}{H-DeepPruner} & \multicolumn{3}{c}{GNN} & \multicolumn{3}{c}{H-DeepPruner} \\
-% \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}\cmidrule(lr){14-16}\cmidrule(lr){17-19}
-% Graph & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ \\
-% \midrule
-% Facebook  & 0.997 & 0.779 & 0.777 & 0.985 & 0.950 & 0.936 & 1.000 & 0.765 & 0.765 & 0.977 & 0.900 & 0.879 & 1.009 & 0.456 & 0.460 & 0.933 & 0.938 & 0.874 \\
-% Wiki      & 1.000 & 0.863 & 0.863 & 0.997 & 0.961 & 0.958 & 1.000 & 0.864 & 0.864 & 0.998 & 0.969 & 0.966 & 0.979 & 0.766 & 0.750 & 0.964 & 0.969 & 0.934 \\
-% Deezer    & 1.000 & 0.763 & 0.763 & 0.997 & 0.995 & 0.993 & 1.000 & 0.754 & 0.754 & 0.998 & 0.995 & 0.993 & 1.006 & 0.411 & 0.413 & 0.965 & 0.995 & 0.961 \\
-% Slashdot  & 1.000 & 0.857 & 0.857 & 0.990 & 0.997 & 0.987 & 1.000 & 0.857 & 0.857 & 1.000 & 0.997 & 0.997 & 0.988 & 0.749 & 0.740 & 0.997 & 0.996 & 0.994 \\
-% Twitter   & 1.000 & 0.852 & 0.852 & 0.972 & 0.997 & 0.969 & 1.000 & 0.852 & 0.852 & 0.974 & 0.997 & 0.971 & 1.010 & 0.684 & 0.691 & 0.961 & 0.998 & 0.959 \\
-% DBLP      & 1.000 & 0.790 & 0.790 & 0.969 & 0.999 & 0.969 & 1.000 & 0.797 & 0.797 & 0.964 & 0.999 & 0.963 & 1.002 & 0.515 & 0.516 & 0.853 & 0.999 & 0.850 \\
-% YouTube   & 1.000 & 0.844 & 0.844 & 0.997 & 1.000 & 0.997 & 1.000 & 0.855 & 0.855 & 0.981 & 1.000 & 0.981 & 0.949 & 0.659 & 0.625 & 0.933 & 1.000 & 0.932 \\
-% Skitter   & 1.000 & 0.863 & 0.863 & 0.959 & 1.000 & 0.959 & 1.000 & 0.999 & 0.999 & 0.993 & 0.671 & 0.667 & 0.993 & 0.605 & 0.601 & 0.883 & 1.000 & 0.883 \\
-% \bottomrule
-% \end{tabular}%
-% }
-% \end{table}
+\begin{table}[t]
+\centering
+\caption{Ablation study: combined metric $C$ for GNN-only versus the full H-DeepPruner
+  (GNN + NMCTS) on the SNAP datasets for budget $k = 100$.}
+\label{tab:hdp_ablation}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}l ccc ccc ccc ccc ccc ccc@{}}
+\toprule
+& \multicolumn{6}{c}{\textbf{Maximum Cover}} & \multicolumn{6}{c}{\textbf{Maximum Cut}} & \multicolumn{6}{c}{\textbf{Influence Maximization}} \\
+\cmidrule(lr){2-7}\cmidrule(lr){8-13}\cmidrule(lr){14-19}
+& \multicolumn{3}{c}{GNN} & \multicolumn{3}{c}{H-DeepPruner} & \multicolumn{3}{c}{GNN} & \multicolumn{3}{c}{H-DeepPruner} & \multicolumn{3}{c}{GNN} & \multicolumn{3}{c}{H-DeepPruner} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}\cmidrule(lr){14-16}\cmidrule(lr){17-19}
+Graph & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ & $P_r$ & $P_g$ & $C$ \\
+\midrule
+Facebook  & 0.997 & 0.779 & 0.777 & 0.985 & 0.950 & 0.936 & 1.000 & 0.765 & 0.765 & 0.977 & 0.900 & 0.879 & 1.009 & 0.456 & 0.460 & 0.933 & 0.938 & 0.874 \\
+Wiki      & 1.000 & 0.863 & 0.863 & 0.997 & 0.961 & 0.958 & 1.000 & 0.864 & 0.864 & 0.998 & 0.969 & 0.966 & 0.979 & 0.766 & 0.750 & 0.964 & 0.969 & 0.934 \\
+Deezer    & 1.000 & 0.763 & 0.763 & 0.997 & 0.995 & 0.993 & 1.000 & 0.754 & 0.754 & 0.998 & 0.995 & 0.993 & 1.006 & 0.411 & 0.413 & 0.965 & 0.995 & 0.961 \\
+Slashdot  & 1.000 & 0.857 & 0.857 & 0.990 & 0.997 & 0.987 & 1.000 & 0.857 & 0.857 & 1.000 & 0.997 & 0.997 & 0.988 & 0.749 & 0.740 & 0.997 & 0.996 & 0.994 \\
+Twitter   & 1.000 & 0.852 & 0.852 & 0.972 & 0.997 & 0.969 & 1.000 & 0.852 & 0.852 & 0.974 & 0.997 & 0.971 & 1.010 & 0.684 & 0.691 & 0.961 & 0.998 & 0.959 \\
+DBLP      & 1.000 & 0.790 & 0.790 & 0.969 & 0.999 & 0.969 & 1.000 & 0.797 & 0.797 & 0.964 & 0.999 & 0.963 & 1.002 & 0.515 & 0.516 & 0.853 & 0.999 & 0.850 \\
+YouTube   & 1.000 & 0.844 & 0.844 & 0.997 & 1.000 & 0.997 & 1.000 & 0.855 & 0.855 & 0.981 & 1.000 & 0.981 & 0.949 & 0.659 & 0.625 & 0.933 & 1.000 & 0.932 \\
+Skitter   & 1.000 & 0.863 & 0.863 & 0.959 & 1.000 & 0.959 & 1.000 & 0.999 & 0.999 & 0.993 & 0.671 & 0.667 & 0.993 & 0.605 & 0.601 & 0.883 & 1.000 & 0.883 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
