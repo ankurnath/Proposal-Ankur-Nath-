@@ -368,7 +368,7 @@ contribute in complementary ways. The GNN alone achieves high pruning approximat
 preserves solution quality well but does not prune aggressively enough. Adding NMCTS
 increases $P_g$ substantially (often to 0.95--1.0) while only slightly reducing $P_r$,
 resulting in much higher combined metrics. The improvement is most pronounced for
-Influence Maximization (diamond markers), where the GNN alone achieves $C$ as low as 0.41
+Influence Maximization, where the GNN alone achieves $C$ as low as 0.41
 but the full pipeline raises it above 0.85. The GNN pre-pruning step is essential on
 larger instances, where running NMCTS on the full ground set would be computationally
 infeasible; the GNN reduces the search space to a manageable size for NMCTS to operate
@@ -376,11 +376,11 @@ effectively.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.6\textwidth]{figures/hdeeppruner/ablation_scatter.pdf}
+  \includegraphics[width=\textwidth]{figures/hdeeppruner/ablation_scatter.pdf}
   \caption{Ablation study: combined metric $C$ for GNN-only (x-axis) versus the full
-    H-DeepPruner pipeline (y-axis) across all eight SNAP datasets. Points above the
-    diagonal indicate that adding NMCTS (Stage 2) improved performance over GNN-only
-    pruning (Stage 1).}
+    H-DeepPruner pipeline (y-axis) across all eight SNAP datasets, shown separately for
+    each problem. Points above the diagonal indicate that adding NMCTS (Stage 2) improved
+    performance over GNN-only pruning (Stage 1).}
   \label{fig:hdp-ablation}
 \end{figure}
 

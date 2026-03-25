@@ -27,26 +27,31 @@ hdeeppruner = {
 }
 
 problems = ['MaxCover', 'MaxCut', 'IM']
-labels = ['Maximum Cover', 'Maximum Cut', 'Influence Maximization']
-markers = ['o', 's', 'D']
-colors = ['#2196F3', '#FF9800', '#4CAF50']
+titles = ['Maximum Cover', 'Maximum Cut', 'Influence Maximization']
+color = '#2196F3'
 
-fig, ax = plt.subplots(figsize=(6, 5.5))
+fig, axes = plt.subplots(1, 3, figsize=(14, 4.5))
 
-# Diagonal reference line
-ax.plot([0, 1.05], [0, 1.05], 'k--', alpha=0.4, linewidth=1, zorder=1)
+for ax, prob, title in zip(axes, problems, titles):
+    # Diagonal reference line
+    ax.plot([0, 1.05], [0, 1.05], 'k--', alpha=0.4, linewidth=1, zorder=1)
 
-for prob, label, marker, color in zip(problems, labels, markers, colors):
-    ax.scatter(gnn_only[prob], hdeeppruner[prob], marker=marker, color=color,
-               edgecolors='black', s=70, linewidths=0.6, label=label, zorder=3)
+    ax.scatter(gnn_only[prob], hdeeppruner[prob], marker='o', color=color,
+               edgecolors='black', s=70, linewidths=0.6, zorder=3)
 
-ax.set_xlabel('GNN-Only $C$')
-ax.set_ylabel('H-DeepPruner (GNN + NMCTS) $C$')
-ax.set_xlim(0.35, 1.05)
-ax.set_ylim(0.6, 1.05)
-ax.set_aspect('equal')
-ax.legend(loc='lower right')
-ax.grid(alpha=0.3)
+    # Label each point with dataset name
+    for i, name in enumerate(datasets):
+        ax.annotate(name, (gnn_only[prob][i], hdeeppruner[prob][i]),
+                    textcoords='offset points', xytext=(5, 5), fontsize=8)
+
+    ax.set_title(title)
+    ax.set_xlabel('GNN-Only $C$')
+    ax.set_xlim(0.35, 1.05)
+    ax.set_ylim(0.6, 1.05)
+    ax.set_aspect('equal')
+    ax.grid(alpha=0.3)
+
+axes[0].set_ylabel('H-DeepPruner (GNN + NMCTS) $C$')
 
 plt.tight_layout()
 plt.savefig('/home/grads/a/anath/Proposal-Ankur-Nath-/figures/hdeeppruner/ablation_scatter.pdf',
