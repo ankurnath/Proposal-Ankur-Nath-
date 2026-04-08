@@ -179,35 +179,35 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Limitations of Existing Approaches}
-  \begin{columns}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\faBook\; Classical Methods}
-        \begin{itemize}
-          \item Submodular Sparsification~\cite{zhou2017scaling}: sequential, $O(n^2)$ pairwise computations
-          \item[\faTimesCircle] \textbf{No theoretical guarantees} on pruning quality before our work
-          \item[\faExclamationTriangle] Do not scale to million-node graphs
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\faBrain\; Learning-Based Methods}
-        \begin{itemize}
-          \item GCOMB-P~\cite{manchanda2020gcomb}: handcrafted degree heuristic + reinforcement learning
-          \item LeNSE~\cite{ireland2022lense}: requires domain expertise for subgraph categorization
-          \item COMBHelper~\cite{tian2024combhelper}: expensive Fourier Feature Mapping + knowledge distillation
-          \item[\faLock] \textbf{All designed for size constraints only}; cannot easily adapt to other constraints
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
+% \begin{frame}{Limitations of Existing Approaches}
+%   \begin{columns}
+%     \begin{column}{0.48\textwidth}
+%       \begin{block}{\faBook\; Classical Methods}
+%         \begin{itemize}
+%           \item Submodular Sparsification~\cite{zhou2017scaling}: sequential, $O(n^2)$ pairwise computations
+%           \item[\faTimesCircle] \textbf{No theoretical guarantees} on pruning quality before our work
+%           \item[\faExclamationTriangle] Do not scale to million-node graphs
+%         \end{itemize}
+%       \end{block}
+%     \end{column}
+%     \begin{column}{0.48\textwidth}
+%       \begin{block}{\faBrain\; Learning-Based Methods}
+%         \begin{itemize}
+%           \item GCOMB-P~\cite{manchanda2020gcomb}: handcrafted degree heuristic + reinforcement learning
+%           \item LeNSE~\cite{ireland2022lense}: requires domain expertise for subgraph categorization
+%           \item COMBHelper~\cite{tian2024combhelper}: expensive Fourier Feature Mapping + knowledge distillation
+%           \item[\faLock] \textbf{All designed for size constraints only}; cannot easily adapt to other constraints
+%         \end{itemize}
+%       \end{block}
+%     \end{column}
+%   \end{columns}
 
-  \vspace{0.4cm}
+%   \vspace{0.4cm}
 
-  \centering
-  \faExclamationCircle\; \textbf{Common bottleneck:} reliance on human-designed features
-  and problem-specific algorithmic choices.
-\end{frame}
+%   \centering
+%   \faExclamationCircle\; \textbf{Common bottleneck:} reliance on human-designed features
+%   and problem-specific algorithmic choices.
+% \end{frame}
 
 \begin{frame}{Contributions}
   \textbf{Thesis:} Our work proposes a coherent framework for scaling
