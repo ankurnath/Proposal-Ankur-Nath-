@@ -11,6 +11,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{fix-cm}
 \usepackage{amsmath,amssymb}
+\DeclareMathOperator*{\argmax}{arg\,max}
 \usepackage{mathtools}
 \usepackage{hyperref}
 \usepackage{graphicx}
@@ -52,6 +53,29 @@
 % INTRODUCTION
 %========================================================================================
 \section{Motivation}
+
+\begin{frame}{What is Combinatorial Optimization?}
+  \begin{block}{Definition}
+    Given a ground set $V$, find a subset $S \subseteq V$ that maximizes an objective function $f(S)$ subject to a feasibility constraint $\mathcal{C}$:
+    \[
+      S^* = \argmax_{S \subseteq V,\, S \in \mathcal{C}} f(S)
+    \]
+  \end{block}
+
+  \vspace{0.2cm}
+
+  \begin{itemize}
+    \item \textbf{Ground set $V$:} the universe of candidate elements (e.g., nodes in a graph)
+    \item \textbf{Objective $f$:} measures solution quality (e.g., influence spread, coverage)
+    \item \textbf{Constraint $\mathcal{C}$:} limits which subsets are feasible (e.g., budget, cardinality)
+  \end{itemize}
+
+  \vspace{0.2cm}
+
+  \begin{alertblock}{Core Challenge}
+    The feasible search space is exponential in $|V|$ --- exact solutions are NP-hard in general.
+  \end{alertblock}
+\end{frame}
 
 \begin{frame}{Graph Combinatorial Optimization is Everywhere}
   \begin{columns}
@@ -348,9 +372,8 @@
       \item \textbf{Uniform costs}: each node costs $1$,
         so NHI holds for any budget $k \ge 2$. Always satisfied in our experiments.
       \item \textbf{Knapsack problems:} if a single element nearly exhausts the
-        entire budget, the optimal solution is just that one element. A degenerate,
-        uninteresting instance. Any meaningful multi-item selection problem
-        naturally satisfies NHI.
+        entire budget, the optimal solution reduces to selecting just that element.
+        In practice, most CO problems naturally satisfy NHI.
       % \item \textbf{Degenerate case:} singleton tracking $a^*$ guarantees the
       %   single best element is always retained regardless.
     \end{itemize}
@@ -474,9 +497,8 @@
     \begin{column}{0.42\textwidth}
       \begin{itemize}
         \item QuickPrune prunes \textbf{over 90\%} of the ground set
-        \item Outperforms all classical and learning-based baselines
-        \item Evaluated across 6 methods, 8 graphs, 3 CO problems
-        \item Results consistent across MaxCover, MaxCut, and IM
+        \item Outperforms or matches all classical and learning-based baselines
+        \item Evaluated against six baselines on the SNAP dataset across three CO problems (MaxCover, MaxCut, IM) with consistent results
       \end{itemize}
     \end{column}
   \end{columns}
