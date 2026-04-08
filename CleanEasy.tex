@@ -1102,14 +1102,17 @@
     \end{column}
     \begin{column}{0.48\textwidth}
       \begin{block}{Stage 2: MCTS Fine-Pruning}
+        Per simulation:
         \begin{itemize}
-          \item $T$ simulations, each evaluating $\mathcal{H}$ on the current
-            pruned set $\mathcal{U}'_{\text{GNN}}$
-          \item Total: $O\!\left(T \cdot \mathcal{H}(|\mathcal{U}'_{\text{GNN}}|)\right)$
-          \item Progressive widening ($\alpha{=}0.1$) keeps $T$ tractable;
-            GNN pre-pruning ensures $|\mathcal{U}'_{\text{GNN}}| \ll |\mathcal{U}|$,
-            making each heuristic call cheap
+          \item \textbf{Expansion:} policy network (GCN) forward pass
+            $O(|V'| + |E'|)$ for PUCT priors
+          \item \textbf{Simulation:} value network (GCN) forward pass
+            $O(|V'| + |E'|)$ for state evaluation
+          \item \textbf{Terminal:} heuristic $\mathcal{H}$ on pruned set
         \end{itemize}
+        Total: $O\!\left(T \cdot (|V'|{+}|E'|) + T_{\text{term}} \cdot \mathcal{H}(|\mathcal{U}'_{\text{GNN}}|)\right)$\\[4pt]
+        Progressive widening keeps $T$ tractable; GNN pre-pruning ensures
+        $|V'| \ll |V|$, reducing all per-simulation costs.
       \end{block}
     \end{column}
   \end{columns}
