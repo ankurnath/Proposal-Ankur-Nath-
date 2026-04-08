@@ -189,14 +189,14 @@
 \begin{frame}{Related Work: Search Space Pruning}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{block}{\faBook\; Classical \& Streaming}
+      \begin{block}{\faBook\; Classical approach}
         \begin{itemize}
-          \item Submodular Sparsification~\cite{zhou2017scaling}: submodularity-based
+          \item Submodular Sparsification~\cite{zhou2017scaling}: submodularity-based groud set
             reduction; sequential, $O(n^2)$ pairwise evaluations; no quality guarantees
-          \item Sieve-Streaming~\cite{badanidiyuru2014streaming}: single-pass streaming
-            summarization via submodularity --- targets data summarization, not CO solvers
-          \item Coresets~\cite{mirzasoleiman2020coresets}: reduce training sets while
-            preserving model quality --- analogous goal, different problem setting
+          \item Badanidiyuru et al.~\cite{badanidiyuru2014streaming}: single-pass streaming data
+            summarization via submodularity.
+          \item Mirzasoleiman et al. ~\cite{mirzasoleiman2020coresets}: reduce training dataset while
+            preserving model quality. 
         \end{itemize}
       \end{block}
     \end{column}
@@ -205,7 +205,7 @@
         \begin{itemize}
           \item Lauri et al.~\cite{lauri2019fine,lauri2023learning}: logistic regression +
             hand-crafted features for \textbf{Max Clique}
-          \item Fitzpatrick et al.~\cite{fitzpatrick2021learning,sun2021generalization}: edge classifiers
+          \item Fitzpatrick et al.~\cite{fitzpatrick2021learning}, Sun et al.~\cite{sun2021generalization}: edge classifiers
             for \textbf{TSP}
           \item COMBHelper~\cite{tian2024combhelper}: GNN + knowledge distillation +
             problem-specific boosting
