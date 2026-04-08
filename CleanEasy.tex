@@ -1089,4 +1089,66 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}{Time Complexity: H-DeepPruner}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Stage 1: GNN Pre-Pruning}
+        \begin{itemize}
+          \item Single forward pass of 2-layer GCN over all nodes
+          \item \textbf{$O(m)$} where $m = |E|$ --- linear in the number of edges
+          \item Performed once; removes the bulk of the ground set
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Stage 2: MCTS Fine-Pruning}
+        \begin{itemize}
+          \item $T$ simulations, each evaluating $\mathcal{H}$ on the current
+            pruned set $\mathcal{U}'_{\text{GNN}}$
+          \item Total: $O\!\left(T \cdot \mathcal{H}(|\mathcal{U}'_{\text{GNN}}|)\right)$
+          \item Progressive widening ($\alpha{=}0.1$) keeps $T$ tractable;
+            GNN pre-pruning ensures $|\mathcal{U}'_{\text{GNN}}| \ll |\mathcal{U}|$,
+            making each heuristic call cheap
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.3cm}
+  \centering
+  \textbf{Bottleneck:} MCTS overhead; GNN pre-pruning is essential to keep it tractable.
+\end{frame}
+
+\begin{frame}{Time Complexity: LLM2Prune}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Offline: Beam Search (One-Time Cost)}
+        \begin{itemize}
+          \item At most $\beta \times \gamma \times D_{\max}$ LLM API calls\\
+            ($\beta{=}3,\, \gamma{=}2,\, D{=}5$ $\Rightarrow$ up to 30 calls)
+          \item Each call: code generation + GNN training on a
+            synthetic graph ($n{=}10{,}000$ nodes)
+          \item Runs \textbf{once} per problem type; cost is amortized
+            over all target graphs
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Inference: Single GNN Forward Pass}
+        \begin{itemize}
+          \item Apply best GNN to target graph: $O(m)$
+          \item Progressive expansion: evaluate heuristic on
+            top-500 $\to$ 1K $\to$ 2K $\to$ 5K nodes;
+            stop when improvement $< 1\%$
+          \item \textbf{Under 3 seconds} on Skitter ($1.7$M nodes)
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.3cm}
+  \centering
+  \textbf{Key property:} expensive search is offline; inference is $O(m)$ and fast.
+\end{frame}
+
 \end{document}
