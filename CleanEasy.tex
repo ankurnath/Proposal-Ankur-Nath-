@@ -329,15 +329,29 @@
       f(e \mid S) \geq \gamma \cdot f(e \mid T), \quad \gamma \in (0, 1]
     \]
     When $\gamma = 1$, this is standard submodularity (diminishing returns).
-    Many real-world objectives (IM, MaxCover) are fully submodular; MaxCut is
+    Many real-world objectives (Influence Maximization, Maximum Cover) are fully submodular; MaxCut is
     $\gamma$-weakly submodular.
   \end{block}
 
   \vspace{0.2cm}
 
-  \begin{block}{No-Heavy-Items (NHI) Assumption}
-    No single element has a marginal contribution exceeding an $\eta$-fraction of the
-    optimal value. This is mild: in large graphs, individual nodes rarely dominate.
+  \begin{block}{No-Heavy-Items (NHI) Assumption \small(needed for Theorem 2 only)}
+    For all $o$ in the optimal solution $O^\star$:
+    \[
+      c(o) \leq \kappa(1 - \eta), \quad \eta \in (0, 1/2].
+    \]
+    No single element's \textbf{cost} dominates the entire budget.
+
+    \vspace{0.15cm}
+
+    \textbf{When does it hold?}
+    \begin{itemize}
+      \item \textbf{Uniform costs} (size constraint): $c(o) = 1$, so NHI requires $\kappa \ge 2$ ---
+        trivially satisfied for any non-trivial budget.
+      \item \textbf{Knapsack / hub nodes:} If a high-degree hub has cost $\approx \kappa$,
+        NHI may be tight (small $\eta$). In this case, the \textbf{singleton tracking} in
+        QuickPrune handles it: $a^*$ always retains the single best element as a fallback.
+    \end{itemize}
   \end{block}
 \end{frame}
 
@@ -1025,7 +1039,7 @@
 %========================================================================================
 % BACKUP SLIDES
 %========================================================================================
-
+\section{Supporting Details}
 \begin{frame}{QuickPrune: Proof Sketch}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
