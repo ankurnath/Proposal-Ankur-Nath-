@@ -342,7 +342,7 @@
     \vspace{0.15cm}
 
     \begin{itemize}
-      \item \textbf{Uniform costs} (IM, MaxCover, MaxCut): each node costs $1$,
+      \item \textbf{Uniform costs}: each node costs $1$,
         so NHI holds for any budget $k \ge 2$. Always satisfied in our experiments.
       \item \textbf{Knapsack problems:} if a single element nearly exhausts the
         entire budget, the optimal solution is just that one element. A degenerate,
@@ -636,7 +636,9 @@
       \begin{itemize}
         \item State: current pruned ground set + candidates
         \item Action: add an element to the pruned set
-        \item Reward: heuristic objective value on pruned set
+        \item Reward: $f(\mathcal{H}(\mathcal{U}'))$ where $\mathcal{H}$ is the
+          downstream heuristic solver (Greedy~\cite{nemhauser1978analysis} for MaxCover/MaxCut;
+          IMM~\cite{tang2015influence} for IM)
         \item Terminal: fixed number of elements added
       \end{itemize}
     \end{column}
