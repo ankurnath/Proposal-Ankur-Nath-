@@ -56,24 +56,24 @@
 
 \begin{frame}{What is Combinatorial Optimization?}
   \begin{block}{Definition}
-    Given a ground set $V$, find a subset $S \subseteq V$ that maximizes an objective function $f(S)$ subject to a feasibility constraint $\mathcal{C}$:
+    Given a ground set $\mathcal{U}$, find a subset $X \subseteq \mathcal{U}$ that maximizes an objective function $f(X)$ subject to a feasibility constraint $\Omega$:
     \[
-      S^* = \argmax_{S \subseteq V,\, S \in \mathcal{C}} f(S)
+      X^* = \argmax_{X \subseteq \mathcal{U},\, X \in \Omega} f(X)
     \]
   \end{block}
 
   \vspace{0.2cm}
 
   \begin{itemize}
-    \item \textbf{Ground set $V$:} the universe of candidate elements (e.g., nodes in a graph)
+    \item \textbf{Ground set $\mathcal{U}$:} the universe of candidate elements (e.g., nodes in a graph)
     \item \textbf{Objective $f$:} measures solution quality (e.g., influence spread, coverage)
-    \item \textbf{Constraint $\mathcal{C}$:} limits which subsets are feasible (e.g., budget, cardinality)
+    \item \textbf{Constraint $\Omega$:} limits which subsets are feasible (e.g., budget, cardinality)
   \end{itemize}
 
   \vspace{0.2cm}
 
   \begin{alertblock}{Core Challenge}
-    The feasible search space is exponential in $|V|$ --- exact solutions are NP-hard in general.
+    The feasible search space is exponential in $|\mathcal{U}|$ --- exact solutions are NP-hard in general.
   \end{alertblock}
 \end{frame}
 
