@@ -746,8 +746,7 @@
 \begin{frame}{LLM2Prune: Main Idea}
   \textbf{Insight:} Prior work has shown LLMs can automate feature engineering for
   tabular data~\cite{zhang2023openfe,han2024large,hollmann2023large}. We extend this
-  capability to graph CO problems, where features must capture
-  problem-specific properties.
+  to graph CO problems. 
 
   \vspace{0.3cm}
 
@@ -759,6 +758,12 @@
     \item Feedback (feature importance and model performance) guides the LLM
       in the next iteration via beam search
   \end{enumerate}
+
+  Unlike prior work, which derives features from existing ones
+  using predefined rules or few-shot prompts and relies solely on performance feedback,
+  LLM2Prune: (1) generates features from scratch with no predefined search space,
+  (2) uses feature-importance scores (GNNExplainer) alongside performance to guide the LLM,
+  and (3) employs beam search to reduce error propagation from simple feedback loops.
 
   \vspace{0.2cm}
 
