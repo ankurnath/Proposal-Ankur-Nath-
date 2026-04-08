@@ -204,9 +204,9 @@
       \begin{block}{\faGraduationCap\; Supervised}
         \begin{itemize}
           \item Lauri et al.~\cite{lauri2019fine,lauri2023learning}: logistic regression +
-            hand-crafted features for \textbf{Max Clique}
+            hand-crafted features for Maximum Clique
           \item Fitzpatrick et al.~\cite{fitzpatrick2021learning}, Sun et al.~\cite{sun2021generalization}:
-            edge classifiers for \textbf{TSP}
+            edge classifiers for Travelling Salesman 
           \item COMBHelper~\cite{tian2024combhelper}: GNN + knowledge distillation +
             problem-specific boosting
         \end{itemize}
@@ -227,7 +227,7 @@
 \begin{frame}{Three Open Problems in Search Space Pruning}
   \begin{columns}[T]
     \begin{column}{0.32\textwidth}
-      \begin{alertblock}{\faShieldAlt\; No Guarantees}
+      \begin{alertblock}{No Guarantees}
         All existing pruning methods are heuristics --- no method bounds how much
         solution quality is lost after pruning.
 
@@ -237,12 +237,9 @@
       \end{alertblock}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \begin{alertblock}{\faCogs\; Handcrafted Features}
-        Every learning-based pruner requires problem-specific feature engineering:
-        degree heuristics, eigenvector centrality, Fourier mappings.
-
+      \begin{alertblock}{ Handcrafted Features}
+        Every learning-based pruner requires problem-specific feature engineering.
         \vspace{0.3cm}
-
         \textit{Can a pruner work without any domain knowledge?}
       \end{alertblock}
     \end{column}
