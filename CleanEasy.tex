@@ -191,12 +191,12 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{\faBook\; Classical \& Streaming}
         \begin{itemize}
-          \item \citet{zhou2017scaling} (Submodular Sparsification): submodularity-based
+          \item Submodular Sparsification~\cite{zhou2017scaling}: submodularity-based
             reduction; sequential, $O(n^2)$ pairwise evaluations; no quality guarantees
-          \item \citet{badanidiyuru2014streaming} (Sieve-Streaming): single-pass streaming
-            summarization via submodularity — targets data summarization, not CO solvers
-          \item \citet{mirzasoleiman2020coresets}: coresets reduce training sets while
-            preserving model quality — analogous goal, different problem setting
+          \item Sieve-Streaming~\cite{badanidiyuru2014streaming}: single-pass streaming
+            summarization via submodularity --- targets data summarization, not CO solvers
+          \item Coresets~\cite{mirzasoleiman2020coresets}: reduce training sets while
+            preserving model quality --- analogous goal, different problem setting
         \end{itemize}
       \end{block}
 
@@ -204,11 +204,11 @@
 
       \begin{block}{\faGraduationCap\; Supervised (Problem-Specific)}
         \begin{itemize}
-          \item \citet{lauri2019fine,lauri2023learning}: logistic regression +
+          \item Lauri et al.~\cite{lauri2019fine,lauri2023learning}: logistic regression +
             hand-crafted features for \textbf{Max Clique}
-          \item \citet{fitzpatrick2021learning,sun2021generalization}: edge classifiers
+          \item Fitzpatrick et al.~\cite{fitzpatrick2021learning,sun2021generalization}: edge classifiers
             for \textbf{TSP}
-          \item \citet{tian2024combhelper} (COMBHelper): GNN + knowledge distillation +
+          \item COMBHelper~\cite{tian2024combhelper}: GNN + knowledge distillation +
             problem-specific boosting
         \end{itemize}
       \end{block}
@@ -216,9 +216,9 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{\faBrain\; Hybrid RL + Supervised}
         \begin{itemize}
-          \item \citet{manchanda2020gcomb} (GCOMB): degree heuristic for initial pruning +
+          \item GCOMB~\cite{manchanda2020gcomb}: degree heuristic for initial pruning +
             Q-learning on pruned set
-          \item \citet{ireland2022lense} (LeNSE): GNN embeddings + RL local search
+          \item LeNSE~\cite{ireland2022lense}: GNN embeddings + RL local search
         \end{itemize}
       \end{block}
     \end{column}
