@@ -188,27 +188,33 @@
 
 \begin{frame}{Related Work: Search Space Pruning}
   \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\faBook\; Classical approach}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\faBook\; Classical}
         \begin{itemize}
-          \item Submodular Sparsification~\cite{zhou2017scaling}: submodularity-based groud set
+          \item Submodular Sparsification~\cite{zhou2017scaling}: submodularity-based ground set
             reduction; sequential, $O(n^2)$ pairwise evaluations; no quality guarantees
           \item Badanidiyuru et al.~\cite{badanidiyuru2014streaming}: single-pass streaming data
-            summarization via submodularity.
-          \item Mirzasoleiman et al. ~\cite{mirzasoleiman2020coresets}: reduce training dataset while
-            preserving model quality. 
+            summarization via submodularity
+          \item Mirzasoleiman et al.~\cite{mirzasoleiman2020coresets}: coresets reduce training
+            dataset while preserving model quality
         \end{itemize}
       \end{block}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\faBrain\; Learning-Based}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\faGraduationCap\; Supervised}
         \begin{itemize}
           \item Lauri et al.~\cite{lauri2019fine,lauri2023learning}: logistic regression +
             hand-crafted features for \textbf{Max Clique}
-          \item Fitzpatrick et al.~\cite{fitzpatrick2021learning}, Sun et al.~\cite{sun2021generalization}: edge classifiers
-            for \textbf{TSP}
+          \item Fitzpatrick et al.~\cite{fitzpatrick2021learning}, Sun et al.~\cite{sun2021generalization}:
+            edge classifiers for \textbf{TSP}
           \item COMBHelper~\cite{tian2024combhelper}: GNN + knowledge distillation +
             problem-specific boosting
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\faBrain\; Hybrid Supervised + RL}
+        \begin{itemize}
           \item GCOMB~\cite{manchanda2020gcomb}: degree heuristic for initial pruning +
             Q-learning on pruned set
           \item LeNSE~\cite{ireland2022lense}: GNN embeddings + RL local search
