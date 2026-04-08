@@ -152,12 +152,18 @@
   \vspace{0.3cm}
 
   \begin{block}{Formal Problem}
-    Given ground set $\mathcal{U}$, objective $f$, and constraints $\Omega$, construct
-    $\mathcal{U}' \subseteq \mathcal{U}$ with $|\mathcal{U}'| \ll |\mathcal{U}|$ such that:
+    Given a ground set $\mathcal{U}$, an objective $f(\cdot)$, and feasibility
+    constraints $\Omega$, let
     \[
-      \frac{f(\mathcal{H}(\mathcal{U}'))}{f(\mathcal{H}(\mathcal{U}))} \approx 1
+      X^\star = \arg\max_{X \subseteq \mathcal{U},\, X \in \Omega} f(X).
     \]
-    where $\mathcal{H}$ is any downstream heuristic solver.
+    The pruning problem is to find a much smaller subset $\mathcal{U}' \subseteq \mathcal{U}$
+    such that
+    \[
+      \frac{f\!\left(\mathcal{H}(\mathcal{U}')\right)}{f\!\left(\mathcal{H}(\mathcal{U})\right)} \ge 1 - \epsilon,
+    \]
+    for a specified tolerance $\epsilon > 0$, where $\mathcal{H}$ is any downstream
+    heuristic solver.
   \end{block}
 
   \vspace{0.3cm}
