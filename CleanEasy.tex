@@ -328,9 +328,12 @@
     \[
       f(e \mid S) \geq \gamma \cdot f(e \mid T), \quad \gamma \in (0, 1]
     \]
-    When $\gamma = 1$, this is standard submodularity (diminishing returns).
-    Many real-world objectives (Influence Maximization, Maximum Cover) are fully submodular; MaxCut is
-    $\gamma$-weakly submodular.
+    When $\gamma = 1$, this is standard submodularity. Examples across domains:
+    \begin{itemize}
+      \item \textbf{Graph CO:} Maximum Coverage, Influence Maximization~\cite{nemhauser1978analysis}
+      \item \textbf{Feature selection:} sparse regression objectives satisfy weak submodularity under restricted strong convexity~\cite{elenberg2018restricted}
+      \item \textbf{Deep learning:} gradient-matching objectives for training-set selection~\cite{killamsetty2023milo}
+    \end{itemize}
   \end{block}
 
   \vspace{0.2cm}
@@ -1066,41 +1069,41 @@
 % BACKUP SLIDES
 %========================================================================================
 \section{Supporting Details}
-\begin{frame}{QuickPrune: Proof Sketch}
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Size Bound. Geometric Growth Argument}
-        \begin{enumerate}
-          \item Each accepted element $e$ satisfies
-            $\Delta(e \mid A) \ge \frac{\delta\, c_{\min}\, f(A)}{\kappa}$,
-            so $f(A)$ grows by factor $\left(1 + \frac{\delta\, c_{\min}}{\kappa}\right)$ per addition.
-          \item After $m^* = \!\left(1 + \frac{\kappa}{\delta\, c_{\min}}\right)\!\log(n/\epsilon)$
-            additions, $f(A)$ exceeds $\tfrac{n}{\epsilon}\,f(A_s)$, \textbf{triggering a deletion}.
-          \item Therefore $|A \setminus A_s| \le m^*$ at all times
-            $\Rightarrow$ $|\mathcal{U}'| \le 2m^* + 1$.
-        \end{enumerate}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Value Bound. Three-Step Chain}
-        \begin{enumerate}
-          \item $f(\hat{A}) \ge \frac{\mathrm{OPT}}{1+\delta}$: any optimal element
-            $o \notin \hat{A}$ failed the addition rule, so by submodularity
-            $\mathrm{OPT} - f(\hat{A}) \le \delta\, f(\hat{A})$.
-          \item $f(\dot{A}) \ge (1-\epsilon)\,f(\hat{A})$: each deleted set
-            $\dot{B}_i$ satisfies $f(\dot{B}_i) < \tfrac{\epsilon}{n}\,f(\hat{A})$,
-            so total quality lost across $\le n$ deletions is $\le \epsilon\,f(\hat{A})$.
-          \item $\exists\, A' \subseteq \mathcal{U}'$, $c(A') \le \kappa$,
-            $f(A') \ge \tfrac{\delta}{2(\delta+1)}\,f(\dot{A})$: budget feasibility
-            via a prefix argument on $\dot{A}$.
-        \end{enumerate}
-        \vspace{0.1cm}
-        \centering
-        Chaining: $f(A') \ge \dfrac{\delta(1-\epsilon)}{2(\delta+1)^2}\,\mathrm{OPT}$
-      \end{block}
-    \end{column}
-  \end{columns}
-\end{frame}
+% \begin{frame}{QuickPrune: Proof Sketch}
+%   \begin{columns}[T]
+%     \begin{column}{0.48\textwidth}
+%       \begin{block}{Size Bound. Geometric Growth Argument}
+%         \begin{enumerate}
+%           \item Each accepted element $e$ satisfies
+%             $\Delta(e \mid A) \ge \frac{\delta\, c_{\min}\, f(A)}{\kappa}$,
+%             so $f(A)$ grows by factor $\left(1 + \frac{\delta\, c_{\min}}{\kappa}\right)$ per addition.
+%           \item After $m^* = \!\left(1 + \frac{\kappa}{\delta\, c_{\min}}\right)\!\log(n/\epsilon)$
+%             additions, $f(A)$ exceeds $\tfrac{n}{\epsilon}\,f(A_s)$, \textbf{triggering a deletion}.
+%           \item Therefore $|A \setminus A_s| \le m^*$ at all times
+%             $\Rightarrow$ $|\mathcal{U}'| \le 2m^* + 1$.
+%         \end{enumerate}
+%       \end{block}
+%     \end{column}
+%     \begin{column}{0.48\textwidth}
+%       \begin{block}{Value Bound. Three-Step Chain}
+%         \begin{enumerate}
+%           \item $f(\hat{A}) \ge \frac{\mathrm{OPT}}{1+\delta}$: any optimal element
+%             $o \notin \hat{A}$ failed the addition rule, so by submodularity
+%             $\mathrm{OPT} - f(\hat{A}) \le \delta\, f(\hat{A})$.
+%           \item $f(\dot{A}) \ge (1-\epsilon)\,f(\hat{A})$: each deleted set
+%             $\dot{B}_i$ satisfies $f(\dot{B}_i) < \tfrac{\epsilon}{n}\,f(\hat{A})$,
+%             so total quality lost across $\le n$ deletions is $\le \epsilon\,f(\hat{A})$.
+%           \item $\exists\, A' \subseteq \mathcal{U}'$, $c(A') \le \kappa$,
+%             $f(A') \ge \tfrac{\delta}{2(\delta+1)}\,f(\dot{A})$: budget feasibility
+%             via a prefix argument on $\dot{A}$.
+%         \end{enumerate}
+%         \vspace{0.1cm}
+%         \centering
+%         Chaining: $f(A') \ge \dfrac{\delta(1-\epsilon)}{2(\delta+1)^2}\,\mathrm{OPT}$
+%       \end{block}
+%     \end{column}
+%   \end{columns}
+% \end{frame}
 
 \begin{frame}{Time Complexity: H-DeepPruner}
   \begin{columns}[T]
