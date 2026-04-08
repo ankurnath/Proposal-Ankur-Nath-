@@ -784,16 +784,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{LLM2Prune: Preliminary Results}
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.85\textwidth]{Papers/LLM2Prune_TMLR/figures/algorithm_comparison_boxplot.pdf}
-    \caption{Comparison of pruning algorithms across three CO problems. Boxplots report
-      the combined metric $C = P_r \cdot P_g$. LLM2Prune is competitive with classical
-      approaches (QuickPrune, SS) and outperforms all learning-based approaches (GCOMB,
-      LeNSE, COMBHelper) by a large margin, without relying on domain knowledge.}
-  \end{figure}
-\end{frame}
+
 
 \begin{frame}{LLM2Prune: Framework}
   \begin{figure}
@@ -873,6 +864,17 @@
   \end{columns}
 \end{frame}
 
+\begin{frame}{LLM2Prune: Preliminary Results(Size Constraint)}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{Papers/LLM2Prune_TMLR/figures/algorithm_comparison_boxplot.pdf}
+    \caption{Comparison of pruning algorithms across three CO problems. Boxplots report
+      the combined metric $C = P_r \cdot P_g$. LLM2Prune is competitive with classical
+      approaches (QuickPrune, SS) and outperforms all learning-based approaches (GCOMB,
+      LeNSE, COMBHelper) by a large margin, without relying on domain knowledge.}
+  \end{figure}
+\end{frame}
+
 \begin{frame}{LLM2Prune: Preliminary Results (Size Constraint)}
   \begin{itemize}
     \item Competitive with classical methods (QuickPrune, SS) on combined metric
@@ -917,33 +919,33 @@
 %   yet LLM2Prune discovers them \textbf{automatically from the task description alone}.
 % \end{frame}
 
-% \begin{frame}{LLM2Prune: Ablation Study}
-%   \begin{columns}
-%     \begin{column}{0.42\textwidth}
-%       Compared four variants with the same number of LLM API calls:
-%       \begin{enumerate}
-%         \item Single-shot prompt
-%         \item Feedback loop (performance)
-%         \item Feedback loop (performance + importance)
-%         \item Beam search
-%       \end{enumerate}
+\begin{frame}{LLM2Prune: Ablation Study}
+  \begin{columns}
+    \begin{column}{0.42\textwidth}
+      Compared four variants with the same number of LLM API calls:
+      \begin{enumerate}
+        \item Single-shot prompt
+        \item Feedback loop (performance)
+        \item Feedback loop (performance + importance)
+        \item Beam search
+      \end{enumerate}
 
-%       \vspace{0.2cm}
+      \vspace{0.2cm}
 
-%       Beam search achieves higher and more stable performance. Simpler variants
-%       suffer from error propagation when early iterations contain reasoning
-%       errors.
-%     \end{column}
-%     \begin{column}{0.55\textwidth}
-%       \begin{figure}
-%         \centering
-%         \includegraphics[width=\textwidth]{figures/llm2prune/ablation.pdf}
-%         \caption{Combined metric across three CO problems. Beam search has median close
-%           to 1.0 with minimal variance.}
-%       \end{figure}
-%     \end{column}
-%   \end{columns}
-% \end{frame}
+      Beam search achieves higher and more stable performance. Simpler variants
+      suffer from error propagation when early iterations contain reasoning
+      errors.
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{figures/llm2prune/ablation.pdf}
+        \caption{Combined metric across three CO problems. Beam search has median close
+          to 1.0 with minimal variance.}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
 
 % \begin{frame}{LLM2Prune: LLM Choice}
 %   \begin{figure}
