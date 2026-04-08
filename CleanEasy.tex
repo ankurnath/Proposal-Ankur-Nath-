@@ -463,9 +463,12 @@
     \begin{column}{0.55\textwidth}
       \begin{figure}
         \centering
-        \includegraphics[width=\textwidth]{figures/quickprune/MaxCover_performance.pdf}
-        \caption{Combined metric $C$ for an instance of Maximum Coverage. QuickPrune outperforms all
-          baselines on most datasets.}
+        % \includegraphics[width=\textwidth]{figures/quickprune/MaxCover_performance.pdf}
+        % \caption{Combined metric $C$ for an instance of Maximum Coverage. QuickPrune outperforms all
+        %   baselines on most datasets.}
+        \includegraphics[width=\textwidth]{figures/quickprune/size_violin.pdf}
+        \caption{Combined metric $C$ across three CO problems over eight datasets.
+          QuickPrune achieves consistently high $C$ with low variance.}
       \end{figure}
     \end{column}
     \begin{column}{0.42\textwidth}
@@ -702,8 +705,7 @@
 
 
   \begin{enumerate}
-    \item \faExclamationTriangle\; Size constraints only: the MDP formulation assumes a fixed number of
-      elements; does not extend well to knapsack constraints
+    \item \faExclamationTriangle\; Size constraints only: the framework does not extend well to knapsack constraints
 
     \item \faClock\; MCTS scalability: progressive widening helps, but Stage 2 remains slow
       on large action spaces; GNN pre-pruning is needed primarily to make MCTS tractable
