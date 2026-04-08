@@ -179,35 +179,90 @@
   \end{itemize}
 \end{frame}
 
-% \begin{frame}{Limitations of Existing Approaches}
-%   \begin{columns}
-%     \begin{column}{0.48\textwidth}
-%       \begin{block}{\faBook\; Classical Methods}
-%         \begin{itemize}
-%           \item Submodular Sparsification~\cite{zhou2017scaling}: sequential, $O(n^2)$ pairwise computations
-%           \item[\faTimesCircle] \textbf{No theoretical guarantees} on pruning quality before our work
-%           \item[\faExclamationTriangle] Do not scale to million-node graphs
-%         \end{itemize}
-%       \end{block}
-%     \end{column}
-%     \begin{column}{0.48\textwidth}
-%       \begin{block}{\faBrain\; Learning-Based Methods}
-%         \begin{itemize}
-%           \item GCOMB-P~\cite{manchanda2020gcomb}: handcrafted degree heuristic + reinforcement learning
-%           \item LeNSE~\cite{ireland2022lense}: requires domain expertise for subgraph categorization
-%           \item COMBHelper~\cite{tian2024combhelper}: expensive Fourier Feature Mapping + knowledge distillation
-%           \item[\faLock] \textbf{All designed for size constraints only}; cannot easily adapt to other constraints
-%         \end{itemize}
-%       \end{block}
-%     \end{column}
-%   \end{columns}
 
-%   \vspace{0.4cm}
 
-%   \centering
-%   \faExclamationCircle\; \textbf{Common bottleneck:} reliance on human-designed features
-%   and problem-specific algorithmic choices.
-% \end{frame}
+%========================================================================================
+% RELATED WORK
+%========================================================================================
+\section{Related Work}
+
+\begin{frame}{Related Work: Search Space Pruning}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\faBook\; Classical \& Streaming}
+        \begin{itemize}
+          \item \citet{zhou2017scaling} (Submodular Sparsification): submodularity-based
+            reduction; sequential, $O(n^2)$ pairwise evaluations; no quality guarantees
+          \item \citet{badanidiyuru2014streaming} (Sieve-Streaming): single-pass streaming
+            summarization via submodularity — targets data summarization, not CO solvers
+          \item \citet{mirzasoleiman2020coresets}: coresets reduce training sets while
+            preserving model quality — analogous goal, different problem setting
+        \end{itemize}
+      \end{block}
+
+      \vspace{0.2cm}
+
+      \begin{block}{\faGraduationCap\; Supervised (Problem-Specific)}
+        \begin{itemize}
+          \item \citet{lauri2019fine,lauri2023learning}: logistic regression +
+            hand-crafted features for \textbf{Max Clique}
+          \item \citet{fitzpatrick2021learning,sun2021generalization}: edge classifiers
+            for \textbf{TSP}
+          \item \citet{tian2024combhelper} (COMBHelper): GNN + knowledge distillation +
+            problem-specific boosting
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\faBrain\; Hybrid RL + Supervised}
+        \begin{itemize}
+          \item \citet{manchanda2020gcomb} (GCOMB): degree heuristic for initial pruning +
+            Q-learning on pruned set
+          \item \citet{ireland2022lense} (LeNSE): GNN embeddings + RL local search
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Three Open Problems in Search Space Pruning}
+  \begin{columns}[T]
+    \begin{column}{0.32\textwidth}
+      \begin{alertblock}{\faShield\; No Guarantees}
+        All existing pruning methods are heuristics --- no method bounds how much
+        solution quality is lost after pruning.
+
+        \vspace{0.3cm}
+
+        \textit{Is provably bounded pruning even possible?}
+      \end{alertblock}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{alertblock}{\faCogs\; Handcrafted Features}
+        Every learning-based pruner requires problem-specific feature engineering:
+        degree heuristics, eigenvector centrality, Fourier mappings.
+
+        \vspace{0.3cm}
+
+        \textit{Can a pruner work without any domain knowledge?}
+      \end{alertblock}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{alertblock}{\faLock\; Size Constraints Only}
+        All learning-based methods target size-constrained problems only.
+        Adapting to knapsack or other constraints requires full redesign.
+
+        \vspace{0.3cm}
+
+        \textit{Can one framework handle diverse constraints?}
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.4cm}
+  \centering
+  \textbf{Our three papers each resolve one of these open problems.}
+\end{frame}
 
 \begin{frame}{Contributions}
   \textbf{Thesis:} Our work proposes a coherent framework for scaling
