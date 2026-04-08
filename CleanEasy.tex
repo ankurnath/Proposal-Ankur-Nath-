@@ -162,7 +162,7 @@
     \[
       \frac{f\!\left(\mathcal{H}(\mathcal{U}')\right)}{f\!\left(\mathcal{H}(\mathcal{U})\right)} \ge 1 - \epsilon,
     \]
-    for a specified tolerance $\epsilon > 0$, where $\mathcal{H}$ is any downstream
+    for $\epsilon > 0$, where $\mathcal{H}$ is any downstream
     heuristic solver.
   \end{block}
 
@@ -210,6 +210,12 @@
 \end{frame}
 
 \begin{frame}{Contributions}
+  \textbf{Thesis:} Our work proposes a coherent framework for scaling
+  combinatorial optimization on graphs through provable guarantees, learned
+  pruning, and automated feature discovery.
+
+  \vspace{0.25cm}
+
   \begin{columns}[T]
     \begin{column}{0.32\textwidth}
       \begin{block}{\faCheckCircle\; QuickPrune}
@@ -236,13 +242,6 @@
       % \centering\small\textcolor{gray}{LLM-driven}
     \end{column}
   \end{columns}
-
-  \vspace{0.3cm}
-
-  \begin{alertblock}{Goal}
-    Make large-scale submodular optimization practical by automatically reducing
-    ground sets without sacrificing solution quality.
-  \end{alertblock}
 \end{frame}
 
 %========================================================================================
@@ -915,8 +914,9 @@
   \vspace{0.3cm}
 
   The three methods are complementary: QuickPrune provides theoretical
-  foundations, H-DeepPruner demonstrates learned pruning without handcrafted features is viable, and LLM2Prune automates feature
-  discovery with constraint adaptability.
+  foundations, H-DeepPruner demonstrates learned pruning without handcrafted
+  features is viable, and LLM2Prune automates feature discovery with constraint
+  adaptability.
 \end{frame}
 
 %========================================================================================
