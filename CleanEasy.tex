@@ -1095,7 +1095,7 @@
       \begin{block}{Stage 1: GNN Pre-Pruning}
         \begin{itemize}
           \item Single forward pass of 2-layer GCN over all nodes
-          \item \textbf{$O(m)$} where $m = |E|$ --- linear in the number of edges
+          \item \textbf{$O(|V| + |E|)$} per layer --- linear in graph size
           \item Performed once; removes the bulk of the ground set
         \end{itemize}
       \end{block}
@@ -1136,7 +1136,7 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{Inference: Single GNN Forward Pass}
         \begin{itemize}
-          \item Apply best GNN to target graph: $O(m)$
+          \item Apply best GNN to target graph: $O(|V| + |E|)$
           \item Progressive expansion: evaluate heuristic on
             top-500 $\to$ 1K $\to$ 2K $\to$ 5K nodes;
             stop when improvement $< 1\%$
