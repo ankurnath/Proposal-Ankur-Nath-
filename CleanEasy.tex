@@ -1111,6 +1111,9 @@
           \item \textbf{Terminal:} heuristic $\mathcal{H}$ on pruned set
         \end{itemize}
         Total: $O\!\left(T \cdot (|V'|{+}|E'|) + T_{\text{term}} \cdot \mathcal{H}(|\mathcal{U}'_{\text{GNN}}|)\right)$\\[4pt]
+        where $T_{\text{term}} \le T$ is the number of simulations that reach a
+        terminal state and invoke $\mathcal{H}$; most simulations are cut short
+        by the value network before reaching a terminal.\\[4pt]
         Progressive widening keeps $T$ tractable; GNN pre-pruning ensures
         $|V'| \ll |V|$, reducing all per-simulation costs.
       \end{block}
