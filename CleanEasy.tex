@@ -1130,12 +1130,14 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{Offline: Beam Search (One-Time Cost)}
         \begin{itemize}
-          \item At most $\beta \times \gamma \times D_{\max}$ LLM API calls\\
-            ($\beta{=}3,\, \gamma{=}2,\, D{=}5$ $\Rightarrow$ up to 30 calls)
-          \item Each call: code generation + GNN training on a
-            synthetic graph ($n{=}10{,}000$ nodes)
-          \item Runs \textbf{once} per problem type; cost is amortized
-            over all target graphs
+          \item $\approx 65$ LLM calls per problem (summary + feature
+            proposal + code generation steps)
+          \item $\approx 24{,}000$ tokens per problem;
+            $\approx 144{,}000$ tokens across all 6 problem variants
+          \item Each call: GNN training on synthetic graph
+            ($n{=}10{,}000$ nodes)
+          \item \textbf{Amortized} across all future instances of the
+            same graph family --- paid once, reused indefinitely
         \end{itemize}
       \end{block}
     \end{column}
