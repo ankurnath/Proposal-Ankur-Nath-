@@ -336,21 +336,18 @@
   \vspace{0.2cm}
 
   \begin{block}{No-Heavy-Items (NHI) Assumption \small(needed for Theorem 2 only)}
-    For all $o$ in the optimal solution $O^\star$:
-    \[
-      c(o) \leq \kappa(1 - \eta), \quad \eta \in (0, 1/2].
-    \]
-    No single element's \textbf{cost} dominates the entire budget.
+    No single element alone consumes the entire budget --- each item in the
+    optimal solution leaves some budget room ($\eta$-fraction) for others.
 
     \vspace{0.15cm}
 
-    \textbf{When does it hold?}
     \begin{itemize}
-      \item \textbf{Uniform costs} (size constraint): $c(o) = 1$, so NHI requires $\kappa \ge 2$ ---
-        trivially satisfied for any non-trivial budget.
-      \item \textbf{Knapsack / hub nodes:} If a high-degree hub has cost $\approx \kappa$,
-        NHI may be tight (small $\eta$). In this case, the \textbf{singleton tracking} in
-        QuickPrune handles it: $a^*$ always retains the single best element as a fallback.
+      \item \textbf{Uniform costs} (size constraint): always satisfied --- each node
+        costs $1$ out of a budget of $k \ge 2$.
+      \item \textbf{Hub nodes in scale-free graphs:} a high-degree hub with cost
+        $\approx \kappa$ would violate NHI. QuickPrune handles this via
+        \textbf{singleton tracking} --- $a^*$ always retains the single best element
+        as a fallback, so even extreme hubs are never discarded.
     \end{itemize}
   \end{block}
 \end{frame}
