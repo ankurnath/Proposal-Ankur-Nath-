@@ -228,7 +228,7 @@
   \begin{columns}[T]
     \begin{column}{0.32\textwidth}
       \begin{alertblock}{No Guarantees}
-        All existing pruning methods are heuristics. no method bounds how much
+        All existing pruning methods are heuristics. No method bounds how much
         solution quality is lost after pruning.
 
         \vspace{0.3cm}
@@ -337,15 +337,15 @@
 
   \begin{block}{No-Heavy-Items (NHI) Assumption \small(needed for Theorem 2 only)}
     For all $o$ in the optimal solution $O^\star$, $c(o) \le \kappa(1 - \eta)$
-    for some $\eta \in (0, 1/2]$. no single element's cost dominates the budget.
+    for some $\eta \in (0, 1/2]$. No single element's cost dominates the budget.
 
     \vspace{0.15cm}
 
     \begin{itemize}
       \item \textbf{Uniform costs} (IM, MaxCover, MaxCut): each node costs $1$,
-        so NHI holds for any budget $k \ge 2$. always satisfied in our experiments.
+        so NHI holds for any budget $k \ge 2$. Always satisfied in our experiments.
       \item \textbf{Knapsack problems:} if a single element nearly exhausts the
-        entire budget, the optimal solution is just that one element. a degenerate,
+        entire budget, the optimal solution is just that one element. A degenerate,
         uninteresting instance. Any meaningful multi-item selection problem
         naturally satisfies NHI.
       \item \textbf{Degenerate case:} singleton tracking $a^*$ guarantees the
@@ -390,7 +390,7 @@
 
         \vspace{0.15cm}
 
-        \textbf{Deletion:} Once $f(A)$ grows by $n/\epsilon$, old elements are negligible by submodularity. discard in bulk to bound $|A|$.
+        \textbf{Deletion:} Once $f(A)$ grows by $n/\epsilon$, old elements are negligible by submodularity. Discard in bulk to bound $|A|$.
 
         \vspace{0.15cm}
 
@@ -704,7 +704,7 @@
       on large action spaces; GNN pre-pruning is needed primarily to make MCTS tractable
 
     \item \faCogs\; Random node features: while eliminating handcrafted engineering,
-      random initialization provides no problem specific knowledge.
+      random initialization provides no problem-specific knowledge.
   \end{enumerate}
 
   \vspace{0.4cm}
@@ -725,7 +725,7 @@
 
   Remaining gaps in learned pruning methods:
   \begin{itemize}
-    \item H-DeepPruner eliminates handcrafted features but is limited to size constraints and is slower than the classical QuickPrune algorithm
+    \item H-DeepPruner eliminates handcrafted features but is limited to size constraints and is slower than the classical QuickPrune algorithm.
     \item GCOMB-P, LeNSE, and COMBHelper each require
       problem-specific redesign to handle new constraints or objectives
     \item No existing learned method can switch between constraint types
