@@ -199,10 +199,9 @@
             preserving model quality --- analogous goal, different problem setting
         \end{itemize}
       \end{block}
-
-      \vspace{0.2cm}
-
-      \begin{block}{\faGraduationCap\; Supervised (Problem-Specific)}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\faBrain\; Learning-Based}
         \begin{itemize}
           \item Lauri et al.~\cite{lauri2019fine,lauri2023learning}: logistic regression +
             hand-crafted features for \textbf{Max Clique}
@@ -210,12 +209,6 @@
             for \textbf{TSP}
           \item COMBHelper~\cite{tian2024combhelper}: GNN + knowledge distillation +
             problem-specific boosting
-        \end{itemize}
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\faBrain\; Hybrid RL + Supervised}
-        \begin{itemize}
           \item GCOMB~\cite{manchanda2020gcomb}: degree heuristic for initial pruning +
             Q-learning on pruned set
           \item LeNSE~\cite{ireland2022lense}: GNN embeddings + RL local search
