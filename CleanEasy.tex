@@ -228,7 +228,7 @@
   \begin{columns}[T]
     \begin{column}{0.32\textwidth}
       \begin{alertblock}{No Guarantees}
-        All existing pruning methods are heuristics --- no method bounds how much
+        All existing pruning methods are heuristics. no method bounds how much
         solution quality is lost after pruning.
 
         \vspace{0.3cm}
@@ -337,17 +337,19 @@
 
   \begin{block}{No-Heavy-Items (NHI) Assumption \small(needed for Theorem 2 only)}
     For all $o$ in the optimal solution $O^\star$, $c(o) \le \kappa(1 - \eta)$
-    for some $\eta \in (0, 1/2]$ --- no single element's cost dominates the budget.
+    for some $\eta \in (0, 1/2]$. no single element's cost dominates the budget.
 
     \vspace{0.15cm}
 
     \begin{itemize}
-      \item \textbf{Uniform costs} (size constraint): always satisfied --- each node
-        costs $1$ out of a budget of $k \ge 2$.
-      \item \textbf{Hub nodes in scale-free graphs:} a high-degree hub with cost
-        $\approx \kappa$ would violate NHI. QuickPrune handles this via
-        \textbf{singleton tracking} --- $a^*$ always retains the single best element
-        as a fallback, so even extreme hubs are never discarded.
+      \item \textbf{Uniform costs} (IM, MaxCover, MaxCut): each node costs $1$,
+        so NHI holds for any budget $k \ge 2$. always satisfied in our experiments.
+      \item \textbf{Knapsack problems:} if a single element nearly exhausts the
+        entire budget, the optimal solution is just that one element. a degenerate,
+        uninteresting instance. Any meaningful multi-item selection problem
+        naturally satisfies NHI.
+      \item \textbf{Degenerate case:} singleton tracking $a^*$ guarantees the
+        single best element is always retained regardless.
     \end{itemize}
   \end{block}
 \end{frame}
@@ -388,7 +390,7 @@
 
         \vspace{0.15cm}
 
-        \textbf{Deletion:} Once $f(A)$ grows by $n/\epsilon$, old elements are negligible by submodularity --- discard in bulk to bound $|A|$.
+        \textbf{Deletion:} Once $f(A)$ grows by $n/\epsilon$, old elements are negligible by submodularity. discard in bulk to bound $|A|$.
 
         \vspace{0.15cm}
 
@@ -1040,7 +1042,7 @@
 \begin{frame}{QuickPrune: Proof Sketch}
   \begin{columns}[T]
     \begin{column}{0.48\textwidth}
-      \begin{block}{Size Bound --- Geometric Growth Argument}
+      \begin{block}{Size Bound. Geometric Growth Argument}
         \begin{enumerate}
           \item Each accepted element $e$ satisfies
             $\Delta(e \mid A) \ge \frac{\delta\, c_{\min}\, f(A)}{\kappa}$,
@@ -1053,7 +1055,7 @@
       \end{block}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{block}{Value Bound --- Three-Step Chain}
+      \begin{block}{Value Bound. Three-Step Chain}
         \begin{enumerate}
           \item $f(\hat{A}) \ge \frac{\mathrm{OPT}}{1+\delta}$: any optimal element
             $o \notin \hat{A}$ failed the addition rule, so by submodularity
