@@ -89,10 +89,10 @@ metrics, feature-importance vectors, and discarded features along the unique pat
 root node $n_{0,1}$ to node $n_{d,i}$:
 \[
 \mathcal{H}_{d,i} = \bigcup_{\ell=0}^{d} \bigcup_{j \in \pi(\ell,i)}
-\Big(\mathcal{F}_{\ell,j}, M_{\ell,j}, \text{Imp}_{\ell,j}, \mathcal{F}^{\text{fail}}_{\ell,j}\Big),
+\Big(\mathcal{F}_{\ell,j}, \mathcal{M}_{\ell,j}, \text{Imp}_{\ell,j}, \mathcal{F}^{\text{fail}}_{\ell,j}\Big),
 \]
 where $\pi(\ell,i)$ denotes the ancestor index at depth $\ell$ along the path from the
-root to $n_{d,i}$, $M_{\ell,j}$ is the performance metric, $\text{Imp}_{\ell,j}$ is the
+root to $n_{d,i}$, $\mathcal{M}_{\ell,j}$ is the performance metric, $\text{Imp}_{\ell,j}$ is the
 feature-importance vector, and $\mathcal{F}^{\text{fail}}_{\ell,j}$ is the set of features
 discarded due to exceeding a timeout threshold. The cumulative history ensures that the LLM
 generates new feature proposals with full awareness of the trajectory that led to the
@@ -153,7 +153,7 @@ feedback signal $\text{Imp}_{d,i}$ used to guide subsequent feature generation.
 \subsection{Pruning Phase}
 
 After expanding all nodes at depth $d$, the algorithm evaluates each candidate child node
-$n_{d+1,j}$ using its performance metric $M_{d+1,j}$ and constructs the next beam
+$n_{d+1,j}$ using its performance metric $\mathcal{M}_{d+1,j}$ and constructs the next beam
 $B_{d+1}$ by selecting the top-$\beta$ nodes:
 \[
 B_{d+1} \subseteq \mathcal{C}_{d+1}, \quad |B_{d+1}| = \beta.
@@ -161,7 +161,7 @@ B_{d+1} \subseteq \mathcal{C}_{d+1}, \quad |B_{d+1}| = \beta.
 The process continues until the search reaches a maximum depth $D_{\max}$. At this point,
 the best node across the entire tree is returned:
 \[
-n^{\text{best}} = \arg\max_{n_{d,i} \in \mathcal{T}} M_{d,i}.
+n^{\text{best}} = \arg\max_{n_{d,i} \in \mathcal{T}} \mathcal{M}_{d,i}.
 \]
 The classifier $g_{\theta^{\text{best}}}$ is then fine-tuned on the actual target training
 graph and applied to prune the ground set $\mathcal{U}$. The beam search is performed once
@@ -184,11 +184,11 @@ Algorithm~\ref{alg:llm2prune} describes the full LLM2Prune pipeline.
             \STATE $\mathcal{F}_{d+1,j} \sim \text{LLM}(Z_{\text{feature}}, \text{Task}, \text{summary})$
             \STATE Generate and execute code for each $f \in \mathcal{F}_{d+1,j}$; discard features exceeding $\tau$
             \STATE Train $g_{\theta_{d+1,j}}$ on $\mathcal{F}_{d+1,j}$ with semi-supervised learning (threshold $\delta$)
-            \STATE Compute $M_{d+1,j}$ and $\text{Imp}_{d+1,j}$; update $\mathcal{H}_{d+1,j}$
+            \STATE Compute $\mathcal{M}_{d+1,j}$ and $\text{Imp}_{d+1,j}$; update $\mathcal{H}_{d+1,j}$
             \STATE $\mathcal{C}_{d+1} \leftarrow \mathcal{C}_{d+1} \cup \{n_{d+1,j}\}$
         \ENDFOR
     \ENDFOR
-    \STATE $B_{d+1} \leftarrow \text{top-}\beta$ nodes in $\mathcal{C}_{d+1}$ by $M$ \hfill \textit{// Beam Pruning}
+    \STATE $B_{d+1} \leftarrow \text{top-}\beta$ nodes in $\mathcal{C}_{d+1}$ by $\mathcal{M}$ \hfill \textit{// Beam Pruning}
 \ENDFOR
 \STATE $n^{\text{best}} \leftarrow \arg\max_{n_{d,i} \in \mathcal{T}} M_{d,i}$
 \STATE Fine-tune $g_{\theta^{\text{best}}}$ on the target training graph
@@ -231,11 +231,11 @@ LLM2Prune on three graph CO problems, namely Maximum Coverage (MaxCover), Maximu
 (MaxCut), and Influence Maximization (IM), using
 eight real-world datasets from the Stanford Large Network Dataset
 Collection~\citep{leskovec2016snap}. The same datasets and train-test splits as in
-Chapters~3 and~4 are used, following~\citep{ireland2022lense}. For size constraints,
-Standard Greedy~\citep{nemhauser1978analysis} is used for MaxCover and MaxCut, and
-IMM~\citep{tang2015influence} for IM. Under knapsack constraints,
-\citet{khuller1999budgeted} is used for IM and MaxCover, and \citet{pham2023linear} for
-MaxCut. The cost of each node under knapsack constraints is set proportional to its degree
+Chapters~3 and~4 are used, following~\citep{ireland2022lense}. For size constraints, we use Standard Greedy~\citep{nemhauser1978analysis} as the
+downstream solver for MaxCover and MaxCut, and IMM~\citep{tang2015influence} for IM.
+Under knapsack constraints, we use the budgeted maximum coverage
+algorithm of~\citet{khuller1999budgeted} for MaxCover and IM, and the linear-time
+algorithm of~\citet{pham2023linear} for MaxCut. The cost of each node under knapsack constraints is set proportional to its degree
 following~\citep{pmlr-v258-nath25a, yaroslavtsev2020bring}. Since running beam search on
 each instance would be costly, we perform feature-space search using the Holme-Kim random
 graph model~\citep{holme2002growing}, which closely resembles large-scale social networks
@@ -307,6 +307,7 @@ combined metric and runtime, without relying on hand-crafted features.
 \end{figure}
 
 \subsection{Discovered Features}
+\label{sec:llm2prune-features}
 
 A key strength of LLM2Prune is that it generates features that are not generic graph
 statistics but are grounded in the problem objective. For MaxCut, it discovers \emph{random
@@ -343,6 +344,7 @@ is more complex.
 \end{figure}
 
 \section{Remaining Work}
+\label{sec:llm2prune-remaining}
 
 We have completed the proposed framework design, the ablation study justifying the beam
 search strategy under both size and knapsack constraints, and a comprehensive comparative

@@ -30,7 +30,7 @@ elements.
 
 We consider the pruning problem defined in Chapter~3, restricted to size constraints.
 Given a ground set $\mathcal{U}$ and an exact method $\mathcal{OPT}$, an optimal solution
-is defined as $X^\star = \arg\max_{X \subset \mathcal{U}, |X| \leq B} f(X)$. The goal is
+is defined as $X^\star = \arg\max_{X \subset \mathcal{U}, |X| \leq k} f(X)$. The goal is
 to find a significantly smaller ground set $\mathcal{U}'$ with
 $|\mathcal{U}'| \ll |\mathcal{U}|$ such that
 $f(\mathcal{OPT}(\mathcal{U}')) / f(\mathcal{OPT}(\mathcal{U})) \geq 1 - \epsilon$
@@ -76,9 +76,7 @@ fixed-size subset of neighbors.
 
 \textbf{Random Node Initialization.} Instead of using hand-crafted features, we adopt
 random node initialization~\citep{abboud2020surprising}, where node features are set as
-$h_{v_i}^{(0)} \sim U(0,1)$. The hypothesis is that vertices in the optimal solution
-exhibit similar local structures, identifiable from local neighborhood features alone.
-This eliminates the need for problem-specific features such as eigenvector centrality
+$h_{v_i}^{(0)} \sim U(0,1)$. This eliminates the need for problem-specific features such as eigenvector centrality
 (used by LeNSE~\citep{ireland2022lense}) or Fourier Feature Mapping (used by
 COMBHelper~\citep{tian2024combhelper}).
 

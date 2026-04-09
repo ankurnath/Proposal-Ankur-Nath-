@@ -334,9 +334,8 @@ of~\citep{ireland2022lense}. The graphs range from small networks
 
 \textbf{Baselines.} We compare against: Submodular Sparsification
 (SS)~\citep{zhou2017scaling}, GCOMB~\citep{manchanda2020gcomb},
-LeNSE~\citep{ireland2022lense}, COMBHelper~\citep{tian2024combhelper}, and GNNPruner, a
-proposed baseline that is a simplified version of COMBHelper using a GNN with random node
-features instead of hand-crafted features. For knapsack constraints, since the prior ML
+LeNSE~\citep{ireland2022lense}, COMBHelper~\citep{tian2024combhelper}, and GNNPruner, an ablation baseline that is a simplified version of COMBHelper using a GNN
+with random node features instead of hand-crafted features. For knapsack constraints, since the prior ML
 methods do not easily generalize, we compare to GNNPruner and a Top-$k$ approach that
 selects elements with the highest degree-to-cost ratios.
 
@@ -437,9 +436,8 @@ Figure~\ref{fig:qp-knapsack-violin} shows the distribution of the combined metri
 across all eight SNAP datasets for each problem. QuickPrune exhibits consistently high
 performance with low variance across all three problems, achieving a mean $C$ above 0.9
 for both MaxCover and MaxCut. In contrast, Top-$k$ and GNNPruner show high variance,
-performing well on some instances but poorly on others. For Influence Maximization,
-Top-$k$ is competitive with QuickPrune on average but its poor performance on MaxCover
-and MaxCut demonstrates that it is not robust across problems. GNNPruner suffers from
+performing well on some instances but poorly on others. For Influence Maximization, Top-$k$ is competitive with QuickPrune on average, but its
+poor performance on MaxCover and MaxCut demonstrates limited robustness across problems. GNNPruner suffers from
 the most inconsistent behavior, with $C$ values ranging from near-zero to near-perfect
 depending on the dataset.
 
