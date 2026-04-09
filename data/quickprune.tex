@@ -202,6 +202,103 @@ considered once and never reconsidered; (ii) query complexity of
 $\mathcal{O}(\log(\kappa_{\max} / \kappa_{\min}))$ per element; and (iii) pruned set size
 that is logarithmic in the original ground set size $n$.
 
+\subsection{Proof of Theorem~1}
+
+Let $A_j$ denote the value of $A$ at the beginning of iteration $j$, let
+$\hat{A} = \bigcup_j A_j$ be all elements ever added to $A$, and let $\dot{A} = A_{n+1}$
+be the final value of $A$. Let $A'$ be the feasible set guaranteed by
+Proposition~\ref{prop:aprime}. The proof chains:
+\[
+  f(A') \;\overset{(a)}{\geq}\; \frac{\delta\gamma^4}{2(\delta\gamma^2+1)} f(\dot{A})
+         \;\overset{(b)}{\geq}\; \frac{\delta\gamma^4(1-\epsilon\gamma^{-1})}{2(\delta\gamma^2+1)} f(\hat{A})
+         \;\overset{(c)}{\geq}\; \frac{\delta\gamma^4(1-\epsilon\gamma^{-1})}{2(\delta\gamma^2+1)(1+\gamma^{-1}\delta)} \cdot \mathrm{OPT}.
+\]
+
+\textbf{Size bound (Proposition~\ref{prop:uprime-size}).}
+Fix a value $B$ of $A_s$ and let $A_1, \ldots, A_m$ be all successive values of $A$
+while $A_s = B$, so $A_1 = A_s$, $A_2 = A_s \cup \{e_1\}$, \ldots,
+$A_m = A_s \cup \{e_1, \ldots, e_{m-1}\}$. Let $y_i = f(A_i)$. By the addition rule,
+$y_i \geq \left(1 + \frac{\delta\, c_{\min}}{\kappa}\right) y_{i-1}$ for each $i$.
+Setting $m^* = \left(1 + \frac{\kappa}{\delta\, c_{\min}}\right)\log(n/\epsilon) + 1$,
+if $i \geq m^* - 1$ then $y_i \geq \frac{n}{\epsilon} y_1$, triggering deletion. Hence
+$m \leq m^*$. Since $|A_s| \leq m^*$ throughout, $|A| \leq 2m^*$ and $|\mathcal{U}'|
+\leq 2m^* + 1$.
+
+\textbf{Deletions lose little value, step (b) (Proposition~\ref{prop:ahat-adot}).}
+Let $(\dot{B}_i)_{i=1}^m$ be the sequence of deleted sets, $j(i)$ the iteration on which
+$\dot{B}_i$ was deleted, $B_0 = \hat{A}$, and $B_i = B_{i-1} \setminus \dot{B}_i$, so
+$B_m = \dot{A}$. Then:
+\[
+  f(B_{i-1}) - f(B_i)
+  \;\overset{(a)}{\leq}\; \gamma^{-1} f(\dot{B}_i)
+  \;\overset{(b)}{<}\; \frac{\gamma^{-1}\epsilon}{n} f(A_{j(i)})
+  \;\overset{(c)}{\leq}\; \frac{\gamma^{-1}\epsilon}{n} f(\hat{A}),
+\]
+where (a) is $\gamma$-submodularity, (b) is the deletion trigger condition, and (c) is
+monotonicity. Summing: $f(\hat{A}) - f(\dot{A}) \leq m \cdot \frac{\gamma^{-1}\epsilon}{n}
+f(\hat{A}) \leq \gamma^{-1}\epsilon\, f(\hat{A})$, giving $f(\dot{A}) \geq
+(1 - \gamma^{-1}\epsilon) f(\hat{A})$.
+
+\textbf{Optimal value is captured, step (c) (Proposition~\ref{prop:opt-ahat}).}
+Let $O$ be an optimal solution with $f(O) = \mathrm{OPT}$ and $c(O) \leq \kappa$.
+For each $o \in O \setminus \hat{A}$, the addition rule failed at iteration $j(o)$:
+\begin{align*}
+  \mathrm{OPT} - f(\hat{A})
+  &\;\overset{(a)}{\leq}\; f(O \cup \hat{A}) - f(\hat{A})
+  \;\overset{(b)}{\leq}\; \gamma^{-1}\!\sum_{o \in O \setminus \hat{A}} \Delta(o \mid A_{j(o)}) \\
+  &\;\overset{(c)}{<}\; \gamma^{-1}\!\sum_{o \in O \setminus \hat{A}} \frac{\delta\, c(o)\, f(A_{j(o)})}{\kappa}
+  \;\overset{(d)}{\leq}\; \gamma^{-1}\!\sum_{o \in O \setminus \hat{A}} \frac{\delta\, c(o)\, f(\hat{A})}{\kappa}
+  \;\overset{(e)}{\leq}\; \gamma^{-1}\delta\, f(\hat{A}),
+\end{align*}
+where (a) is monotonicity, (b) is $\gamma$-submodularity, (c) is the failed addition
+rule, (d) is monotonicity, and (e) holds since $c(O) \leq \kappa$. Hence $f(\hat{A})
+\geq \mathrm{OPT}/(1 + \gamma^{-1}\delta)$.
+
+\textbf{Feasible solution within $\mathcal{U}'$, step (a) (Lemma~\ref{lemma:value-inside-A}
+and Proposition~\ref{prop:aprime}).}
+Let $\dot{A} = \{\dot{a}_1, \ldots, \dot{a}_m\}$ in insertion order. If $c(\dot{A})
+\leq \kappa$, take $A' = \dot{A}$. Otherwise, let $A' = \{\dot{a}_{i'}, \ldots,
+\dot{a}_m\}$ where $i' = \max\{i : c(\{\dot{a}_i, \ldots, \dot{a}_m\}) > \kappa\}$.
+By $\gamma$-submodularity and a telescoping sum:
+\[
+  f(A') \;\overset{(a)}{\geq}\; \gamma(f(\dot{A}) - f(\dot{A} \setminus A'))
+  \;=\; \gamma\sum_{i=i'}^m \Delta(\dot{a}_i \mid \dot{A}_{i-1})
+  \;\overset{(b)}{\geq}\; \gamma^2\sum_{i=i'}^m \frac{\delta\, c(\dot{a}_i)\, f(\dot{A}_{i-1})}{\kappa}
+  \;\overset{(c)}{>}\; \gamma^2\delta\, f(\dot{A} \setminus A'),
+\]
+where (a) is $\gamma$-submodularity and nonnegativity, (b) is condition~(2) of
+Lemma~\ref{lemma:value-inside-A} (which follows from $\gamma$-submodularity and the
+addition rule via Proposition~\ref{prop:aprime}), and (c) is monotonicity and
+$c(A') > \kappa$. Thus $f(\dot{A}) \leq \frac{\delta\gamma^2+1}{\delta\gamma^3}
+f(A')$. Let $A'' = A' \setminus \{\dot{a}_{i'}\}$; by choice of $i'$, $c(A'') \leq
+\kappa$. Since $f(a^*) \geq \max_i f(\dot{a}_i) \geq f(\dot{a}_{i'})$, $\gamma$-submodularity gives:
+\[
+  f(a^*) + f(A'') \geq f(\dot{a}_{i'}) + f(A'') \geq \gamma f(A') \geq
+  \frac{\delta\gamma^4}{\delta\gamma^2+1} f(\dot{A}).
+\]
+Setting $A^* = \arg\max\{f(a^*), f(A'')\}$ gives $f(A^*) \geq
+\frac{\delta\gamma^4}{2(\delta\gamma^2+1)} f(\dot{A})$. Chaining (a), (b), (c) yields
+Theorem~1.
+
+\subsection{Proof of Theorem~2}
+
+Let $\kappa' \in [\kappa_{\min}, \kappa_{\max}]$. By the choice of $\mathcal{B}$, there
+exists $\tau \in \mathcal{B}$ such that $\kappa'(1-\eta) \leq \tau \leq \kappa'$. Let $O$
+be an optimal solution to $f_{\kappa'}(\mathcal{U})$ satisfying the NHI assumption. By
+Proposition~\ref{prop:part}, $O$ can be partitioned into at most three sets $\{O_i\}$
+such that $c(O_i) \leq \kappa(1-\eta) \leq \tau$ for each $i$.
+
+By Theorem~1 applied to the copy of QuickPrune-Single with budget $\tau$, there exists
+$X \subseteq \mathcal{U}'$ such that $c(X) \leq \tau$ and $f(X) \geq \alpha f(O_i)$,
+where $\alpha = \frac{\delta\gamma^4(1-\epsilon\gamma^{-1})}{2(\delta\gamma^2+1)(1+\gamma^{-1}\delta)}$.
+Therefore:
+\[
+  3f(X) \geq \alpha \sum_{i=1}^3 f(O_i) \geq \alpha\gamma f(O),
+\]
+where the last inequality follows from $\gamma$-submodularity. Thus $f(X) \geq
+\alpha\gamma f(O) / 3$. The size bound on $\mathcal{U}'$ follows from
+Proposition~\ref{prop:uprime-size} and the size of $\mathcal{B}$.
+
 \section{Experimental Evaluation}
 
 We compare the empirical performance of QuickPrune to existing methods for the pruning

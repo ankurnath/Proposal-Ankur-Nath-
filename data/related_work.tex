@@ -2,10 +2,34 @@
 
 \chapter{\uppercase {Related Work}}
 
-The proposed work draws on three areas of prior research: classical pruning methods,
-learning-based pruning methods, and automated feature engineering using large language
-models. This chapter reviews existing work in each area and highlights the limitations
-that motivate the contributions of this proposal.
+The proposed work draws on four areas of prior research: the theory of submodular
+maximization, classical pruning methods, learning-based pruning methods, and automated
+feature engineering using large language models. This chapter reviews existing work in
+each area and highlights the limitations that motivate the contributions of this proposal.
+
+\section{Submodular Maximization}
+
+QuickPrune (Chapter~\ref{chap:quickprune}) builds on the theory of submodular
+maximization, a framework that naturally models many graph CO problems such as maximum
+coverage and influence maximization. \citet{nemhauser1978analysis} show that a greedy
+algorithm achieves a $(1-1/e)$ approximation for monotone submodular maximization under a
+cardinality constraint, a bound that is tight under standard complexity
+assumptions~\citep{feige1998threshold}. \citet{vondrak2008optimal} extend this to
+matroid constraints via the continuous greedy algorithm. QuickPrune generalizes beyond
+standard submodularity by operating under $\gamma$-weak submodularity, a relaxation that
+covers a broader class of objectives including influence maximization and sparse
+regression~\citep{elenberg2018restricted}.
+
+Several works address the scalability of submodular maximization through complementary
+means. \citet{mirzasoleiman2015lazier} reduce the query complexity of greedy from $O(nk)$
+to $O(n\log(1/\epsilon))$ via stochastic lazy evaluation, maintaining a
+$(1-1/e-\epsilon)$ guarantee. \citet{badanidiyuru2014streaming} introduce a single-pass
+streaming algorithm that retains a constant-factor approximation using $O(k/\epsilon)$
+memory --- the streaming model that directly inspires QuickPrune's single-pass design. A
+related line of work constructs \textit{coresets}: compact summaries that approximately
+preserve objective values for reuse across queries~\citep{mirzasoleiman2020coresets}.
+QuickPrune's pruned universe serves a similar role, but is designed for the value oracle
+model and supports a range of budgets simultaneously rather than a single query type.
 
 \section{Classical Approaches to Pruning}
 Classical pruning methods for combinatorial optimization (CO) fall into two categories:
@@ -28,28 +52,21 @@ they lack formal guarantees on the quality of the pruned ground set.
 \section{Learning-Based Approaches to Pruning}
 Learning-based methods take a data-driven approach to pruning, training models on solved
 instances to identify elements that can be removed from the ground set.
-These methods can be broadly organized into three categories: supervised approaches with
-hand-crafted features, GNN-based approaches, and hybrid methods combining supervised and
-reinforcement learning.
+These methods can be broadly organized into two categories: supervised approaches with
+hand-crafted features and hybrid methods combining supervised and reinforcement learning.
 
-\textbf{Supervised approaches with hand-crafted features.}
-The earliest learning-based pruning methods train binary classifiers on small, pre-solved
+\textbf{Supervised methods.} The earliest learning-based pruning methods train binary classifiers on small, pre-solved
 instances to predict whether a vertex or edge belongs to an optimal solution. For Maximum
 Clique Enumeration, \citet{lauri2019fine} apply logistic regression with hand-crafted
 graph-theoretic features, and \citet{grassia2019learning, lauri2023learning} extend this
 with multi-stage classifiers that iteratively reduce the search space. For the Traveling
 Salesman Problem, \citet{fitzpatrick2021learning, sun2021generalization} train classifiers
-to prune edges unlikely to belong to the optimal tour. A common limitation across these
-methods is their heavy reliance on problem-specific feature engineering, which restricts
+to prune edges unlikely to belong to the optimal tour. \citet{tian2024combhelper} propose
+COMBHelper, a GNN-based framework with knowledge distillation, which still relies on
+computationally expensive Fourier-based feature transformations and a problem-specific
+boosting mechanism. A common limitation across all
+these methods is their reliance on problem-specific feature engineering, which restricts
 generalization to new CO problems.
-
-\textbf{GNN-based approaches.}
-To reduce the dependence on hand-crafted features, \citet{tian2024combhelper} propose
-COMBHelper, a GNN-based framework with knowledge distillation and a problem-specific
-boosting module designed to generalize across multiple CO problems. While COMBHelper
-represents a step toward problem-agnostic pruning, it still relies on computationally
-expensive Fourier-based feature transformations and a problem-specific boosting mechanism for strong
-performance.
 
 \textbf{Hybrid supervised and reinforcement learning methods.}
 Hybrid methods that combine supervised learning with reinforcement learning are more
@@ -66,7 +83,7 @@ hyperparameters such as subgraph size and embedding dimensionality separately fo
 dataset and problem.
 
 Despite these advances, no existing learning-based pruning method simultaneously achieves
-problem-agnostic design, freedom from hand-crafted features, and scalability to large
+problem-agnostic design, automated feature engineering, and scalability to large
 graph instances. Moreover, all existing methods are designed and evaluated exclusively
 under size constraints, leaving other constraint types such as knapsack constraints
 unaddressed.

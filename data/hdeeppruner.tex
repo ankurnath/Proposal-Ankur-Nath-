@@ -32,8 +32,9 @@ We consider the pruning problem defined in Chapter~3, restricted to size constra
 Given a ground set $\mathcal{U}$ and an exact method $\mathcal{OPT}$, an optimal solution
 is defined as $X^\star = \arg\max_{X \subset \mathcal{U}, |X| \leq B} f(X)$. The goal is
 to find a significantly smaller ground set $\mathcal{U}'$ with
-$|\mathcal{U}'| \ll |\mathcal{U}|$ while preserving the objective value, i.e.,
-$f(\mathcal{OPT}(\mathcal{U}')) / f(\mathcal{OPT}(\mathcal{U})) = 1$. Unlike QuickPrune,
+$|\mathcal{U}'| \ll |\mathcal{U}|$ such that
+$f(\mathcal{OPT}(\mathcal{U}')) / f(\mathcal{OPT}(\mathcal{U})) \geq 1 - \epsilon$
+for a small approximation factor $\epsilon \geq 0$. Unlike QuickPrune,
 which provides formal approximation guarantees under both size and knapsack constraints,
 H-DeepPruner operates only under size constraints and offers no theoretical guarantees.
 Instead, the motivating question is empirical: \emph{Can a learning-based pruning method
@@ -46,8 +47,7 @@ of two main stages: an initial pruning step using a GNN, followed by Neural Mont
 Tree Search (NMCTS) for further reduction. The key insight behind this hierarchical
 design is that each stage addresses a different aspect of the pruning problem. The GNN
 performs a fast, coarse-grained pruning by classifying each node independently. It
-can quickly eliminate a large number of clearly irrelevant nodes (e.g., low-degree
-peripheral nodes in influence maximization) but cannot reason about redundancy among
+can quickly eliminate a large number of clearly irrelevant nodes but cannot reason about redundancy among
 the retained nodes. NMCTS then performs a slower, fine-grained refinement that accounts
 for interdependencies between elements, constructing a compact ground set where each
 retained element contributes meaningfully to the solution.
@@ -69,9 +69,9 @@ f_1^{(k)}\!\left(\left\{h_u^{(k-1)} : u \in N(v_i)\right\}\right)\right\}\right)
 \]
 where $N(v_i) = \{v_j \in V \mid A_{i,j} \neq 0\}$ is the set of neighbors of node
 $v_i$, function $f_1^{(k)}$ aggregates feature information over the set of neighboring
-nodes, and function $f_2^{(k)}$ combines the own hidden features of the node from iteration
+nodes, and function $f_2^{(k)}$ combines the node's own hidden features from iteration
 $(k-1)$ with the aggregated neighborhood features. We empirically find that GCN,
-which retains full neighborhood information, outperforms GraphSAGE, which samples a
+which retains full neighborhood information, outperforms GraphSAGE~\citep{hamilton2017inductive}, which samples a
 fixed-size subset of neighbors.
 
 \textbf{Random Node Initialization.} Instead of using hand-crafted features, we adopt
@@ -110,9 +110,11 @@ to sequentially build up a pruned ground set by adding one element at a time. Fo
     pruned ground set.
   \item \textbf{Transition}: the state is updated with the newly expanded pruned ground
     set and the selected element is removed from the candidate pool.
-  \item \textbf{Reward}: the objective value obtained by running the downstream heuristic
-    on the current pruned ground set. This directly measures how well the pruned set
-    supports finding high-quality solutions.
+  \item \textbf{Reward}: the objective value obtained by running a problem-specific
+    heuristic on the current pruned ground set. Concretely, we use Standard
+    Greedy~\citep{nemhauser1978analysis} for MaxCover and MaxCut, and
+    IMM~\citep{tang2015influence} for Influence Maximization. This directly measures how
+    well the pruned set supports finding high-quality solutions.
   \item \textbf{Terminal condition}: a fixed number of elements have been added to the
     pruned ground set.
 \end{itemize}
@@ -127,8 +129,8 @@ process using a policy network and a value network, both sharing the same GCN ba
 architecture as the pre-pruning GNN.
 
 NMCTS gradually constructs a solution starting from an empty set, adding one element at
-a time. At each step, it evaluates the current pruned ground set, considering the elements
-already selected and selecting elements that contribute to the current pruned ground set.
+a time. At each step, it considers the elements already selected and chooses the next
+element based on how well it complements the current pruned ground set.
 The child node is selected based on the Predictor + Upper Confidence Bound (PUCT)
 formula:
 \[
@@ -162,16 +164,15 @@ update the statistics of all visited nodes, refining the estimates for future de
   \label{fig:hdp-mcts}
 \end{figure}
 
-\textbf{Progressive Widening.} During testing, the NMCTS is too slow especially for large
-action spaces. As a result, the number of simulations becomes intractable. We apply
+\textbf{Progressive Widening.} During testing, NMCTS becomes too slow for large action
+spaces, as the number of simulations grows intractable. We apply
 progressive widening~\citep{couetoux2011continuous}, which maintains a finite list of
 child chance nodes to be searched and incrementally adds a new child chance node $N_c$ to
 the list of child nodes of parent node $N_p$ based on the visitation counts. Specifically,
 a new child node is added every time the following is satisfied:
 $|\text{visits}(N_p)^\alpha| \geq |\text{CHILDREN}(N_p)|$,
-where $\alpha \in (0,1)$ is a parameter that controls the growth rate. This allows
-gradually increasing the number of choices or actions explored during the search process,
-starting from a narrow focus and expanding it as more information is gained.
+where $\alpha \in (0,1)$ is a parameter that controls the growth rate. This allows the algorithm to gradually increase the number of choices explored,
+starting from a narrow focus and expanding as more information is gained.
 
 \textbf{Progressive Deepening.} We also introduce \emph{progressive deepening}, a search
 strategy designed to refine the search space by iteratively expanding the search tree
@@ -184,6 +185,31 @@ deepening the search by focusing on promising areas. If, however, no significant
 improvement is observed, signifying a potential plateau, the search terminates. This
 method prevents the search tree from growing uncontrollably, as it focuses on expanding
 only when progress is being made.
+
+\section{Complexity Analysis}
+
+\textbf{Stage 1 (GNN Pre-Pruning).} A $d$-layer GCN over a graph with $|V|$ nodes and
+$|E|$ edges costs $O(d \cdot (|V| + |E|))$ per forward pass. For the fixed two-layer
+architecture used here ($d = 2$), this is $O(|V| + |E|)$. The GNN runs once as a
+preprocessing step.
+
+\textbf{Stage 2 (MCTS Fine-Pruning).} After GNN pre-pruning, MCTS operates on the
+reduced graph with $|V'|$ nodes and $|E'|$ edges, where $|V'| \ll |V|$ and $|E'| \ll
+|E|$. Each simulation traverses the search tree to depth at most $\ell$ (fixed at 50).
+At each visited node, the algorithm runs either a policy network (GCN) forward pass for
+PUCT-guided expansion at cost $O(|V'| + |E'|)$, or a value network (GCN) forward pass
+for state evaluation at cost $O(|V'| + |E'|)$. At terminal nodes, the heuristic
+$\mathcal{H}$ is called instead of the value network. The cost of $T$ simulations is
+therefore:
+\[
+  O\!\left(T \cdot \ell \cdot (|V'|+|E'|) + T_{\text{term}} \cdot \mathcal{H}(|\mathcal{U}'_{\text{GNN}}|)\right),
+\]
+where $T_{\text{term}} \leq T$ is the number of simulations that reach a terminal state.
+Without bounding $T$, this expression is not informative. Progressive widening with
+parameter $\alpha \in (0,1)$ ensures that a node visited $N$ times has at most
+$\lfloor N^\alpha \rfloor$ children, bounding the branching factor and keeping $T$
+sub-exponential in $\ell$ in practice. Progressive deepening further limits total
+simulations by halting when the objective value improvement falls below 1\%.
 
 \section{Experimental Evaluation}
 

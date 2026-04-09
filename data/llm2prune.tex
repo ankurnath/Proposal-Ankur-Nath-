@@ -34,8 +34,21 @@ do not generalize to knapsack constraints.
 
 These limitations point to a common bottleneck: the reliance on human-designed features
 and problem-specific algorithmic choices. We propose to address this bottleneck by
-leveraging the broad domain knowledge encoded in large language models to automate the
-feature discovery process entirely.
+leveraging large language models to automate the feature discovery process. LLMs are
+trained on large corpora that include graph theory, network science, and combinatorial
+optimization literature, making them capable of proposing problem-relevant features from
+a natural language task description alone~\citep{yang2023large, liu2024evolution,
+han2024large, hollmann2023large}. We treat this as an empirical hypothesis:
+rather than assuming LLM knowledge is complete, we use performance on held-out validation
+graphs as the selection signal, so the beam search retains only features that demonstrably
+improve pruning quality. This design is robust to LLM errors --- incorrect or
+uninformative features are simply discarded based on performance. The discovered features
+reported in Section~\ref{sec:llm2prune-features} provide empirical support: LLM2Prune
+consistently identifies non-trivial, problem-grounded features without any human
+intervention. However, LLM knowledge is not unlimited: when the task description is
+ambiguous or the problem domain falls outside the LLM's training distribution, the
+quality of proposed features may degrade. We discuss this limitation further in
+Section~\ref{sec:llm2prune-remaining}.
 
 \section{Proposed Approach}
 
@@ -182,6 +195,34 @@ Algorithm~\ref{alg:llm2prune} describes the full LLM2Prune pipeline.
 \RETURN top-ranked nodes of $\mathcal{U}$ under $g_{\theta^{\text{best}}}$ as $\mathcal{U}'$
 \end{algorithmic}
 \end{algorithm}
+
+\section{Complexity Analysis}
+
+LLM2Prune separates the feature discovery cost (a one-time beam search on synthetic
+graphs) from the inference cost (a single GCN forward pass on each target instance).
+
+\textbf{Beam Search.} At each depth $d \in \{0, \ldots, D_{\max}-1\}$, the beam
+contains at most $\beta$ nodes. Each node is expanded into $\gamma$ children, yielding
+at most $\beta\gamma$ candidate nodes per depth. For each candidate, the LLM is called
+twice (once for summarization, once for feature generation) and once more per proposed
+feature for code generation, giving $O(\gamma)$ calls per candidate. The total number
+of LLM API calls across the entire search is therefore $O(D_{\max} \cdot \beta \cdot
+\gamma)$. With the fixed hyperparameters $D_{\max} = 5$, $\beta = 3$, $\gamma = 2$,
+this amounts to a constant number of API calls. For each of the $O(D_{\max} \cdot \beta
+\cdot \gamma)$ candidate nodes, a two-layer GCN is trained on a synthetic graph with
+$|V_{\text{syn}}|$ nodes and $|E_{\text{syn}}|$ edges for a fixed number of epochs, and
+GNNExplainer~\citep{ying2019gnnexplainer} is run to extract feature-importance scores.
+Both costs are $O(|V_{\text{syn}}| + |E_{\text{syn}}|)$ per training epoch and per
+explainer optimization step, respectively. The total beam search cost is therefore
+$O(D_{\max} \cdot \beta \cdot \gamma \cdot \text{steps} \cdot
+(|V_{\text{syn}}| + |E_{\text{syn}}|))$,
+where $\text{steps}$ subsumes both the GCN training epochs and the GNNExplainer
+optimization steps. Crucially, the entire beam search is performed once on synthetic
+proxy graphs and is not repeated for each target instance.
+
+\textbf{Inference.} Once the best feature set is identified, the classifier is
+fine-tuned on the target training graph and applied to the target instance in a single
+forward pass at cost $O(|V| + |E|)$, matching the per-instance cost of QuickPrune.
 
 \section{Preliminary Results}
 
