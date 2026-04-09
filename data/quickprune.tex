@@ -1,6 +1,6 @@
 \pagestyle{plain} % No headers, just page numbers
 
-\chapter{\uppercase {QuickPrune: Theoretically Grounded Pruning of Large Ground Sets}}
+\chapter{\uppercase {QuickPrune: Theoretically Grounded Pruning of Large Ground Sets}} \label{chap:quickprune}
 
 Prior to our work, all existing pruning methods were heuristics with no formal performance
 guarantees. It was unknown whether it was even possible to efficiently produce a pruned
@@ -202,6 +202,55 @@ considered once and never reconsidered; (ii) query complexity of
 $\mathcal{O}(\log(\kappa_{\max} / \kappa_{\min}))$ per element; and (iii) pruned set size
 that is logarithmic in the original ground set size $n$.
 
+\subsection{Supporting Results}
+
+The proof of Theorem~1 relies on four propositions and one lemma, stated below.
+
+\begin{proposition} \label{prop:uprime-size}
+  The size of $\mathcal{U}'$, as returned by QuickPrune-Single, satisfies
+  \[
+    |\mathcal{U}'| < 2\!\left(1 + \frac{\kappa}{\delta\,c_{\min}}\right)\!\log(n/\epsilon) + 3,
+  \]
+  where $c_{\min} = \min_{u \in \mathcal{U}} c(u)$.
+\end{proposition}
+
+\begin{proposition} \label{prop:ahat-adot}
+  Suppose $f$ is $\gamma$-submodular. Let $\hat{A} = \bigcup_j A_j$ be all elements ever
+  added to $A$, and $\dot{A} = A_{n+1}$ the final value of $A$. Then
+  $f(\dot{A}) \geq (1 - \gamma^{-1}\epsilon)\,f(\hat{A})$.
+\end{proposition}
+
+\begin{lemma} \label{lemma:value-inside-A}
+  Let $f$ be $\gamma$-submodular and let $\delta, \kappa > 0$. Suppose
+  $A_i = \{a_1, \ldots, a_i\}$ is a sequence of sets satisfying (1) $c(a_i) \leq \kappa$
+  and (2) $\Delta(a_i \mid A_{i-1}) \geq \gamma\,\frac{\delta\,c(a_i)\,f(A_{i-1})}{\kappa}$
+  for each $i \in [m]$. Let $f(a^*) \geq \max_{i \in [m]} f(a_i)$ and $c(a^*) \leq \kappa$.
+  Then there exists $A^* \subseteq A_m \cup \{a^*\}$ with $c(A^*) \leq \kappa$ and
+  $f(A^*) \geq \frac{\delta\gamma^4}{2(\delta\gamma^2+1)}\,f(A_m)$.
+\end{lemma}
+
+\begin{proposition} \label{prop:aprime}
+  Let $\mathcal{U}' = \dot{A} \cup \{a^*\}$ denote the output of QuickPrune-Single at
+  termination. There exists $A' \subseteq \mathcal{U}'$ with $c(A') \leq \kappa$ and
+  $f(A') \geq \frac{\delta\gamma^4}{2(\delta\gamma^2+1)}\,f(\dot{A})$.
+\end{proposition}
+
+\begin{proposition} \label{prop:opt-ahat}
+  Suppose QuickPrune-Single is run on instance $(\mathcal{U}, c, f, \kappa)$ with
+  parameters $\delta, \epsilon > 0$, and let $\hat{A} = \bigcup_j A_j$ be all elements
+  ever added to $A$. Then
+  $f(\hat{A}) \geq \mathrm{OPT}/(1 + \gamma^{-1}\delta)$,
+  where $\mathrm{OPT} = \max_{S \subseteq \mathcal{U}:\, c(S) \leq \kappa} f(S)$.
+\end{proposition}
+
+The proof of Theorem~2 additionally uses the following partition result.
+
+\begin{proposition} \label{prop:part}
+  Suppose instance $(f, c, \kappa)$ satisfies the NHI assumption with $0 < \eta \leq 1/2$.
+  Then there exists an optimal solution $O$ that can be partitioned into at most three
+  sets $\{O_i : i \in [3]\}$ with $c(O_i) \leq \kappa(1-\eta)$ for each $i$.
+\end{proposition}
+
 \subsection{Proof of Theorem~1}
 
 Let $A_j$ denote the value of $A$ at the beginning of iteration $j$, let
@@ -353,8 +402,7 @@ provides a balanced evaluation.
 \subsection{Results on Size Constraints}
 
 For the size constraint experiments with budget $k = 100$, we observe that all algorithms
-achieve similar pruning approximation ratios. However, QuickPrune is able to prune the
-original ground set by orders of magnitude more than most algorithms. Table~\ref{tab:size_constraint}
+achieve similar pruning approximation ratios. However, QuickPrune prunes the ground set far more aggressively than most algorithms, often by orders of magnitude. Table~\ref{tab:size_constraint}
 summarizes the results across all applications and datasets.
 
 \begin{table}[t]

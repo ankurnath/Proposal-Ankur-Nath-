@@ -62,7 +62,7 @@ graph-theoretic features, and \citet{grassia2019learning, lauri2023learning} ext
 with multi-stage classifiers that iteratively reduce the search space. For the Traveling
 Salesman Problem, \citet{fitzpatrick2021learning, sun2021generalization} train classifiers
 to prune edges unlikely to belong to the optimal tour. \citet{tian2024combhelper} propose
-COMBHelper, a GNN-based framework with knowledge distillation, which still relies on
+COMBHelper, a GNN-based framework with knowledge distillation that still relies on
 computationally expensive Fourier-based feature transformations and a problem-specific
 boosting mechanism. A common limitation across all
 these methods is their reliance on problem-specific feature engineering, which restricts
@@ -97,8 +97,7 @@ rules~\citep{zhang2023openfe, zhang2024dynamic} or few-shot
 prompts~\citep{han2024large}, and thus still depend on hand-crafted design choices.
 Moreover, existing methods~\citep{nam2024optimized, hollmann2023large} suffer from error
 propagation caused by simple feedback loops. These approaches are distinct from methods
-that directly generate algorithms using LLMs~\citep{yang2023large, liu2024evolution},
-which often exhibit degraded performance as graph size increases.
+that directly generate algorithms using LLMs~\citep{yang2023large, liu2024evolution}; such methods often exhibit degraded performance as graph size increases.
 
 LLM-driven feature engineering is a natural fit for pruning, as LLMs can encode the kind
 of domain knowledge that would otherwise require expert design of problem-specific
