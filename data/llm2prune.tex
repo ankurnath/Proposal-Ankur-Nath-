@@ -106,27 +106,76 @@ The algorithm expands the search tree one depth level at a time. At each depth $
 each node $n_{d,i}$ in the current beam $B_d$, the expansion phase generates $\gamma$
 child nodes through the following steps:
 
-First, the LLM summarizes the cumulative history $\mathcal{H}_{d,i}$ using a summary
+First, the LLM summarizes the cumulative history $\mathcal{H}_{d,i}$ using the summary
 meta-prompt $Z_{\text{summary}}$, which condenses the feedback into key points and
-insights. This keeps the feedback compact and makes the reasoning process easier for the
-LLM to follow. Then, using a feature-generation meta-prompt $Z_{\text{feature}}$
-conditioned on the task description with constraints and the history summary, the LLM
-proposes $\gamma$ child feature sets. The meta-prompt provides higher-level guidance: it
-instructs the LLM to enumerate and retain important features, remove redundant or
-uninformative ones, and propose new features derived from the current set of
-high-performing features. Formally, the child feature sets are sampled as:
+insights, keeping it compact for the LLM to reason over:
+\begin{minted}[fontsize=\footnotesize, frame=single, breaklines]{python}
+f'''You are an expert in graph neural networks and combinatorial optimization.
+
+Summarize the following feedback from previous iterations:
+{cumulative_feedback}
+
+Provide a concise summary of the key points and insights.
+'''
+\end{minted}
+
+Then, using the feature-generation meta-prompt $Z_{\text{feature}}$ conditioned on the
+task description and the history summary, the LLM proposes $\gamma$ child feature sets.
+The prompt instructs the LLM to retain important features, remove redundant ones, and
+propose new features derived from high-performing ones:
+\begin{minted}[fontsize=\footnotesize, frame=single, breaklines]{python}
+f'''You are an expert in graph neural networks and combinatorial optimization.
+
+Consider the {problem}, defined as ({problem_definition}).
+Propose node-level features for a GNN binary classifier that predicts nodes
+likely to be in the optimal solution.
+
+The heuristic can only select nodes from the reduced candidate set provided
+by the GNN. The goal is to shrink the candidate set while ensuring that the
+heuristic still achieves the same objective value.
+
+Feedback from previous iterations:{explainer_feedback} if {explainer_feedback} else ""
+Refinement rules:
+1) Keep high-importance features.
+2) Avoid proposing features that are too similar to existing or previously failed ones.
+3) Replace or remove low-importance features.
+4) Add new features inspired by important patterns.
+5) Ensure all features are distinct and non-redundant.
+
+Return the output as a JSON array of objects with keys:
+- "feature": feature name in snake_case
+- "definition": a one-line definition of how to compute it
+- "reason": 1-2 sentences explaining why it is useful
+
+Do not include any text outside the JSON array.
+'''
+\end{minted}
+Formally, the child feature sets are sampled as:
 \[
 \big\{\mathcal{F}_{d+1,j}\big\}_{j=1}^{\gamma} \;\sim\;
 \text{LLM}\big(Z_{\text{feature}}, \text{Task}, \text{Summary}(\mathcal{H}_{d,i})\big).
 \]
 A key property is that the LLM is stochastic: even under identical inputs, it can generate
-diverse outputs due to sampling mechanisms such as temperature, thereby broadening
-exploration of the feature space.
+diverse outputs due to temperature sampling, broadening exploration of the feature space.
 
 For each child node with its generated feature set $\mathcal{F}_{d+1,j}$, the LLM is
-prompted with a code-generation meta-prompt $Z_{\text{code}}$ to produce executable Python
-code for each proposed feature. Each feature must return a NumPy array with one value per
-node. A timeout threshold $\tau$ is imposed to ensure computational efficiency: if
+prompted with the code-generation meta-prompt $Z_{\text{code}}$ to produce executable
+Python code for each proposed feature:
+\begin{minted}[fontsize=\footnotesize, frame=single, breaklines]{python}
+f'''The input is a weighted NetworkX graph G where each node has an attribute
+weight and an integer variable budget is provided.
+
+Feature name: {feature}
+Feature definition: {definition}
+
+"Write Python code for a function extract_feature(G) that computes this
+feature for ALL nodes in G. The function must return a NumPy array with
+one value per node, ordered to align with the iteration order of G.nodes()."
+"Keep the implementation efficient; avoid expensive computations."
+"DO NOT INCLUDE ANY EXPLANATIONS OR COMMENTS."
+'''
+\end{minted}
+Each feature must return a NumPy array with one value per node. A timeout threshold $\tau$ is imposed to ensure computational efficiency: if
 execution exceeds $\tau$, the failure is recorded in the history and the corresponding
 feature is discarded. This mechanism keeps the pruning process lightweight by excluding
 costly features and prevents further exploration of features correlated with discarded
@@ -224,6 +273,11 @@ proxy graphs and is not repeated for each target instance.
 fine-tuned on the target training graph and applied to the target instance in a single
 forward pass at cost $O(|V| + |E|)$, matching the per-instance cost of QuickPrune.
 
+\textbf{API cost.} Each full beam search run makes approximately 65 LLM calls (summary,
+feature proposal, and code generation steps), totalling roughly 24,000 tokens per problem
+type. This is a one-time cost amortized across all future instances of the same graph
+family; per-instance inference requires no LLM calls.
+
 \section{Preliminary Results}
 
 We have conducted preliminary experiments to validate the proposed approach. We evaluate
@@ -241,6 +295,12 @@ each instance would be costly, we perform feature-space search using the Holme-K
 graph model~\citep{holme2002growing}, which closely resembles large-scale social networks
 with both scale-free degree distribution and high clustering coefficient. After identifying
 the feature set, we fine-tune the downstream classifier for each instance.
+All beam search results were generated using GPT-4.1 as the backbone LLM with temperature
+$T = 1.0$. The beam search uses hyperparameters $D_{\max} = 5$, $\beta = 3$, $\gamma = 2$.
+Three meta-prompts are used: a summary prompt that condenses the history into key points, a
+feature-generation prompt that proposes new feature sets conditioned on the task description
+and history summary, and a code-generation prompt that produces executable Python code for
+each proposed feature.
 
 \subsection{Size Constraint Results}
 
@@ -310,12 +370,49 @@ combined metric and runtime, without relying on hand-crafted features.
 \label{sec:llm2prune-features}
 
 A key strength of LLM2Prune is that it generates features that are not generic graph
-statistics but are grounded in the problem objective. For MaxCut, it discovers \emph{random
-cut expectation}, the expected marginal contribution of a node to the cut under a random
-partition, a non-trivial descriptor directly derived from the cut objective. For IM, it
-identifies \emph{average incoming activation probability} and \emph{outgoing activation
-probability sum}, which require reasoning about the independent cascade model and capture
-the susceptibility of a node and its direct influence spread, respectively. These features would
+statistics but are grounded in the problem objective and constraints.
+Table~\ref{tab:llm2prune-features} summarizes the discovered features for all three
+problems under both constraint types.
+
+\begin{table}[t]
+\centering
+\caption{Features discovered by LLM2Prune for each CO problem and constraint type.
+  All features were identified automatically from the task description with no human
+  intervention.}
+\label{tab:llm2prune-features}
+\small
+\begin{tabular}{llp{7cm}}
+\toprule
+\textbf{Problem} & \textbf{Constraint} & \textbf{Discovered Features} \\
+\midrule
+MaxCover & Size     & Closed neighborhood size \\
+         & Knapsack & Degree; coverage per cost \\
+\midrule
+MaxCut   & Size     & Degree; random cut expectation \\
+         & Knapsack & Degree; weight; degree-to-weight ratio; normalized degree;
+                      neighbor weight sum; clustering coefficient \\
+\midrule
+IM       & Size     & Degree; average incoming activation probability \\
+         & Knapsack & Degree-to-weight ratio; outgoing activation probability sum;
+                      in-out degree difference \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Under the size constraint, LLM2Prune discovers objective-grounded features across all
+three problems. For MaxCover, it selects \emph{closed neighborhood size}, which directly
+measures a node's local coverage potential. For MaxCut, it discovers \emph{random cut
+expectation}, the expected marginal contribution of a node to the cut under a random
+partition, a non-trivial descriptor derived from the cut objective. For IM, it identifies
+\emph{average incoming activation probability}, which captures a node's susceptibility to
+influence under the independent cascade model.
+
+Under the knapsack constraint, LLM2Prune automatically encodes the cost-benefit trade-off
+imposed by the constraint. For MaxCover it selects \emph{coverage per cost}, and for IM
+it selects \emph{degree-to-weight ratio} and \emph{in--out degree difference}, capturing
+cost-efficiency and directional propagation asymmetry respectively. For MaxCut under the
+knapsack constraint, it discovers a richer set of six features including structural
+properties such as clustering coefficient and neighbor weight sum. These features would
 require significant domain expertise to design manually, yet LLM2Prune discovers them
 automatically from the task description alone.
 
@@ -352,10 +449,8 @@ evaluation under size constraints across three CO problems and eight real-world 
 The results demonstrate that LLM2Prune performs competitively with classical methods while
 being orders of magnitude faster at inference, and consistently outperforms all existing
 learning-based approaches. All results reported in this chapter were generated using GPT-4.1 as the backbone LLM.
-The primary remaining work includes: (1)~conducting a full comparative evaluation under
-knapsack constraints against all baselines across all datasets and applications, and
-(2)~evaluating LLM2Prune with open-source LLMs to assess whether the framework
-generalizes beyond proprietary models.
-Unlike other learning-based methods, LLM2Prune can naturally adapt to the knapsack
-constraint by simply modifying the task description provided to the LLM, without requiring
-any changes to the underlying framework or retraining the feature discovery pipeline.
+The primary remaining work is conducting a full comparative evaluation under knapsack
+constraints against all baselines across all datasets and applications. Unlike other
+learning-based methods, LLM2Prune can naturally adapt to the knapsack constraint by simply
+modifying the task description provided to the LLM, without requiring any changes to the
+underlying framework or retraining the feature discovery pipeline.

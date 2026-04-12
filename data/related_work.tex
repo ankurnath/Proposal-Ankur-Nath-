@@ -26,10 +26,16 @@ to $O(n\log(1/\epsilon))$ via stochastic lazy evaluation, maintaining a
 $(1-1/e-\epsilon)$ guarantee. \citet{badanidiyuru2014streaming} introduce a single-pass
 streaming algorithm that retains a constant-factor approximation using $O(k/\epsilon)$
 memory --- the streaming model that directly inspires QuickPrune's single-pass design. A
-related line of work constructs \textit{coresets}: compact summaries that approximately
-preserve objective values for reuse across queries~\citep{mirzasoleiman2020coresets}.
-QuickPrune's pruned universe serves a similar role, but is designed for the value oracle
-model and supports a range of budgets simultaneously rather than a single query type.
+related line of work constructs \textit{coresets}: compact summaries of a dataset that
+approximately preserve objective values and can be reused across multiple queries.
+\citet{feldman2011unified} introduce a general coreset framework for a broad class of
+shape-fitting and clustering problems, showing that small weighted subsets can substitute
+for the full dataset with bounded error. \citet{mirzasoleiman2020coresets} extend this to
+submodular maximization, constructing coresets that preserve the value of the optimal
+solution up to a $(1-\epsilon)$ factor. QuickPrune's pruned universe serves a similar
+role, but differs in two key respects: it operates under the value oracle model without
+requiring reweighting of elements, and it supports a range of budgets simultaneously
+rather than a single query type.
 
 \section{Classical Approaches to Pruning}
 Classical pruning methods for combinatorial optimization (CO) fall into two categories:
@@ -88,6 +94,24 @@ graph instances. Moreover, all existing methods are designed and evaluated exclu
 under size constraints, leaving other constraint types such as knapsack constraints
 unaddressed.
 
+\section{Neural Combinatorial Optimization and Tree Search}
+
+A parallel line of work applies deep learning directly to CO problems in combination
+with tree search. \citet{li2018combinatorial} combine a GCN with guided tree search in a
+supervised setting, though their approach requires a large number of pre-solved instances
+for training. \citet{abe2019solving} train a GCN using Monte Carlo Tree Search as a policy
+improvement operator, following the AlphaGo Zero paradigm~\citep{silver2017mastering}.
+\citet{xing2020graph} introduce a GNN-assisted MCTS method that constructs solutions to
+the TSP by adding nodes successively. \citet{choo2022simulation} propose a fixed-width
+tree search guided by a neural network policy. These methods focus on producing solutions
+as close to optimal as possible, and are generally limited to graphs with hundreds to
+thousands of nodes.
+
+H-DeepPruner (Chapter~\ref{chap:hdeeppruner}) shares the GNN+MCTS design with this line
+of work but is orthogonal in objective: rather than directly optimizing the CO objective,
+it produces a reduced ground set for a separate downstream solver. This separation enables
+scalability to large graphs and generalization across CO problems without retraining.
+
 \section{Automated Feature Engineering via LLMs}
 Automated feature engineering seeks to generate useful features from raw data without
 human effort. Prior work with large language models (LLMs) has focused primarily on
@@ -96,8 +120,12 @@ either rely on manually designed feature-generation
 rules~\citep{zhang2023openfe, zhang2024dynamic} or few-shot
 prompts~\citep{han2024large}, and thus still depend on hand-crafted design choices.
 Moreover, existing methods~\citep{nam2024optimized, hollmann2023large} suffer from error
-propagation caused by simple feedback loops. These approaches are distinct from methods
-that directly generate algorithms using LLMs~\citep{yang2023large, liu2024evolution}; such methods often exhibit degraded performance as graph size increases.
+propagation caused by simple feedback loops. Our approach is orthogonal to methods that directly generate algorithms using
+LLMs~\citep{yang2023large, liu2024evolution, romera2024mathematical}, which o exhibit
+degraded performance as graph size increases. Instead, LLM2Prune leverages
+the reasoning capabilities of LLMs to generate features for a learned pruning algorithm,
+keeping inference lightweight and transferable across instances without re-running the
+search.
 
 LLM-driven feature engineering is a natural fit for pruning, as LLMs can encode the kind
 of domain knowledge that would otherwise require expert design of problem-specific

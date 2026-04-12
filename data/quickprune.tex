@@ -7,7 +7,7 @@
 \newtheorem{fact}{Fact}[chapter]
 \theoremstyle{plain}
 \newcommand{\uni}{\mathcal{U}}
-\newcommand{\epsi}{\varepsilon}
+\newcommand{\epsi}{\epsilon}
 \newcommand{\opt}{\textsc{OPT}}
 \newcommand{\marge}[2]{\Delta \left( #1 \mid #2 \right)}
 \newcommand{\nhi}{\textsc{NHI}}
@@ -132,7 +132,8 @@ may be safely discarded. The full pseudocode is given in Algorithm~\ref{alg:sing
 An element $e$ is added to the running set $A$ if its marginal gain satisfies
 $\Delta(e \mid A) \geq \frac{\delta \, c(e) \, f(A)}{\kappa}$; intuitively, the element
 must increase the value of $A$ by an amount proportional to its cost-to-budget ratio to be
-worth retaining. The deletion step (Line 12) is the key mechanism for controlling the size
+worth retaining. When $A = \emptyset$ and $f(\emptyset) = 0$, the threshold is zero and
+every element passes the condition, so the first element encountered is always added. The deletion step (Line 12) is the key mechanism for controlling the size
 of $\mathcal{U}'$: when the accumulated value grows by a factor of $n / \epsilon$ since
 the last checkpoint $A_s$, old elements are discarded. Submodularity bounds the amount of
 value lost from each deletion, and the condition on element addition bounds the maximal
@@ -610,3 +611,14 @@ Maximization under knapsack constraints across four datasets.
     QuickPrune-Single across a range of budgets from 10 to 100.}
   \label{fig:qp-multiBudget}
 \end{figure}
+
+\section{Discussion}
+
+\textbf{Theory-empirical gap.}
+For natural parameter choices ($\gamma = 1$, $\delta = 1$, $\epsilon = 0.01$), Theorem~2
+gives a value retention constant of $(1-0.01)/24 \approx 0.041$, guaranteeing retention of
+at least roughly $4\%$ of the optimal value. Empirically, however, QuickPrune achieves
+$P_r \approx 0.96$-$1.00$ across all benchmarks, a gap of more than $20\times$.
+This is an artifact of worst-case analysis: the bound must hold for all
+$\gamma$-weakly submodular functions and all element orderings, so each step of the proof
+introduces slack that real instances do not exhibit. 

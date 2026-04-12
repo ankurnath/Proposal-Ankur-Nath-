@@ -3,9 +3,13 @@
 \chapter{\uppercase {Hierarchical DeepPruner: A Novel Framework for Search Space Reduction}}
 
 QuickPrune (Chapter~3) establishes that principled, problem-agnostic pruning is achievable
-with theoretical guarantees. A natural follow-up question is whether a purely learning-based
-approach can also achieve effective pruning without relying on hand-crafted features or
-domain-specific knowledge. Existing learning-based pruning methods achieve fast inference
+with theoretical guarantees. Its core limitation, however, is that it requires computing
+marginal gains $\Delta(e \mid A)$ for every element, which can be computationally expensive
+or even intractable for certain objectives — for example, computing the exact expected
+spread in influence maximization is \#P-hard, and each marginal gain evaluation requires a
+separate approximation. A natural follow-up question is therefore whether a learning-based
+approach can amortize this cost: train once, then prune at inference time with no oracle
+calls at all. Existing learning-based pruning methods achieve fast inference
 but demand problem-specific design choices, making them difficult to apply to new CO
 problems. In this chapter, we present Hierarchical DeepPruner
 (H-DeepPruner)~\citep{nath2025hdeeppruner} as a proof of concept demonstrating that
