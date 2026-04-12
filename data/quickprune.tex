@@ -445,10 +445,11 @@ Dataset Collection (SNAP)~\citep{leskovec2016snap}, following the experimental s
 of~\citep{ireland2022lense}. The graphs range from small networks
 (Facebook, $\sim$4K vertices) to large-scale graphs (Skitter, $\sim$1.7M vertices).
 
-\textbf{Baselines.} We compare against: Submodular Sparsification
-(SS)~\citep{zhou2017scaling}, GCOMB~\citep{manchanda2020gcomb},
-LeNSE~\citep{ireland2022lense}, COMBHelper~\citep{tian2024combhelper}, and GNNPruner, an ablation baseline that is a simplified version of COMBHelper using a GNN
-with random node features instead of hand-crafted features. For knapsack constraints, since the prior ML
+\textbf{Baselines.} We compare against: Submodular Sparsification (SS)~\citep{zhou2017scaling},
+GCOMB~\citep{manchanda2020gcomb}, LeNSE~\citep{ireland2022lense},
+COMBHelper~\citep{tian2024combhelper}, and GNNPruner, an ablation baseline that is a
+simplified version of COMBHelper using a GNN with random node features instead of
+hand-crafted features. For knapsack constraints, since the prior ML
 methods do not easily generalize, we compare to GNNPruner and a Top-$k$ approach that
 selects elements with the highest degree-to-cost ratios.
 
