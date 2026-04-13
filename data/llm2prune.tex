@@ -131,6 +131,8 @@ Propose node-level features for a GNN binary classifier that predicts nodes
 likely to be in the optimal solution.
 
 The heuristic can only select nodes from the reduced candidate set provided
+\end{minted}
+\begin{minted}[fontsize=\footnotesize, frame=single, breaklines]{python}
 by the GNN. The goal is to shrink the candidate set while ensuring that the
 heuristic still achieves the same objective value.
 
@@ -160,7 +162,7 @@ diverse outputs due to temperature sampling, broadening exploration of the featu
 
 For each child node with its generated feature set $\mathcal{F}_{d+1,j}$, the LLM is
 prompted with the code-generation meta-prompt $Z_{\text{code}}$ to produce executable
-Python code for each proposed feature:
+Python code for each proposed feature: \newpage
 \begin{minted}[fontsize=\footnotesize, frame=single, breaklines]{python}
 f'''The input is a weighted NetworkX graph G where each node has an attribute
 weight and an integer variable budget is provided.
