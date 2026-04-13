@@ -2,7 +2,7 @@
 
 \chapter{\uppercase {Hierarchical DeepPruner: A Novel Framework for Search Space Reduction}} \label{chap:hdeeppruner}
 
-QuickPrune (Chapter~3) establishes that principled, problem-agnostic pruning is achievable
+QuickPrune (Chapter~\ref{chap:quickprune}) establishes that principled, problem-agnostic pruning is achievable
 with theoretical guarantees. Its core limitation, however, is that it requires computing
 marginal gains $\Delta(e \mid A)$ for every element, which can be computationally expensive
 or even intractable for certain objectives — for example, computing the exact expected
@@ -32,7 +32,7 @@ elements.
 
 \section{Problem Setting}
 
-We consider the pruning problem defined in Chapter~3, restricted to size constraints.
+We consider the pruning problem defined in Chapter~\ref{chap:quickprune}, restricted to size constraints.
 Given a ground set $\mathcal{U}$ and an exact method $\mathcal{OPT}$, an optimal solution
 is defined as $X^\star = \arg\max_{X \subset \mathcal{U}, |X| \leq k} f(X)$. The goal is
 to find a significantly smaller ground set $\mathcal{U}'$ with
@@ -223,14 +223,14 @@ of~\citep{ireland2022lense}.
 
 \textbf{Applications and Datasets.} We use the same three graph CO problems (MaxCover,
 MaxCut, and IM under the independent cascade model) and the same eight
-real-world SNAP graphs~\citep{leskovec2016snap} as in Chapter~3, with budget $k = 100$.
+real-world SNAP graphs~\citep{leskovec2016snap} as in Chapter~\ref{chap:quickprune}, with budget $k = 100$.
 Unlike the baselines, which train on the actual graph data, H-DeepPruner is trained
 entirely on synthetic ER graphs~\citep{erdos1960evolution}.
 
 \textbf{Baselines.} We compare against GCOMB~\citep{manchanda2020gcomb},
 COMBHelper~\citep{tian2024combhelper}, and LeNSE~\citep{ireland2022lense}.
 
-\textbf{Evaluation Metrics.} We use the same three metrics as in Chapter~3: pruning
+\textbf{Evaluation Metrics.} We use the same three metrics as in Chapter~\ref{chap:quickprune}: pruning
 approximation ratio $P_r$, pruned fraction $P_g$, and combined metric $C = P_r \cdot P_g$.
 Additionally, we report speed-up
 $S = \text{time}_{\mathcal{U}} / (\text{time}_{\mathcal{U}'} + \text{time}_{\text{prune}})$,
@@ -320,7 +320,7 @@ These results serve as a proof of concept that learning-based pruning can be bot
 problem-agnostic and effective. However, H-DeepPruner has important limitations: it
 operates only under size constraints, provides no theoretical guarantees on solution
 quality, and incurs computational overhead from NMCTS that limits scalability.
-These limitations motivate the design of LLM2Prune (Chapter~5), which aims to combine
+These limitations motivate the design of LLM2Prune (Chapter~\ref{chap:llm2prune}), which aims to combine
 the generality of a learning-based approach with broader constraint support.
 
 % \begin{figure}[t]

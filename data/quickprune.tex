@@ -179,7 +179,7 @@ $\mathcal{U}'$ to the true optimum (Proposition 4).
 
 \textbf{Theorem 1 (Single Budget).}\label{thm:single} Let QuickPrune-Single be run on instance
 $(\mathcal{U}, c, f, \kappa)$ with parameters $\epsilon, \delta > 0$, such that $f$ is
-$\gamma$-submodular. Then the algorithm produces $\mathcal{U}'$ such that
+$\gamma$-weakly submodular. Then the algorithm produces $\mathcal{U}'$ such that
 \[
 |\mathcal{U}'| < 2\left(1 + \frac{\kappa}{\delta \, c_{\min}}\right)
 \log(n / \epsilon) + 3,
@@ -191,7 +191,7 @@ f(A') \geq \frac{\delta \gamma^4 (1 - \epsilon \gamma^{-1})}
 \]
 
 \textbf{Theorem 2 (Multi-Budget, Main Result).} Let $\kappa_{\min} < \kappa_{\max}$, let
-$0 < \eta \leq 1/2$, and let $f, c$ be $\gamma$-submodular and modular functions,
+$0 < \eta \leq 1/2$, and let $f$ be $\gamma$-weakly submodular and $c$ be a modular function,
 respectively. Suppose that for all $\kappa' \in [\kappa_{\min}, \kappa_{\max}]$, the
 instance $(f, c, \kappa')$ satisfies the NHI assumption with $\eta$. Let $\mathcal{U}'$
 be the output of QuickPrune. Then, for all
@@ -229,14 +229,14 @@ that is logarithmic in the original ground set size $n$.
 \end{proposition}
 
 \begin{proposition} \label{prop:ahat-adot}
-  Suppose $f$ is $\gamma$-submodular.
+  Suppose $f$ is $\gamma$-weakly submodular.
   Let $A_i$ be the value of $A$ after the execution of iteration $i$ of the \textbf{for} loop,
   for $i = 1$ to $n$, and $A_0 = \emptyset$.
   Let $\hat A = \bigcup A_j, \dot A = A_n$. Then $f( \dot A ) \ge (1 - \gamma^{-1} \epsi )f( \hat A)$.
 \end{proposition}
 
 \begin{lemma} \label{lemma:value-inside-A}
-  Let $f$ be $\gamma$-submodular.
+  Let $f$ be $\gamma$-weakly submodular.
   Let $\delta, \kappa > 0$. Suppose $A_i = \{ a_1, \ldots a_i \}$ is a sequence of sets satisfying
   (1) $c(a_i) \le \kappa$, and (2) $\marge{ a_i }{ A_{i - 1} } \ge \gamma \frac{\delta c( a_i ) f( A_{i -1 } ) }{ \kappa }$,
   for each $i$ from $1$ to $m$. Let $f( a^* ) \ge \max_{i \in [m]} f(a_i)$, and $c(a^*) \le \kappa$.
@@ -503,8 +503,10 @@ Skitter   & 0.999 & 1.000 & 0.998 & 0.986 & 0.999 & 0.985 & 0.999 & 0.100 & 0.10
 \midrule
 Facebook  & 0.989 & 0.794 & 0.785 & 0.993 & 0.903 & \textbf{0.896} & 0.813 & 0.950 & 0.772 & 1.000 & 0.154 & 0.154 & 1.000 & 0.070 & 0.070 & 1.000 & 0.677 & 0.677 \\
 Wiki      & 0.999 & 0.904 & 0.902 & 0.998 & 0.935 & \textbf{0.933} & 0.920 & 0.960 & 0.883 & 1.000 & 0.701 & 0.701 & 0.981 & 0.390 & 0.383 & 1.000 & 0.900 & 0.900 \\
+Deezer    & 1.000 & 0.973 & 0.973 & 1.000 & 0.986 & \textbf{0.985} & 0.850 & 0.990 & 0.842 & 1.000 & 0.375 & 0.375 & 0.975 & 0.740 & 0.722 & 1.000 & 0.919 & 0.919 \\
 Slashdot  & 1.00 & 0.990 & \textbf{0.990} & 1.000 & 0.989 & 0.989 & 0.632 & 0.990 & 0.626 & 0.794 & 0.993 & 0.788 & 0.990 & 0.620 & 0.614 & 1.000 & 0.980 & 0.980 \\
 Twitter   & 1.00 & 0.990 & \textbf{0.990} & 1.000 & 0.989 & 0.989 & 0.628 & 0.990 & 0.622 & 1.000 & 0.554 & 0.554 & 0.987 & 0.480 & 0.474 & 1.000 & 0.974 & 0.974 \\
+DBLP      & 1.000 & 0.995 & \textbf{0.995} & 1.000 & 0.996 & \textbf{0.995} & 0.646 & 0.990 & 0.640 & 1.000 & 0.183 & 0.183 & 0.993 & 0.920 & 0.914 & 1.000 & 0.862 & 0.862 \\
 YouTube   & 1.00 & 0.999 & \textbf{0.999} & 1.000 & 0.999 & 0.999 & 0.536 & 0.990 & 0.531 & 0.999 & 0.971 & 0.970 & 0.987 & 0.790 & 0.780 & 0.994 & 0.997 & 0.990 \\
 Skitter   & 1.00 & 1.000 & \textbf{1.000} & 1.000 & 0.999 & 0.999 & 0.427 & 0.990 & 0.423 & -- & -- & -- & 0.974 & 0.710 & 0.692 & 1.000 & 0.988 & 0.988 \\
 \midrule
@@ -512,8 +514,10 @@ Skitter   & 1.00 & 1.000 & \textbf{1.000} & 1.000 & 0.999 & 0.999 & 0.427 & 0.99
 \midrule
 Facebook  & 0.992 & 0.745 & 0.739 & 0.921 & 0.903 & \textbf{0.831} & 0.951 & 0.730 & 0.694 & 1.004 & 0.325 & 0.326 & 0.979 & 0.090 & 0.088 & 0.994 & 0.492 & 0.489 \\
 Wiki      & 1.027 & 0.883 & 0.907 & 0.986 & 0.935 & \textbf{0.922} & 0.969 & 0.900 & 0.872 & 0.997 & 0.607 & 0.605 & 0.960 & 0.510 & 0.490 & 1.001 & 0.896 & 0.897 \\
+Deezer    & 0.938 & 0.970 & 0.910 & 1.026 & 0.986 & \textbf{1.011} & 0.805 & 0.550 & 0.443 & 0.984 & 0.109 & 0.108 & 0.972 & 0.760 & 0.739 & 0.998 & 0.848 & 0.846 \\
 Slashdot  & 0.998 & 0.988 & 0.987 & 0.996 & 0.989 & 0.985 & 0.966 & 0.980 & 0.947 & 1.008 & 0.988 & \textbf{0.995} & 0.966 & 0.770 & 0.744 & 0.999 & 0.980 & 0.979 \\
 Twitter   & 1.005 & 0.997 & \textbf{1.001} & 0.958 & 0.989 & 0.947 & 0.920 & 0.980 & 0.902 & 0.997 & 0.495 & 0.493 & 0.966 & 0.400 & 0.386 & 0.984 & 0.976 & 0.960 \\
+DBLP      & 0.860 & 0.995 & 0.856 & 1.050 & 0.996 & \textbf{1.046} & 0.863 & 0.990 & 0.854 & 0.987 & 0.019 & 0.019 & 0.969 & 0.890 & 0.862 & 0.756 & 0.333 & 0.251 \\
 YouTube   & 0.968 & 0.999 & 0.967 & 0.985 & 0.999 & 0.983 & 0.933 & 0.990 & 0.924 & 0.999 & 0.971 & 0.970 & 0.971 & 0.750 & 0.728 & 1.002 & 0.997 & \textbf{0.998} \\
 Skitter   & 0.981 & 1.000 & 0.981 & 1.003 & 0.999 & \textbf{1.002} & 0.883 & 0.990 & 0.874 & -- & -- & -- & 0.983 & 0.780 & 0.767 & 1.002 & 0.989 & 0.991 \\
 \bottomrule
