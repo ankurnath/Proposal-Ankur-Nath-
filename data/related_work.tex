@@ -103,7 +103,9 @@ supervised setting, though their approach requires a large number of pre-solved 
 for training. \citet{abe2019solving} train a GCN using Monte Carlo Tree Search as a policy
 improvement operator, following the AlphaGo Zero paradigm~\citep{silver2017mastering}.
 \citet{xing2020graph} introduce a GNN-assisted MCTS method that constructs solutions to
-the TSP by adding nodes successively. \citet{choo2022simulation} propose a fixed-width
+the TSP by adding nodes successively. \citet{joshi2019efficient} use a GCN to predict
+edge inclusion probabilities for the TSP, decoded with beam search.
+\citet{choo2022simulation} propose a fixed-width
 tree search guided by a neural network policy. These methods focus on producing solutions
 as close to optimal as possible, and are generally limited to graphs with hundreds to
 thousands of nodes.
@@ -121,12 +123,18 @@ either rely on manually designed feature-generation
 rules~\citep{zhang2023openfe, zhang2024dynamic} or few-shot
 prompts~\citep{han2024large}, and thus still depend on hand-crafted design choices.
 Moreover, existing methods~\citep{nam2024optimized, hollmann2023large} suffer from error
-propagation caused by simple feedback loops. Our approach is orthogonal to methods that directly generate algorithms using
-LLMs~\citep{yang2023large, liu2024evolution, romera2024mathematical}, which o exhibit
-degraded performance as graph size increases. Instead, LLM2Prune leverages
-the reasoning capabilities of LLMs to generate features for a learned pruning algorithm,
-keeping inference lightweight and transferable across instances without re-running the
-search.
+propagation caused by simple feedback loops. A related line of work uses LLMs to directly generate algorithms or heuristics for
+combinatorial problems. FunSearch~\citep{romera2024mathematical} applies an
+LLM-guided evolutionary search to discover programs that solve problems such as bin
+packing. \citet{yang2023large} use LLMs as black-box optimizers to iteratively refine
+solution strategies via natural language feedback. \citet{liu2024evolution} evolve
+heuristics for CO problems by prompting LLMs to propose and improve algorithmic rules.
+While these methods share the idea of using LLM reasoning to search over a structured
+space, their objective is orthogonal to LLM2Prune: they generate algorithms that are
+re-run on each new instance, so their inference cost scales with graph size and degrades
+on large instances. LLM2Prune instead uses LLMs only during a one-time feature
+discovery phase on small synthetic graphs; inference on target instances reduces to a
+single GCN forward pass, independent of graph size.
 
 LLM-driven feature engineering is a natural fit for pruning, as LLMs can encode the kind
 of domain knowledge that would otherwise require expert design of problem-specific
