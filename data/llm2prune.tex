@@ -297,10 +297,6 @@ with both scale-free degree distribution and high clustering coefficient. After 
 the feature set, we fine-tune the downstream classifier for each instance.
 All beam search results were generated using GPT-4.1 as the backbone LLM with temperature
 $T = 1.0$. The beam search uses hyperparameters $D_{\max} = 5$, $\beta = 3$, $\gamma = 2$.
-Three meta-prompts are used: a summary prompt that condenses the history into key points, a
-feature-generation prompt that proposes new feature sets conditioned on the task description
-and history summary, and a code-generation prompt that produces executable Python code for
-each proposed feature.
 
 \subsection{Size Constraint Results}
 
