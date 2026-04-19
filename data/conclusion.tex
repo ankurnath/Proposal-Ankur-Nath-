@@ -1,0 +1,50 @@
+\pagestyle{plain} % No headers, just page numbers
+
+\chapter{\uppercase{Conclusion}} \label{chap:conclusion}
+
+This dissertation addresses a fundamental scalability bottleneck in combinatorial
+optimization on graphs: the mismatch between enormous ground sets and small optimal
+solutions. We proposed a coherent framework of pruning strategies that reduce the ground
+set to a much smaller subset before invoking a downstream solver, enabling practical
+scalability without sacrificing solution quality. Our contributions span three
+complementary directions: provably correct pruning, learned pruning without handcrafted
+features, and automated feature discovery with constraint adaptability.
+
+\textbf{QuickPrune}~\citep{pmlr-v258-nath25a} establishes the first theoretical
+foundation for search space pruning in combinatorial optimization. Prior to this work,
+all pruning methods were heuristics with no formal performance guarantees. QuickPrune is
+a lightweight, single-pass streaming algorithm that processes each element exactly once
+and produces a pruned ground set of size logarithmic in $n$, while retaining a provable
+fraction of the optimal value. The algorithm operates under $\gamma$-weak submodularity,
+a condition satisfied by a broad class of objectives including Maximum Coverage and
+Influence Maximization, and handles both size and knapsack constraints. Empirically,
+QuickPrune prunes over 90\% of the ground set while outperforming or matching all
+classical and learning-based baselines across three CO problems and eight large-scale
+datasets.
+
+\textbf{H-DeepPruner}~\citep{nath2025hdeeppruner} demonstrates that effective learned
+pruning does not require handcrafted, problem-specific features. All prior learning-based
+pruners depend on domain knowledge to construct input features, limiting their
+generality. H-DeepPruner replaces engineered features with random node initializations
+and uses a two-stage pipeline: a GNN pre-pruner coarsely filters nodes in a single pass,
+followed by a Neural MCTS fine-pruner that captures element interdependencies by
+building the pruned set from scratch. Despite using no domain knowledge, H-DeepPruner
+matches or outperforms carefully engineered baselines on real-world graphs, establishing
+that graph topology alone suffices for competitive learned pruning.
+
+\textbf{LLM2Prune} closes the remaining gap by automating feature discovery and
+enabling natural adaptation to diverse constraints. Rather than relying on random or
+handcrafted features, LLM2Prune uses large language models to propose node-level
+features from a task description, guided by an LLM-directed beam search over the feature
+space. Performance evaluation and feature-importance scores from GNNExplainer serve as
+feedback signals, steering the search toward high-quality, problem-grounded features.
+Switching from size to knapsack constraints requires only changing the prompt, with no
+algorithmic redesign. Across three CO problems and eight datasets, LLM2Prune is
+competitive with classical methods and outperforms all learning-based baselines, while
+completing inference in under three seconds even on graphs with over one million nodes.
+
+Together, these three contributions form a coherent and progressively more capable
+framework for scalable combinatorial optimization on graphs. QuickPrune provides
+theoretical guarantees; H-DeepPruner shows that learning-based pruning can succeed
+without domain knowledge; and LLM2Prune automates the feature discovery process and
+generalizes across constraint types.

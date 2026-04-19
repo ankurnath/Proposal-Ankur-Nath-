@@ -9,7 +9,7 @@ scale well to problems where marginal gain computation is \#P-hard, while H-Deep
 operates only under size constraints and provides no theoretical guarantees.
 A central question remains: \emph{is it possible to design a scalable pruning framework
 that avoids handcrafted features, delivers strong performance across general CO problems
-over graphs, and adapts easily to different constraints?} In this chapter, we propose
+over graphs, and adapts easily to different constraints?} In this chapter, we present
 LLM2Prune, a framework that uses large language models (LLMs) to automatically generate
 node-level features for a lightweight GNN classifier that predicts which nodes belong in
 the pruned ground set. The feature discovery process is guided by an LLM-directed beam
@@ -33,7 +33,7 @@ Furthermore, most learning-based methods are designed specifically for size cons
 do not generalize to knapsack constraints.
 
 These limitations point to a common bottleneck: the reliance on human-designed features
-and problem-specific algorithmic choices. We propose to address this bottleneck by
+and problem-specific algorithmic choices. We address this bottleneck by
 leveraging large language models to automate the feature discovery process. LLMs are
 trained on large corpora that include graph theory, network science, and combinatorial
 optimization literature, making them capable of proposing problem-relevant features from
@@ -50,7 +50,7 @@ ambiguous or the problem domain falls outside the LLM's training distribution, t
 quality of proposed features may degrade. We discuss this limitation further in
 Section~\ref{sec:llm2prune-remaining}.
 
-\section{Proposed Approach}
+\section{Methodology}
 
 The core idea of LLM2Prune is to use LLMs to automatically generate node-level features
 for a lightweight GCN classifier~\citep{kipf2016semi} that predicts which nodes belong in
@@ -278,7 +278,7 @@ feature proposal, and code generation steps), totalling roughly 24,000 tokens pe
 type. This is a one-time cost amortized across all future instances of the same graph
 family; per-instance inference requires no LLM calls.
 
-\section{Preliminary Results}
+\section{Empirical Evaluation}
 
 We have conducted preliminary experiments to validate the proposed approach. We evaluate
 LLM2Prune on three graph CO problems, namely Maximum Coverage (MaxCover), Maximum Cut
@@ -436,16 +436,24 @@ is more complex.
   \label{fig:llm2prune-ablation}
 \end{figure}
 
-\section{Remaining Work}
-\label{sec:llm2prune-remaining}
+\subsection{Knapsack Constraint Results}
 
-We have completed the proposed framework design, the ablation study justifying the beam
-search strategy under both size and knapsack constraints, and a comprehensive comparative
-evaluation under size constraints across three CO problems and eight real-world datasets.
-The results demonstrate that LLM2Prune performs competitively with classical methods while
-being orders of magnitude faster at inference, and consistently outperforms all existing
-learning-based approaches. The primary remaining work is conducting a full comparative evaluation under knapsack
-constraints against all baselines across all datasets and applications. Unlike other
-learning-based methods, LLM2Prune can naturally adapt to the knapsack constraint by simply
-modifying the task description provided to the LLM, without requiring any changes to the
-underlying framework or retraining the feature discovery pipeline.
+Under the knapsack constraint, only QuickPrune generalizes among prior methods; all
+learning-based baselines are limited to size constraints and cannot be adapted without
+significant redesign. LLM2Prune adapts by modifying the task description provided to the
+LLM, with no changes to the underlying framework. We compare LLM2Prune against
+QuickPrune~\citep{pmlr-v258-nath25a} and TOP-$k$, following~\citep{pmlr-v258-nath25a}.
+
+Figure~\ref{fig:llm2prune-knapsack} shows that LLM2Prune outperforms TOP-$k$ across all
+three problems. Compared to QuickPrune, LLM2Prune achieves higher combined metric on
+MaxCover and IM, and remains competitive on MaxCut. These results demonstrate that
+LLM2Prune generalizes naturally to different constraint types.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/llm2prune/algo_comparison_violin.pdf}
+  \caption{Combined metric under knapsack constraint for LLM2Prune, QuickPrune, and
+    TOP-$k$ across MaxCover, MaxCut, and IM. LLM2Prune outperforms TOP-$k$ on all
+    problems and outperforms QuickPrune on MaxCov and IM.}
+  \label{fig:llm2prune-knapsack}
+\end{figure}
