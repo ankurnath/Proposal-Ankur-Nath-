@@ -56,8 +56,8 @@ hand-crafted, problem-specific features that require significant domain expertis
 Finally, no existing method provides formal guarantees on the quality of the pruned
 ground set.
 Altogether, these limitations motivate a focused research effort on developing pruning
-strategies that are scalable, general, and principled. The overarching goal of the
-proposed work is to address this challenge by developing a suite of pruning methods for
+strategies that are scalable, general, and principled. The overarching goal of this
+dissertation is to address this challenge by developing a suite of pruning methods for
 graph CO, aiming to make solvers faster, more general, and
 more practical for large-scale graph instances.
 
@@ -83,7 +83,7 @@ is \#P-hard~\citep{chen2010scalable}.
 A complementary approach to classical pruning is to learn to prune from data, enabling
 faster inference without manual feature design. However, existing learning-based methods
 demand problem-specific domain knowledge for feature engineering, making them difficult
-to apply to new CO problems. To address this limitation, we propose
+to apply to new CO problems. To address this limitation, we present
 Hierarchical DeepPruner (H-DeepPruner)~\citep{nath2025hdeeppruner}, a
 two-stage framework that combines supervised learning with reinforcement learning for
 search space reduction under size constraints. The first stage uses a graph neural
@@ -102,7 +102,7 @@ are problem-agnostic and may lack the expressiveness needed to capture problem-s
 structural patterns. On the other end of the spectrum, existing methods use carefully
 engineered features that are expressive but require substantial domain expertise,
 limiting their transferability across problems and constraints. To bridge this gap, we
-propose LLM2Prune, a framework that leverages large language
+present LLM2Prune, a framework that leverages large language
 models to automatically discover problem-grounded node features for a downstream
 classifier. Given only a natural language task description, LLM2Prune guides the feature
 discovery process using both performance evaluation and feature-importance feedback,
@@ -115,7 +115,7 @@ consistently outperforming existing learning-based pruning approaches.
 
 
 
-\textbf{Contributions.} In summary, \emph{This proposal presents a coherent framework for scaling combinatorial optimization
+\textbf{Contributions.} In summary, \emph{This dissertation presents a coherent framework for scaling combinatorial optimization
 on graphs through provable guarantees, learned pruning, and automated feature discovery.} QuickPrune establishes the theoretical foundations, proving that pruning with
 formal value-retention bounds is achievable under natural assumptions. Hierarchical DeepPruner demonstrates that learning-based methods can achieve effective empirical
 performance under size constraints without requiring any domain expertise. LLM2Prune
@@ -125,7 +125,7 @@ perspective has implications for building combinatorial optimization solvers tha
 not only faster through effective search space reduction, but also more general across
 problems and constraints, and more practical through automated feature discovery.
 
-The remainder of this proposal is organized as follows. Chapter~\ref{chap:relatedwork} reviews related work
+The remainder of this dissertation is organized as follows. Chapter~\ref{chap:relatedwork} reviews related work
 on pruning methods for combinatorial optimization. Chapters~\ref{chap:quickprune}, \ref{chap:hdeeppruner}, and \ref{chap:llm2prune} present
-QuickPrune, Hierarchical DeepPruner, and LLM2Prune in detail, respectively. Chapter~\ref{chap:timeline}
-presents the research timeline.
+QuickPrune, Hierarchical DeepPruner, and LLM2Prune in detail, respectively. Chapter~\ref{chap:conclusion}
+presents the conclusion.

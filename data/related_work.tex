@@ -2,11 +2,11 @@
 
 \chapter{\uppercase {Related Work}} \label{chap:relatedwork}
 
-The proposed work draws on five areas of prior research: the theory of submodular
+This dissertation draws on five areas of prior research: the theory of submodular
 maximization, classical pruning methods, learning-based pruning methods, neural
 combinatorial optimization and tree search, and automated feature engineering with large
 language models. This chapter reviews existing work in each area and highlights the
-limitations that motivate the contributions of this proposal.
+limitations that motivate the contributions of this dissertation.
 
 \section{Submodular Maximization}
 
@@ -26,7 +26,7 @@ means. \citet{mirzasoleiman2015lazier} reduce the query complexity of greedy fro
 $O(nk)$ to $O(n\log(1/\epsilon))$ via stochastic lazy evaluation,
 maintaining a $(1-1/e-\epsilon)$ guarantee. \citet{badanidiyuru2014streaming} introduce a single-pass
 streaming algorithm that retains a constant-factor approximation using $O(k/\epsilon)$
-memory --- the streaming model that directly inspires QuickPrune's single-pass design. A
+memory, the streaming model that directly inspires QuickPrune's single-pass design. A
 related line of work constructs \textit{coresets}: compact summaries of a dataset that
 approximately preserve objective values and can be reused across multiple queries.
 \citet{feldman2011unified} introduce a general coreset framework for a broad class of
