@@ -24,6 +24,7 @@
 \usepackage{subcaption}
 \usepackage{multirow}
 \usepackage{fontawesome5}
+\usepackage{minted}
 
 \DeclareGraphicsExtensions{.pdf,.png}
 
@@ -1171,6 +1172,80 @@
 %     \end{column}
 %   \end{columns}
 % \end{frame}
+
+\begin{frame}[fragile]{LLM2Prune: Meta-Prompts (1/2)}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{$Z_{\text{summary}}$: History Summarization}
+        \begin{minted}[fontsize=\tiny, breaklines]{text}
+You are an expert in graph neural networks
+and combinatorial optimization.
+
+Summarize the following feedback from
+previous iterations:
+{cumulative_feedback}
+
+Provide a concise summary of the key
+points and insights.
+        \end{minted}
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{$Z_{\text{code}}$: Code Generation}
+        \begin{minted}[fontsize=\tiny, breaklines]{text}
+The input is a weighted NetworkX graph G
+where each node has an attribute weight
+and an integer variable budget is provided.
+
+Feature name: {feature}
+Feature definition: {definition}
+
+Write Python code for a function
+extract_feature(G) that computes this
+feature for ALL nodes in G. The function
+must return a NumPy array with one value
+per node, ordered to align with the
+iteration order of G.nodes().
+Keep the implementation efficient; avoid
+expensive computations.
+DO NOT INCLUDE ANY EXPLANATIONS OR
+COMMENTS.
+        \end{minted}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{LLM2Prune: Meta-Prompts (2/2)}
+  \begin{block}{$Z_{\text{feature}}$: Feature Generation}
+    \begin{minted}[fontsize=\tiny, breaklines]{text}
+You are an expert in graph neural networks and combinatorial optimization.
+
+Consider the {problem}, defined as ({problem_definition}).
+Propose node-level features for a GNN binary classifier that predicts nodes
+likely to be in the optimal solution.
+
+The heuristic can only select nodes from the reduced candidate set provided
+by the GNN. The goal is to shrink the candidate set while ensuring that the
+heuristic still achieves the same objective value.
+
+Feedback from previous iterations: {explainer_feedback}
+Refinement rules:
+1) Keep high-importance features.
+2) Avoid proposing features that are too similar to existing or previously failed ones.
+3) Replace or remove low-importance features.
+4) Add new features inspired by important patterns.
+5) Ensure all features are distinct and non-redundant.
+
+Return the output as a JSON array of objects with keys:
+- "feature": feature name in snake_case
+- "definition": a one-line definition of how to compute it
+- "reason": 1-2 sentences explaining why it is useful
+
+Do not include any text outside the JSON array.
+    \end{minted}
+  \end{block}
+\end{frame}
 
 
 \end{document}
