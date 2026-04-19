@@ -1137,6 +1137,70 @@
   \end{exampleblock}
 \end{frame}
 
+\begin{frame}{QuickPrune: Time Complexity}
+  \begin{block}{QuickPrune-Single}
+    \begin{itemize}
+      \item Each element is processed exactly \textbf{once} (streaming, single pass)
+      \item Per-element cost: $\mathcal{O}(\log(\kappa_{\max}/\kappa_{\min}))$ oracle
+        queries (one per parallel copy)
+      \item Total oracle queries: $\mathcal{O}(n \log(\kappa_{\max}/\kappa_{\min}))$
+      \item Space: $\mathcal{O}(|\mathcal{U}'|)$ to store the pruned set
+    \end{itemize}
+  \end{block}
+
+  \vspace{0.2cm}
+
+
+\end{frame}
+
+\begin{frame}{H-DeepPruner: Time Complexity}
+  \begin{block}{Stage 1: GNN Pre-Pruning}
+    \begin{itemize}
+      \item $d$-layer GCN over graph with $|V|$ nodes and $|E|$ edges:
+        $\mathcal{O}(d(|V|+|E|))$ per forward pass
+      \item Fixed $d = 2$ layers: $\mathcal{O}(|V|+|E|)$
+      \item Runs \textbf{once} as a preprocessing step; no oracle queries at inference
+    \end{itemize}
+  \end{block}
+
+  \vspace{0.2cm}
+
+  \begin{block}{Stage 2: Neural MCTS Fine-Pruning}
+    \begin{itemize}
+      \item Operates on reduced graph with $|V'| \ll |V|$, $|E'| \ll |E|$
+      \item Each simulation: depth $\ell$ GCN forward passes at cost
+        $\mathcal{O}(\ell(|V'|+|E'|))$
+      \item Progressive widening bounds branching factor: $\lfloor N^\alpha \rfloor$
+        children for a node visited $N$ times ($\alpha \in (0,1)$)
+      \item Progressive deepening halts at plateau: limits total simulations in practice
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{LLM2Prune: Time Complexity}
+  \begin{block}{Beam Search (One-Time Cost)}
+    \begin{itemize}
+      \item Depth $D_{\max}$, beam width $\beta$, expansion factor $\gamma$:
+        $\mathcal{O}(D_{\max} \cdot \beta \cdot \gamma)$ LLM calls total
+      \item With fixed hyperparameters: \textbf{constant} number of API calls
+      \item Per candidate: GCN training + GNNExplainer on synthetic graph
+        $\mathcal{O}(|V_{\text{syn}}|+|E_{\text{syn}}|)$ per epoch
+      \item Entire beam search run \textbf{once} on synthetic graphs; not repeated
+        per target instance
+    \end{itemize}
+  \end{block}
+
+  \vspace{0.2cm}
+
+  \begin{block}{Inference (Per-Instance Cost)}
+    \begin{itemize}
+      \item Single GCN forward pass on target graph:
+        $\mathcal{O}(|V|+|E|)$
+      \item \textbf{No LLM calls at inference}; matches QuickPrune's per-instance cost
+    \end{itemize}
+  \end{block}
+\end{frame}
+
 % \begin{frame}{QuickPrune: Proof Sketch}
 %   \begin{columns}[T]
 %     \begin{column}{0.48\textwidth}
