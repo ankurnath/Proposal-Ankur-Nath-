@@ -412,6 +412,30 @@ properties such as clustering coefficient and neighbor weight sum. These feature
 require significant domain expertise to design manually, yet LLM2Prune discovers them
 automatically from the task description alone.
 
+
+
+\subsection{Knapsack Constraint Results}
+
+Under the knapsack constraint, only QuickPrune generalizes among prior methods; all
+learning-based baselines are limited to size constraints and cannot be adapted without
+significant redesign. LLM2Prune adapts by modifying the task description provided to the
+LLM, with no changes to the underlying framework. We compare LLM2Prune against
+QuickPrune~\citep{pmlr-v258-nath25a} and TOP-$k$, following~\citep{pmlr-v258-nath25a}.
+
+Figure~\ref{fig:llm2prune-knapsack} shows that LLM2Prune outperforms TOP-$k$ across all
+three problems. Compared to QuickPrune, LLM2Prune achieves higher combined metric on
+MaxCover and IM, and remains competitive on MaxCut. These results demonstrate that
+LLM2Prune generalizes naturally to different constraint types.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\textwidth]{figures/llm2prune/algo_comparison_violin.pdf}
+  \caption{Combined metric under knapsack constraint for LLM2Prune, QuickPrune, and
+    TOP-$k$ across MaxCover, MaxCut, and IM. LLM2Prune outperforms TOP-$k$ on all
+    problems and outperforms QuickPrune on MaxCov and IM.}
+  \label{fig:llm2prune-knapsack}
+\end{figure}
+
 \subsection{Ablation Study}
 
 To justify the choice of beam search, we conducted an ablation study comparing four
@@ -434,26 +458,4 @@ is more complex.
     higher and more stable performance compared to single-shot and simple feedback loop
     variants.}
   \label{fig:llm2prune-ablation}
-\end{figure}
-
-\subsection{Knapsack Constraint Results}
-
-Under the knapsack constraint, only QuickPrune generalizes among prior methods; all
-learning-based baselines are limited to size constraints and cannot be adapted without
-significant redesign. LLM2Prune adapts by modifying the task description provided to the
-LLM, with no changes to the underlying framework. We compare LLM2Prune against
-QuickPrune~\citep{pmlr-v258-nath25a} and TOP-$k$, following~\citep{pmlr-v258-nath25a}.
-
-Figure~\ref{fig:llm2prune-knapsack} shows that LLM2Prune outperforms TOP-$k$ across all
-three problems. Compared to QuickPrune, LLM2Prune achieves higher combined metric on
-MaxCover and IM, and remains competitive on MaxCut. These results demonstrate that
-LLM2Prune generalizes naturally to different constraint types.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.85\textwidth]{figures/llm2prune/algo_comparison_violin.pdf}
-  \caption{Combined metric under knapsack constraint for LLM2Prune, QuickPrune, and
-    TOP-$k$ across MaxCover, MaxCut, and IM. LLM2Prune outperforms TOP-$k$ on all
-    problems and outperforms QuickPrune on MaxCov and IM.}
-  \label{fig:llm2prune-knapsack}
 \end{figure}
