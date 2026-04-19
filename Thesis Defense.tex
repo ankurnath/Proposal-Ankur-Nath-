@@ -73,7 +73,7 @@
   \vspace{0.2cm}
 
   \begin{alertblock}{Core Challenge}
-    The feasible search space is exponential in $|\mathcal{U}|$ --- exact solutions are NP-hard in general.
+    The feasible search space is exponential in $|\mathcal{U}|$; exact solutions are NP-hard in general.
   \end{alertblock}
 \end{frame}
 
@@ -978,7 +978,7 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{Maximum Cut (Knapsack)}
         \textbf{Degree-to-weight ratio}, \textbf{normalized degree},
-        \textbf{neighbor weight sum}, and \textbf{clustering coefficient} ---
+        \textbf{neighbor weight sum}, and \textbf{clustering coefficient}:
         encode cost-efficiency and local structural properties relevant to the cut.
       \end{block}
     \end{column}
@@ -1004,7 +1004,7 @@
       faster at inference on large graphs
     \item Consistently outperforms all learning-based baselines (GCOMB-P, LeNSE,
       COMBHelper) across 3 problems and 8 datasets
-    \item Adapts to knapsack constraints via prompt change only ---
+    \item Adapts to knapsack constraints via prompt change only,
       no algorithmic redesign required
     \item Automatically discovers problem-grounded features without any domain knowledge
   \end{itemize}
@@ -1050,7 +1050,7 @@
 
 \begin{frame}{Conclusion}
   \textbf{Thesis:} Efficient pruning strategies can dramatically scale combinatorial
-  optimization on graphs --- with provable guarantees, without handcrafted features,
+  optimization on graphs: with provable guarantees, without handcrafted features,
   and across diverse constraints.
 
   \vspace{0.3cm}
@@ -1065,7 +1065,7 @@
     \end{column}
     \begin{column}{0.32\textwidth}
       \begin{block}{H-DeepPruner}
-        Demonstrates that \textbf{random features} suffice for learned pruning ---
+        Demonstrates that \textbf{random features} suffice for learned pruning;
         no domain knowledge required. GNN + Neural MCTS captures element
         interdependencies.
       \end{block}
@@ -1110,6 +1110,30 @@
   \vspace{0.3cm}
   \small
   \href{mailto:ankurnath@tamu.edu}{ankurnath@tamu.edu}
+\end{frame}
+
+\section{Supporting Details}
+
+\begin{frame}{QuickPrune: Why $\log(\kappa_{\max}/\kappa_{\min})$ Copies?}
+  The budget range $[\kappa_{\min}, \kappa_{\max}]$ can be large. Instead of running
+  a separate copy for every possible budget, we cover the range with
+  \textbf{geometrically spaced checkpoints}:
+  \[
+    \kappa_{\max},\quad \kappa_{\max}(1-\eta),\quad \kappa_{\max}(1-\eta)^2,\quad \ldots,\quad \kappa_{\min}
+  \]
+  Each checkpoint is a factor $(1-\eta)$ smaller than the previous.
+  The number of steps to go from $\kappa_{\max}$ down to $\kappa_{\min}$ is:
+  \[
+    i^* = \log_{1/(1-\eta)}\!\left(\frac{\kappa_{\max}}{\kappa_{\min}}\right)
+    = \mathcal{O}\!\left(\log\frac{\kappa_{\max}}{\kappa_{\min}}\right)
+  \]
+
+  \begin{exampleblock}{Intuition}
+    Just as halving a number repeatedly reaches $1$ in $\log_2 n$ steps, covering
+    a budget range by shrinking geometrically takes logarithmically many checkpoints.
+    We run one QuickPrune-Single copy per checkpoint, logarithmically many in
+    total, and return their union.
+  \end{exampleblock}
 \end{frame}
 
 % \begin{frame}{QuickPrune: Proof Sketch}
