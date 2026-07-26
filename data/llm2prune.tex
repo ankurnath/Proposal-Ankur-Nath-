@@ -10,7 +10,7 @@ operates only under size constraints and provides no theoretical guarantees.
 A central question remains: \emph{is it possible to design a scalable pruning framework
 that avoids handcrafted features, delivers strong performance across general CO problems
 over graphs, and adapts easily to different constraints?} In this chapter, we present
-LLM2Prune, a framework that uses large language models (LLMs) to automatically generate
+LLM2Prune~\citep{nath2026llmprune}, a framework that uses large language models (LLMs) to automatically generate
 node-level features for a lightweight GNN classifier that predicts which nodes belong in
 the pruned ground set. The feature discovery process is guided by an LLM-directed beam
 search over the feature space, eliminating the need for manual feature engineering while

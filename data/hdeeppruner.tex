@@ -336,12 +336,14 @@ the generality of a learning-based approach with broader constraint support.
 Beyond solution quality, effective pruning also accelerates the downstream heuristic by
 reducing the size of the input it must process. We measure speed-up as
 $S = \text{time}_{\mathcal{U}} / (\text{time}_{\mathcal{U}'} +
-\text{time}_{\text{prune}})$, which accounts for both the heuristic runtime on the pruned
-set and the pruning time itself. H-DeepPruner accelerates heuristics by up to
-40$\times$ by pruning a large fraction of the ground set. The largest speed-ups are
-observed on larger graphs where the reduction in ground set size has the most impact on
-heuristic runtime. Figure~\ref{fig:hdp-speedup} shows the relative speed-up across all
-datasets for MaxCover.
+\text{time}_{\text{prune}})$. Since $\text{time}_{\text{prune}}$ dominates a single run,
+this figure assumes $\mathcal{U}'$ is reused across $r$ downstream runs, amortizing the
+pruning cost: $S_r = \text{time}_{\mathcal{U}} / (\text{time}_{\mathcal{U}'} +
+\text{time}_{\text{prune}}/r)$. Under this amortized regime, H-DeepPruner accelerates
+heuristics by up to 40$\times$. The largest speed-ups are observed on larger graphs where
+the reduction in ground set size has the most impact on heuristic runtime.
+Figure~\ref{fig:hdp-speedup} shows the relative speed-up across all datasets for
+MaxCover.
 
 \begin{figure}[t]
   \centering

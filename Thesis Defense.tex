@@ -311,6 +311,7 @@
     \end{column}
     \begin{column}{0.32\textwidth}
       \begin{block}{\faCheckCircle\; LLM2Prune}
+        \textit{TMLR 2026}~\cite{nath2026llmprune}\\[4pt]
         LLM-directed beam search for \textbf{automated feature discovery}.
         Constraint-adaptive via prompts.
       \end{block}
@@ -504,27 +505,6 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{QuickPrune: Oracle Efficiency}
-  \begin{columns}
-    \begin{column}{0.48\textwidth}
-      \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{figures/quickprune/oracle_calls.pdf}
-        \caption{Oracle calls: SS requires ${\sim}30\times$ more
-          queries than QuickPrune for Maximum Coverage on YouTube.}
-      \end{figure}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{figures/quickprune/alpha_plot.pdf}
-        \caption{Pruning ratio $\alpha(\epsilon, \delta, \gamma)$ from Theorem~2
-          as a function of $\delta$ and $\gamma$-submodularity ($\epsilon = 0.01$).}
-      \end{figure}
-    \end{column}
-  \end{columns}
-\end{frame}
-
 % \begin{frame}{QuickPrune: Knapsack Constraint Results}
 %   QuickPrune achieves the highest combined metric on 45\% of all knapsack
 %   instances tested, outperforming baselines by up to 20\% in retaining
@@ -544,20 +524,6 @@
 
 
 
-\begin{frame}{QuickPrune: Multi-Budget Generalization (Knapsack Constraint)}
-  A single pruned ground set remains effective across all
-  lower budgets under general knapsack constraints.
-
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Wiki.pdf}%
-    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Slashdot.pdf}%
-    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_YouTube.pdf}%
-    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Twitter.pdf}
-    \caption{Influence Maximization under knapsack constraint: $P_r$ remains close to 1.0
-      across budgets on four graphs.}
-  \end{figure}
-\end{frame}
 
 % \begin{frame}{QuickPrune: Application to Image Retrieval}
 %   QuickPrune generalizes beyond social networks. We apply it to \textbf{image retrieval}
@@ -703,24 +669,12 @@
 
   \vspace{0.2cm}
 
-  \begin{columns}
-    \begin{column}{0.48\textwidth}
-      \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{figures/hdeeppruner/violin_plots.pdf}
-        \caption{Combined metric $C$ across all datasets. Despite using no domain
-          knowledge, H-DeepPruner is competitive with feature-engineered methods.}
-      \end{figure}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{figure}
-        \centering
-        \includegraphics[width=\textwidth]{figures/hdeeppruner/speed_up.pdf}
-        \caption{Downstream heuristic speed-up after pruning. Effective pruning
-          translates directly to practical acceleration.}
-      \end{figure}
-    \end{column}
-  \end{columns}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/hdeeppruner/violin_plots.pdf}
+    \caption{Combined metric $C$ across all datasets. Despite using no domain
+      knowledge, H-DeepPruner is competitive with feature-engineered methods.}
+  \end{figure}
 \end{frame}
 
 \begin{frame}{Hierarchical DeepPruner: Limitations}
@@ -901,22 +855,6 @@
       LeNSE, COMBHelper) by a large margin, without relying on domain knowledge.}
   \end{figure}
 \end{frame}
-
-\begin{frame}{LLM2Prune: Runtime (Size Constraint)}
-  \begin{itemize}
-    \item Competitive with classical methods (QuickPrune, SS) on combined metric
-    \item 1--4 orders of magnitude faster at inference on large graphs
-    \item Consistently outperforms all learning-based baselines
-  \end{itemize}
-
-  \begin{figure}
-    \centering
-    \includegraphics[width=0.9\textwidth]{figures/llm2prune/runtimes_radar.pdf}
-    \caption{Inference runtime (log scale) across eight datasets and three applications.
-      LLM2Prune completes in under 3 seconds even on Skitter (1.7M nodes).}
-  \end{figure}
-\end{frame}
-
 
 \begin{frame}{LLM2Prune: Ablation Study}
   \begin{columns}
@@ -1137,6 +1075,42 @@
   \end{exampleblock}
 \end{frame}
 
+\begin{frame}{QuickPrune: Oracle Efficiency}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{figures/quickprune/oracle_calls.pdf}
+        \caption{Oracle calls: SS requires ${\sim}30\times$ more
+          queries than QuickPrune for Maximum Coverage on YouTube.}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{figures/quickprune/alpha_plot.pdf}
+        \caption{Pruning ratio $\alpha(\epsilon, \delta, \gamma)$ from Theorem~2
+          as a function of $\delta$ and $\gamma$-submodularity ($\epsilon = 0.01$).}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{QuickPrune: Multi-Budget Generalization (Knapsack Constraint)}
+  A single pruned ground set remains effective across all
+  lower budgets under general knapsack constraints.
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Wiki.pdf}%
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Slashdot.pdf}%
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_YouTube.pdf}%
+    \includegraphics[width=0.24\textwidth]{figures/quickprune/IM_Twitter.pdf}
+    \caption{Influence Maximization under knapsack constraint: $P_r$ remains close to 1.0
+      across budgets on four graphs.}
+  \end{figure}
+\end{frame}
+
 \begin{frame}{QuickPrune: Time Complexity}
   \begin{block}{QuickPrune-Single}
     \begin{itemize}
@@ -1175,6 +1149,40 @@
       \item Progressive deepening halts at plateau: limits total simulations in practice
     \end{itemize}
   \end{block}
+\end{frame}
+
+\begin{frame}{H-DeepPruner: Speed-up Analysis}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/hdeeppruner/speed_up.pdf}
+    \caption{Downstream heuristic speed-up after pruning, $S = \text{time}_{\mathcal{U}} /
+      (\text{time}_{\mathcal{U}'} + \text{time}_{\text{prune}})$, for Maximum Cover.}
+  \end{figure}
+
+  \vspace{0.2cm}
+
+  \begin{alertblock}{Amortization}
+    A single run's ratio is unfavorable: NMCTS pruning cost dominates the
+    heuristic call it accelerates. The reported speed-ups (up to $40\times$) assume
+    the pruned set $\mathcal{U}'$ is reused across many downstream runs, so that
+    $\text{time}_{\text{prune}}$ is amortized over $r$ reuses:
+    $S_r = \text{time}_{\mathcal{U}} / (\text{time}_{\mathcal{U}'} + \text{time}_{\text{prune}}/r)$.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{LLM2Prune: Runtime (Size Constraint)}
+  \begin{itemize}
+    \item Competitive with classical methods (QuickPrune, SS) on combined metric
+    \item 1--4 orders of magnitude faster at inference on large graphs
+    \item Consistently outperforms all learning-based baselines
+  \end{itemize}
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/llm2prune/runtimes_radar.pdf}
+    \caption{Inference runtime (log scale) across eight datasets and three applications.
+      LLM2Prune completes in under 3 seconds even on Skitter (1.7M nodes).}
+  \end{figure}
 \end{frame}
 
 \begin{frame}{LLM2Prune: Time Complexity}
