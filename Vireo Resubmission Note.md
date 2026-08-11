@@ -1,0 +1,5 @@
+# Vireo Resubmission Note
+
+## Copyright Permissions / Figure & Table Reprints
+
+No copyright permission is required for this manuscript. All reprinted figures and tables originate from the student's own previously published work: "Theoretically Grounded Pruning of Large Ground Sets for Constrained, Discrete Optimization" (AISTATS 2025, PMLR), "Hierarchical DeepPruner: A Novel Framework for Search Space Reduction" (SoCS 2025, AAAI Press), and "LLM2Prune: Using LLMs as Domain Experts for Search Space Reduction" (TMLR 2026). PMLR and TMLR publish under open-access terms with authors retaining copyright, and the AAAI copyright agreement for the SoCS paper explicitly permits authors to reuse their own work in a thesis or dissertation. Each reprinted figure/table caption has been marked accordingly with "Reprinted from" and the corresponding citation.

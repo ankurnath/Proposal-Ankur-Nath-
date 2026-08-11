@@ -69,7 +69,7 @@ space (Figure~\ref{fig:llm2prune-framework}).
     summary, is used to prompt the LLM to propose new features. A second prompt generates
     executable feature extraction code, which is applied to produce features. These are
     evaluated for performance and importance, and the resulting history is carried forward
-    to form child nodes.}
+    to form child nodes. Reprinted from~\citep{nath2026llmprune}.}
   \label{fig:llm2prune-framework}
 \end{figure}
 
@@ -312,7 +312,7 @@ for Maximum Cut and Influence Maximization.
 \caption{Comparison of pruning algorithms under size constraints. Reported are the pruning
   approximation ratio ($P_r$), pruned fraction ($P_g$), and combined metric ($C = P_r
   \cdot P_g$). Results for GCOMB-P, LeNSE, and COMBHelper are reported
-  from~\citep{ireland2022lense, pmlr-v258-nath25a}. ``--'' indicates no reasonable result.}
+  from~\citep{ireland2022lense, pmlr-v258-nath25a}. ``--'' indicates no reasonable result. Reprinted from~\citep{nath2026llmprune}.}
 \label{tab:llm2prune-size}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lccc|ccc|ccc|ccc|ccc|ccc}
@@ -358,7 +358,7 @@ combined metric and runtime, without relying on hand-crafted features.
   \centering
   \includegraphics[width=0.9\textwidth]{figures/llm2prune/runtimes_radar.pdf}
   \caption{Runtime comparison (log scale) of pruning algorithms on Maximum Coverage,
-    Maximum Cut, and Influence Maximization across eight datasets.}
+    Maximum Cut, and Influence Maximization across eight datasets. Reprinted from~\citep{nath2026llmprune}.}
   \label{fig:llm2prune-runtime}
 \end{figure}
 
@@ -374,7 +374,7 @@ problems under both constraint types.
 \centering
 \caption{Features discovered by LLM2Prune for each CO problem and constraint type.
   All features were identified automatically from the task description with no human
-  intervention.}
+  intervention. Reprinted from~\citep{nath2026llmprune}.}
 \label{tab:llm2prune-features}
 \small
 \begin{tabular}{llp{7cm}}
@@ -432,7 +432,7 @@ LLM2Prune generalizes naturally to different constraint types.
   \includegraphics[width=0.85\textwidth]{figures/llm2prune/algo_comparison_violin.pdf}
   \caption{Combined metric under knapsack constraint for LLM2Prune, QuickPrune, and
     TOP-$k$ across MaxCover, MaxCut, and IM. LLM2Prune outperforms TOP-$k$ on all
-    problems and outperforms QuickPrune on MaxCov and IM.}
+    problems and outperforms QuickPrune on MaxCov and IM. Reprinted from~\citep{nath2026llmprune}.}
   \label{fig:llm2prune-knapsack}
 \end{figure}
 
@@ -456,6 +456,6 @@ is more complex.
   \includegraphics[width=\textwidth]{figures/llm2prune/ablation.pdf}
   \caption{Performance comparison of different variants of LLM2Prune. Beam search achieves
     higher and more stable performance compared to single-shot and simple feedback loop
-    variants.}
+    variants. Reprinted from~\citep{nath2026llmprune}.}
   \label{fig:llm2prune-ablation}
 \end{figure}

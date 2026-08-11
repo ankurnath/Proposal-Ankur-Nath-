@@ -26,7 +26,7 @@ elements.
   \includegraphics[width=0.95\textwidth]{figures/hdeeppruner/framework.pdf}
   \caption{Illustration of the H-DeepPruner framework. The process begins with a GNN
     discarding elements unlikely to contribute to an optimal solution. MCTS then
-    iteratively constructs a much smaller ground set with progressive deepening.}
+    iteratively constructs a much smaller ground set with progressive deepening. Reprinted from~\citep{nath2025hdeeppruner}.}
   \label{fig:hdp-framework}
 \end{figure}
 
@@ -162,7 +162,7 @@ update the statistics of all visited nodes, refining the estimates for future de
   \caption{Illustration of MCTS with fixed depth and progressive widening for generating
     a pruned ground set. The search begins with an empty ground set and incrementally adds
     candidate elements. After each depth-limited search, progressive deepening checks
-    whether the objective value improved sufficiently to continue.}
+    whether the objective value improved sufficiently to continue. Reprinted from~\citep{nath2025hdeeppruner}.}
   \label{fig:hdp-mcts}
 \end{figure}
 
@@ -295,7 +295,7 @@ measuring the acceleration of heuristics on the pruned ground set.
   \caption{Violin plots of the combined metric $C = P_r \cdot P_g$ (higher is better) for
     H-DeepPruner and three learning-based baselines across all eight SNAP datasets. Each
     point represents one dataset. H-DeepPruner achieves consistently high $C$ across all
-    three problems without hand-crafted features or domain knowledge.}
+    three problems without hand-crafted features or domain knowledge. Reprinted from~\citep{nath2025hdeeppruner}.}
   \label{fig:hdp-violin}
 \end{figure}
 
@@ -349,7 +349,7 @@ MaxCover.
   \centering
   \includegraphics[width=0.7\textwidth]{figures/hdeeppruner/speed_up.pdf}
   \caption{Relative speed-up of using the heuristic on the pruned ground set for all
-    algorithms across different datasets for Maximum Cover.}
+    algorithms across different datasets for Maximum Cover. Reprinted from~\citep{nath2025hdeeppruner}.}
   \label{fig:hdp-speedup}
 \end{figure}
 
@@ -369,7 +369,7 @@ where $P_r$ drops below 0.85 at low budgets.
   \includegraphics[width=0.7\textwidth]{figures/hdeeppruner/multibudget.pdf}
   \caption{Pruning approximation ratio $P_r$ for Influence Maximization at various budgets,
     using the ground set produced by H-DeepPruner trained at budget $k = 100$. The dashed
-    line marks $P_r = 1$.}
+    line marks $P_r = 1$. Reprinted from~\citep{nath2025hdeeppruner}.}
   \label{fig:hdp-multibudget}
 \end{figure}
 
@@ -401,7 +401,7 @@ where $P_r$ drops below 0.85 at low budgets.
 \begin{table}[t]
 \centering
 \caption{Ablation study: combined metric $C$ for GNN-only versus the full H-DeepPruner
-  (GNN + NMCTS) on the SNAP datasets for budget $k = 100$.}
+  (GNN + NMCTS) on the SNAP datasets for budget $k = 100$. Reprinted from~\citep{nath2025hdeeppruner}.}
 \label{tab:hdp_ablation}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}l ccc ccc ccc ccc ccc ccc@{}}
